@@ -1,0 +1,7 @@
+# https://clang.llvm.org/docs/ClangFormatStyleOptions.html
+# To disable for a line use `// clang-format off`
+BasedOnStyle: LLVM # https://google.github.io/styleguide/cppguide.html
+IndentPPDirectives: BeforeHash
+IndentWidth: 4
+ColumnLimit: 120
+AllowShortEnumsOnASingleLine: false

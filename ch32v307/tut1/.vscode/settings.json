@@ -1,0 +1,28 @@
+{
+    "cortex-debug.armToolchainPath": "/usr/bin",
+    "cortex-debug.openocdPath": "/usr/bin/openocd",
+    "files.associations": {
+        "cstdlib": "cpp",
+        "cmath": "cpp",
+        "*.tcc": "cpp",
+        "atomic": "cpp",
+        "cstdint": "cpp",
+        "algorithm": "cpp",
+        "memory": "cpp",
+        "random": "cpp",
+        "fstream": "cpp",
+        "iosfwd": "cpp",
+        "istream": "cpp",
+        "ostream": "cpp",
+        "numeric": "cpp",
+        "sstream": "cpp",
+        "streambuf": "cpp",
+        "array": "cpp",
+        "string": "cpp",
+        "string_view": "cpp",
+        "type_traits": "cpp",
+        "limits": "cpp",
+        "typeinfo": "cpp"
+    },
+    "cortex-debug.variableUseNaturalFormat": false
+}

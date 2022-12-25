@@ -1,0 +1,12 @@
+%c -std=c11
+%cpp -std=c++17
+%h -x
+%h c++-header
+%h %hpp --include=Base.h
+-Iinc/
+-Ilib/
+-Ihal/inc/
+-Ilwip/inc/
+-Ilwip/src/include/
+-Ilwip/system/
+-Iusr/include/

@@ -1,0 +1,22 @@
+{
+    "configurations": 
+    [
+        {
+            "name": "ch32v307_c_cpp_properties",
+            "compilerPath": "/usr/bin/arm-none-eabi-gcc",
+            "includePath": 
+            [
+                "${workspaceRoot}/inc/",
+                "${workspaceRoot}/lib/"                
+            ],
+            "defines":
+            [
+                "ch32v307xx"
+            ],
+            "cStandard": "c11",
+            "cppStandard": "c++17",
+            "intelliSenseMode": "gcc-x64"
+        }
+    ],
+    "version": 4
+}
