@@ -12,11 +12,21 @@
             "type": "cortex-debug",
             "servertype": "openocd",
             "gdbPath": "/usr/bin/gdb-multiarch",
-            "svdFile": "./lib/CH32V307xx.svd",
-            "searchDir": ["/usr/share/openocd/scripts/"],           
+            // "debuggerArgs": [
+            //     "build/main.elf"
+            // ],
+            "svdFile": "${workspaceRoot}/lib/CH32V307xx.svd",
+            "searchDir": ["/usr/local/share/openocd/scripts/"],
+            "showDevDebugOutput": "both",
+            // "gdbTarget": "localhost:3333",
+            // "debugServer": 3333,
+            // "servertype": "external",
+            // "gdbTarget": "remote:3333",
+            // "runToEntryPoint": "main",
+            //"preLaunchTask": "openocd",            
             "configFiles": 
             [
-                "./lib/wch-riscv.cfg"
+                "${workspaceRoot}/lib/wch-riscv.cfg"
             ]
         }
     ]

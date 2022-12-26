@@ -42,6 +42,14 @@
             "args": [],
             "group": "build",
             "problemMatcher": []
+        }, 
+        {
+            "label": "openocd",
+            "type": "shell",
+            "command": "/opt/openocd/bin/openocd -s /opt/openocd/share/openocd/scripts -f lib/wch-riscv.cfg",
+            "args": [],
+            "group": "build",
+            "problemMatcher": []
         }
     ]
 }
