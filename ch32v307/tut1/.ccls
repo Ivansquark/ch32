@@ -5,8 +5,4 @@
 %h %hpp --include=Base.h
 -Iinc/
 -Ilib/
--Ihal/inc/
--Ilwip/inc/
--Ilwip/src/include/
--Ilwip/system/
 -Iusr/include/

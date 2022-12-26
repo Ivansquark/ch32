@@ -16,7 +16,7 @@
             "searchDir": ["/usr/share/openocd/scripts/"],           
             "configFiles": 
             [
-                "./lib/wch-riscv.cfg.cfg"
+                "./lib/wch-riscv.cfg"
             ]
         }
     ]

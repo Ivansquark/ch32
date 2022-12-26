@@ -34,6 +34,14 @@
             "args": [],
             "group": "build",
             "problemMatcher": []
+        },
+        {
+            "label": "reset",
+            "type": "shell",
+            "command": "make reset",
+            "args": [],
+            "group": "build",
+            "problemMatcher": []
         }
     ]
 }

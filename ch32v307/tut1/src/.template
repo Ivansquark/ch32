@@ -1,0 +1,14 @@
+Toolchain=
+Series=
+Description=
+Address=0x08000000
+Target Path=
+Erase All=true
+Program=false
+Verify=false
+Reset=false
+
+Vendor=WCH
+MCU=CH32V307VCT6
+Mcu Type=CH32V30x
+Link=WCH-Link

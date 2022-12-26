@@ -3,7 +3,7 @@
     [
         {
             "name": "ch32v307_c_cpp_properties",
-            "compilerPath": "/usr/bin/arm-none-eabi-gcc",
+            "compilerPath": "/opt/ch32_riscv_gcc/bin/riscv-none-embed-gcc",
             "includePath": 
             [
                 "${workspaceRoot}/inc/",

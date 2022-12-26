@@ -1,55 +1,59 @@
 # Compiler:
-# arm-none-eabi-gcc --version: === 8.3.1 20190703
+# /opt/ch32_riscv_gcc/bin/riscv-none-embed-gcc --version: === 8.2.0-3.1
 # System debugger:
 # gdb-multiarch --version:	===	GNU gdb 10.1.90.20210103
 # Open On-Chip Debugger:	
 # openocd --version === Open On-Chip Debugger 0.11.0 (2021-10-07-10:32)
-.PHONY: all clean load erase
+.PHONY: all clean load erase reset
 #_________________________ GCC compilator commands ____________________________
-CC = arm-none-eabi-g++
-OBJC = arm-none-eabi-objcopy
-OBJD = arm-none-eabi-objdump
-AS = arm-none-eabi-as
-LD = arm-none-eabi-ld
+GCC_PATH = /opt/ch32_riscv_gcc/bin/riscv-none-embed
+CC = $(GCC_PATH)-gcc
+CPP = $(GCC_PATH)-g++
+OBJC = $(GCC_PATH)-objcopy
+OBJD = $(GCC_PATH)-objdump
+AS = $(GCC_PATH)-as
+LD = $(GCC_PATH)-ld
 
 INC = inc/
 LIB = lib/
 BLD = build/
 SRC = src/
 #///////////////////////////////////
+CFLAGS = -c -Wall -Wextra -g -O0 \
+	   -fno-pic -fno-common \
+	   -Wno-pointer-arith \
+	   -ffast-math -fno-math-errno -ffunction-sections -fdata-sections
 CPPFLAGS = -c -std=c++17 -Wall -Wextra -g -O0 \
 	   -fno-pic -fno-common -D"assert_param(x)=" \
-	   -mcpu=cortex-m4 -mthumb -fno-exceptions \
-	   -Wno-pointer-arith -fno-rtti -mfloat-abi=hard -mfpu=fpv4-sp-d16 \
+	   -fno-exceptions \
+	   -Wno-pointer-arith -fno-rtti \
 	   -ffast-math -fno-math-errno -ffunction-sections -fdata-sections
-LFLAGS = -mthumb -march=armv7e-m -nostartfiles \
+LFLAGS = -nostartfiles \
 		 -specs=nano.specs -specs=nosys.specs -fno-exceptions \
-		 -mfloat-abi=hard -mfpu=fpv4-sp-d16 \
-		 -fno-use-cxa-atexit \
 		 -Xlinker -Map=$(BLD)main.map -Xlinker --gc-sections
+#-fno-use-cxa-atexit \
 #-u_printf_float 
 #для FPU
 	
 all:	$(BLD)main.bin $(BLD)main.lst $(BLD)main.elf
+
+#-------------------------------------- HEX -----------------------------------
 $(BLD)main.bin: $(BLD)main.elf
-	arm-none-eabi-objcopy $(BLD)main.elf $(BLD)main.bin -O binary
-	arm-none-eabi-objcopy $(BLD)main.elf $(BLD)main.hex -O ihex 
+	$(OBJC) $(BLD)main.elf $(BLD)main.bin -O binary
+	$(OBJC) $(BLD)main.elf $(BLD)main.hex -O ihex 
 $(BLD)main.lst: $(BLD)main.elf
-	arm-none-eabi-objdump -D $(BLD)main.elf > $(BLD)main.lst
+	$(OBJD) -D $(BLD)main.elf > $(BLD)main.lst
 
 #------------------------------------  LINKER ---------------------------------
-$(BLD)main.elf: $(BLD)startup.o $(BLD)system_stm32f4xx.o $(BLD)rcc.o
+$(BLD)main.elf: $(BLD)startup_ch32v30x_D8.o $(BLD)system_ch32v30x.o $(BLD)core_riscv.o
 $(BLD)main.elf: $(BLD)main.o				
-	$(CC) -o $@ -T$(LIB)stm32f4.ld $^ -I$(LIB) $(LFLAGS)
+	$(CC) -o $@ -T$(LIB)Link.ld $^ -I$(LIB) $(LFLAGS)
 #    $@ — target name
 #    $< — first dependancy name
 #    $? — all dependancies names, thats newer than target
 #    $^ — all dependencies names of the target
 #	 %	- template for all files
 
-#-------------------------------------- HEX -----------------------------------
-	arm-none-eabi-objcopy -j .text -j .data -j .bss -O ihex \
-	$(BLD)main.elf $(BLD)main.hex
 #-------------------------------------- SIZE ----------------------------------	
 	@echo "*******************************************************"
 	@echo "*******************   SIZE   **************************"
@@ -57,30 +61,35 @@ $(BLD)main.elf: $(BLD)main.o
 	arm-none-eabi-size $(BLD)main.elf
 	@echo "*******************************************************"
 #___________________ BUILD __________________________________	
-$(BLD)%.o: $(LIB)%.cpp
+$(BLD)%.o: $(LIB)%.c
 	@ # **** mutex for parallel execution (mkdir must be locked) ****
 	@if mkdir /var/lock/.myscript.exclusivelock; \
 	then if [ ! -d "$(BLD)" ]; then mkdir $(BLD); fi; \
 	rmdir /var/lock/.myscript.exclusivelock; \
 	fi
-	$(CC) $< -o $@ -I$(INC) -I$(LIB) $(CPPFLAGS)	
+	$(CC) $< -o $@ -I$(INC) -I$(LIB) $(CFLAGS)	
+
+$(BLD)startup_ch32v30x_D8.o: $(LIB)startup_ch32v30x_D8.S
+	$(CC) -c $(LIB)startup_ch32v30x_D8.S -o $(BLD)startup_ch32v30x_D8.o 	
 #_____________________________________________________________________________
 #_________________________ Basic functions ___________________________________	
 #_____________________________________________________________________________
-$(BLD)%.o: $(SRC)%.cpp
+$(BLD)%.o: $(SRC)%.c
 	@ # **** mutex for parallel execution (mkdir must be locked) ****
 	@if mkdir /var/lock/.myscript.exclusivelock; \
 	then if [ ! -d "$(BLD)" ]; then mkdir $(BLD); fi; \
 	rmdir /var/lock/.myscript.exclusivelock; \
 	fi
-	$(CC) $< -o $@ -I$(INC) -I$(LIB) $(CPPFLAGS)
+	$(CC) $< -o $@ -I$(INC) -I$(LIB) $(CFLAGS)
 clean:
 	rm -rf build 
 	
 load:	$(BLD)main.bin
-	openocd -f lib/stlink.cfg -f lib/stm32f4x.cfg -c "program $(BLD)main.bin \
+	openocd -s /usr/local/share/openocd/scripts -f lib/wch-riscv.cfg -c init -c halt -c "program $(BLD)main.bin \
 	verify reset exit 0x08000000"
 
 erase:
-	openocd -f lib/stlink.cfg -f lib/stm32f4x.cfg -c "init" -c \
-		"halt" -c "wait_halt" -c "stm32f4x mass_erase 0" -c "exit"
+	openocd -s /usr/local/share/openocd/scripts -f lib/wch-riscv.cfg -c "init" -c \
+		"halt" -c "wait_halt" -c "flash erase_sector wch_riscv 0 last" -c "exit"
+reset:
+	openocd -s /usr/local/share/openocd/scripts -f lib/wch-riscv.cfg -c init -c halt -c wlink_reset_resume -c exit
