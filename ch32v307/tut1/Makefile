@@ -85,11 +85,10 @@ clean:
 	rm -rf build 
 	
 load:	$(BLD)main.bin
-	openocd -s /usr/local/share/openocd/scripts -f lib/wch-riscv.cfg -c init -c halt -c "program $(BLD)main.bin \
-	verify reset exit 0x08000000"
+	/opt/openocd/bin/openocd -s /opt/openocd/share/openocd/scripts -f lib/wch-riscv.cfg -c init -c halt -c "program $(BLD)main.bin"
 
 erase:
-	openocd -s /usr/local/share/openocd/scripts -f lib/wch-riscv.cfg -c "init" -c \
-		"halt" -c "wait_halt" -c "flash erase_sector wch_riscv 0 last" -c "exit"
+	/opt/openocd/bin/openocd -s /opt/openocd/share/openocd/scripts -f lib/wch-riscv.cfg \
+	-c init -c halt -c "flash erase_sector wch_riscv 0 last" -c exit
 reset:
-	openocd -s /usr/local/share/openocd/scripts -f lib/wch-riscv.cfg -c init -c halt -c wlink_reset_resume -c exit
+	/opt/openocd/bin/openocd -s /opt/openocd/share/openocd/scripts -f lib/wch-riscv.cfg -c init -c halt -c wlink_reset_resume -c exit
