@@ -45,7 +45,9 @@ $(BLD)main.lst: $(BLD)main.elf
 	$(OBJD) -D $(BLD)main.elf > $(BLD)main.lst
 
 #------------------------------------  LINKER ---------------------------------
-$(BLD)main.elf: $(BLD)startup_ch32v30x_D8.o $(BLD)system_ch32v30x.o $(BLD)core_riscv.o
+#$(BLD)main.elf: $(BLD)startup_ch32v30x_D8.o
+$(BLD)main.elf: $(BLD)system_ch32v30x.o
+$(BLD)main.elf:	$(BLD)core_riscv.o $(BLD)startup.o
 $(BLD)main.elf: $(BLD)main.o				
 	$(CC) -o $@ -T$(LIB)Link.ld $^ -I$(LIB) $(LFLAGS)
 #    $@ — target name
@@ -68,9 +70,9 @@ $(BLD)%.o: $(LIB)%.c
 	rmdir /var/lock/.myscript.exclusivelock; \
 	fi
 	$(CC) $< -o $@ -I$(INC) -I$(LIB) $(CFLAGS)	
-
-$(BLD)startup_ch32v30x_D8.o: $(LIB)startup_ch32v30x_D8.S
-	$(CC) -c $(LIB)startup_ch32v30x_D8.S -o $(BLD)startup_ch32v30x_D8.o 	
+# ASM startup
+#$(BLD)startup_ch32v30x_D8.o: $(LIB)startup_ch32v30x_D8.S
+#	$(CC) -c $(LIB)startup_ch32v30x_D8.S -o $(BLD)startup_ch32v30x_D8.o 	
 #_____________________________________________________________________________
 #_________________________ Basic functions ___________________________________	
 #_____________________________________________________________________________
@@ -85,10 +87,16 @@ clean:
 	rm -rf build 
 	
 load:	$(BLD)main.bin
-	/opt/openocd/bin/openocd -s /opt/openocd/share/openocd/scripts -f lib/wch-riscv.cfg -c init -c halt -c "program $(BLD)main.bin"
+	/opt/openocd/bin/openocd -s /opt/openocd/share/openocd/scripts \
+	-f lib/wch-riscv.cfg -c init -c halt \
+	-c "flash erase_sector wch_riscv 0 last" \
+	-c "program $(BLD)main.bin verify" \
+	-c "wlink_reset_resume" -c exit
 
 erase:
-	/opt/openocd/bin/openocd -s /opt/openocd/share/openocd/scripts -f lib/wch-riscv.cfg \
-	-c init -c halt -c "flash erase_sector wch_riscv 0 last" -c exit
+	/opt/openocd/bin/openocd -s /opt/openocd/share/openocd/scripts \
+	   -f lib/wch-riscv.cfg -c init -c halt \
+	   -c "flash erase_sector wch_riscv 0 last" -c exit
 reset:
-	/opt/openocd/bin/openocd -s /opt/openocd/share/openocd/scripts -f lib/wch-riscv.cfg -c init -c halt -c wlink_reset_resume -c exit
+	/opt/openocd/bin/openocd -s /opt/openocd/share/openocd/scripts \
+	-f lib/wch-riscv.cfg -c init -c halt -c wlink_reset_resume -c exit
