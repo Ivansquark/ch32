@@ -9,6 +9,7 @@
 //    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
 //    GPIO_Init(GPIOA, &GPIO_InitStructure);
 //}
+
 int main(void) {
     uint8_t i = 0;
     int y = 0;
@@ -20,7 +21,6 @@ int main(void) {
     RCC->APB2PCENR |= RCC_IOPBEN;
     GPIOB->CFGLR |= GPIO_CFGLR_MODE4;
     GPIOB->CFGLR &= ~GPIO_CFGLR_CNF4;
-    
 
 
     while (1) {

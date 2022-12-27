@@ -5,4 +5,4 @@
 %h %hpp --include=Base.h
 -Iinc/
 -Ilib/
--I/opt/ch32_riscv_gcc/riscv-none-embed/include/
+-Iusr/include/
