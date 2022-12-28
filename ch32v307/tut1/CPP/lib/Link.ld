@@ -122,7 +122,9 @@ SECTIONS
     } >FLASH AT>FLASH
     .data :
     {
+        . = ALIGN(4);
         *(.gnu.linkonce.r.*)
+        . = ALIGN(4);
         *(.data .data.*)
         *(.gnu.linkonce.d.*)
         . = ALIGN(8);
@@ -155,6 +157,7 @@ SECTIONS
 
     PROVIDE( _end = _ebss);
     PROVIDE( end = . );
+    
     .stack ORIGIN(RAM) + LENGTH(RAM) - __stack_size :
     {
         PROVIDE( _heap_end = . );    

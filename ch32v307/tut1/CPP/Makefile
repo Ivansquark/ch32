@@ -18,6 +18,8 @@ INC = inc/
 LIB = lib/
 BLD = build/
 SRC = src/
+perINC = Peripheral/inc/
+perSRC = Peripheral/src/
 #///////////////////////////////////
 CFLAGS = -c -Wall -Wextra -g -O0 \
 	   -fno-pic -fno-common \
@@ -46,8 +48,9 @@ $(BLD)main.lst: $(BLD)main.elf
 
 #------------------------------------  LINKER ---------------------------------
 $(BLD)main.elf:	$(BLD)core_riscv.o $(BLD)startup.o
-$(BLD)main.elf: $(BLD)rcc.o
-$(BLD)main.elf: $(BLD)main.o				
+$(BLD)main.elf: $(BLD)ch32v30x_i2c.o $(BLD)ch32v30x_rcc.o
+$(BLD)main.elf: $(BLD)rcc.o $(BLD)eeprom.o
+$(BLD)main.elf: $(BLD)main.o
 	$(CPP) -o $@ -T$(LIB)Link.ld $^ -I$(LIB) $(LFLAGS)
 #    $@ — target name
 #    $< — first dependancy name
@@ -81,7 +84,14 @@ $(BLD)%.o: $(SRC)%.cpp
 	then if [ ! -d "$(BLD)" ]; then mkdir $(BLD); fi; \
 	rmdir /var/lock/.myscript.exclusivelock; \
 	fi
-	$(CPP) $< -o $@ -I$(INC) -I$(LIB) $(CFLAGS)
+	$(CPP) $< -o $@ -I$(INC) -I$(LIB) -I$(perINC) $(CPPFLAGS)
+$(BLD)%.o: $(perSRC)%.cpp
+	@ # **** mutex for parallel execution (mkdir must be locked) ****
+	@if mkdir /var/lock/.myscript.exclusivelock; \
+	then if [ ! -d "$(BLD)" ]; then mkdir $(BLD); fi; \
+	rmdir /var/lock/.myscript.exclusivelock; \
+	fi
+	$(CPP) $< -o $@ -I$(INC) -I$(LIB) -I$(perINC) $(CPPFLAGS)
 clean:
 	rm -rf build 
 	
@@ -89,7 +99,6 @@ load:	$(BLD)main.bin
 	/opt/openocd/bin/openocd -s /usr/local/share/openocd/scripts \
 	-f lib/wch-riscv.cfg -c init -c halt \
 	-c "flash erase_sector wch_riscv 0 last" \
-	-c "wlink_reset_resume" \
 	-c init -c halt -c "program $(BLD)main.bin verify exit"
 # must be boot0 to map flash from 0 to 0x08000000
 
@@ -107,5 +116,5 @@ load_gdb:
 	   -c "flash erase_sector wch_riscv 0 last" -c exit
 	/opt/openocd/bin/openocd -s /opt/openocd/share/openocd/scripts \
 	-f lib/wch-riscv.cfg &
-	gdb-multiarch build/main.elf load q y
+	gdb-multiarch build/main.elf load
 	killall -9 openocd

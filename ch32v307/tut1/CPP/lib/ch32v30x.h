@@ -4581,6 +4581,7 @@ typedef struct
 #define  RCC_WWDGEN                      ((uint32_t)0x00000800)        /* Window Watchdog clock enable */
 #define  RCC_USART2EN                    ((uint32_t)0x00020000)        /* USART 2 clock enable */
 #define  RCC_I2C1EN                      ((uint32_t)0x00200000)        /* I2C 1 clock enable */
+#define  RCC_I2C2EN                      ((uint32_t)0x00400000)        /* I2C 2 clock enable */
 
 #define  RCC_BKPEN                       ((uint32_t)0x08000000)        /* Backup interface clock enable */
 #define  RCC_PWREN                       ((uint32_t)0x10000000)        /* Power interface clock enable */

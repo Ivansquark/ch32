@@ -252,16 +252,24 @@ extern void *__global_pointer, *_eusrstack;                  // from .ld
 
 void __attribute__((naked, noreturn)) Reset_Handler() {
     // set ??? (global pointer to linux)
-    asm("la gp, __global_pointer$");
+    //asm("la gp, __global_pointer$");
     // set stack
     asm("la sp, _eusrstack");
     void** pSource;
     void** pDest;
     // copy data section from flash to RAM
-    for (pSource = &_data_lma, pDest = &_data_vma; pDest != &_edata;
-         pSource++, pDest++) {
+    pSource = &_data_lma, pDest = &_data_vma;
+    while(pDest < &_edata) {
         *pDest = *pSource;
+        pSource++; pDest++;
     }
+    //for (pSource = &_data_lma, pDest = &_data_vma; pDest != &_edata;
+    //     pSource++, pDest++) {
+    //    if(pDest > &_edata) {
+    //        break;
+    //    }
+    //    *pDest = *pSource;
+    //}
     // clear bss section
     for (pDest = &_sbss; pDest != &_ebss; pDest++) { *pDest = 0; }
 

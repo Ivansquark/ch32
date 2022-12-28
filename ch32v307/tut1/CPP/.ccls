@@ -4,5 +4,6 @@
 %h c++-header
 %h %hpp --include=Base.h
 -Iinc/
+-IPeripheral/inc/
 -Ilib/
 -I/opt/ch32_riscv_gcc/riscv-none-embed/include/
