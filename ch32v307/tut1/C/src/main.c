@@ -9,6 +9,7 @@
 //    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
 //    GPIO_Init(GPIOA, &GPIO_InitStructure);
 //}
+void delay(volatile uint32_t val);
 int main(void) {
     uint8_t i = 0;
     int y = 0;
@@ -20,8 +21,6 @@ int main(void) {
     RCC->APB2PCENR |= RCC_IOPBEN;
     GPIOB->CFGLR |= GPIO_CFGLR_MODE4;
     GPIOB->CFGLR &= ~GPIO_CFGLR_CNF4;
-    
-
 
     while (1) {
         // GPIO_WriteBit(GPIOA, GPIO_Pin_0, (i == 0) ? (i = Bit_SET) : (i =
@@ -30,9 +29,13 @@ int main(void) {
         y = i;
         GPIOA->BSHR |= GPIO_BSHR_BS15;
         GPIOB->BSHR |= GPIO_BSHR_BR4;
-        for(volatile int i = 0; i < 100000; i++) {}
+        delay(1000000);
         GPIOA->BSHR |= GPIO_BSHR_BR15;
         GPIOB->BSHR |= GPIO_BSHR_BS4;
-        for(volatile int i = 0; i < 100000; i++) {}
+        delay(1000000);
     }
+}
+
+void delay(volatile uint32_t val) {
+    while (val--) {}
 }

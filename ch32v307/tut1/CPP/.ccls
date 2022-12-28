@@ -1,0 +1,8 @@
+%c -std=c11
+%cpp -std=c++17
+%h -x
+%h c++-header
+%h %hpp --include=Base.h
+-Iinc/
+-Ilib/
+-I/opt/ch32_riscv_gcc/riscv-none-embed/include/

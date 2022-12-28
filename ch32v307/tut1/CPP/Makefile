@@ -30,9 +30,8 @@ CPPFLAGS = -c -std=c++17 -Wall -Wextra -g -O0 \
 	   -ffast-math -fno-math-errno -ffunction-sections -fdata-sections
 LFLAGS = -nostartfiles \
 		 -specs=nano.specs -specs=nosys.specs -fno-exceptions \
+		 -fno-use-cxa-atexit \
 		 -Xlinker -Map=$(BLD)main.map -Xlinker --gc-sections
-ASFLAGS = -march=rv32imac -mabi=ilp32
-#-fno-use-cxa-atexit \
 #-u_printf_float 
 #для FPU
 	
@@ -46,9 +45,10 @@ $(BLD)main.lst: $(BLD)main.elf
 	$(OBJD) -D $(BLD)main.elf > $(BLD)main.lst
 
 #------------------------------------  LINKER ---------------------------------
-$(BLD)main.elf:	$(BLD)startup_as.o
-$(BLD)main.elf: $(BLD)main.o
-	$(CC) -o $@ -T$(LIB)Link.ld $^ -I$(LIB) $(LFLAGS)
+$(BLD)main.elf:	$(BLD)core_riscv.o $(BLD)startup.o
+$(BLD)main.elf: $(BLD)rcc.o
+$(BLD)main.elf: $(BLD)main.o				
+	$(CPP) -o $@ -T$(LIB)Link.ld $^ -I$(LIB) $(LFLAGS)
 #    $@ — target name
 #    $< — first dependancy name
 #    $? — all dependancies names, thats newer than target
@@ -62,27 +62,26 @@ $(BLD)main.elf: $(BLD)main.o
 	arm-none-eabi-size $(BLD)main.elf
 	@echo "*******************************************************"
 #___________________ BUILD __________________________________	
-$(BLD)startup_as.o: $(LIB)startup_as.S
+$(BLD)%.o: $(LIB)%.cpp
 	@ # **** mutex for parallel execution (mkdir must be locked) ****
 	@if mkdir /var/lock/.myscript.exclusivelock; \
 	then if [ ! -d "$(BLD)" ]; then mkdir $(BLD); fi; \
 	rmdir /var/lock/.myscript.exclusivelock; \
 	fi
-	$(AS) -c $(LIB)startup_as.S -o $(BLD)startup_as.o $(ASFLAGS)
-	$(OBJD) -dr -S $(BLD)startup_as.o > $(BLD)startup_as.lst
+	$(CPP) $< -o $@ -I$(INC) -I$(LIB) $(CPPFLAGS)	
+# ASM startup
+#$(BLD)startup_ch32v30x_D8.o: $(LIB)startup_ch32v30x_D8.S
+#	$(CC) -c $(LIB)startup_ch32v30x_D8.S -o $(BLD)startup_ch32v30x_D8.o 	
 #_____________________________________________________________________________
 #_________________________ Basic functions ___________________________________	
 #_____________________________________________________________________________
-$(BLD)%.o: $(SRC)%.S
+$(BLD)%.o: $(SRC)%.cpp
 	@ # **** mutex for parallel execution (mkdir must be locked) ****
 	@if mkdir /var/lock/.myscript.exclusivelock; \
 	then if [ ! -d "$(BLD)" ]; then mkdir $(BLD); fi; \
 	rmdir /var/lock/.myscript.exclusivelock; \
 	fi
-	#$(CC) -E -c $< -o $@ $(ASFLAGS) -I$(INC) -I$(LIB)
-	$(CC) -E -c $(INC)defs.S -o $(BLD)defs.S $(ASFLAGS) -I$(INC) -I$(LIB)
-	$(CC) -c $(SRC)main.S -o $(BLD)main.o $(ASFLAGS) -I$(INC)
-	$(OBJD) -dr -S $(BLD)main.o > $(BLD)main.lst
+	$(CPP) $< -o $@ -I$(INC) -I$(LIB) $(CFLAGS)
 clean:
 	rm -rf build 
 	

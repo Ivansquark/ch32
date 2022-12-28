@@ -1,3 +1,5 @@
+extern "C" {
+
 void Reset_Handler();
 void Default_Handler();
 void _start();
@@ -203,12 +205,55 @@ void (*vectors[])() __attribute__((section(".vector"))) = {
     DMA2_Channel10_IRQHandler,  /* DMA2 Channel 10 */
     DMA2_Channel11_IRQHandler   /* DMA2 Channel 11 */
 };
+// from linker
+extern void (*__preinit_array_start[])(void) __attribute__((weak));
+extern void (*__preinit_array_end[])(void) __attribute__((weak));
+// from linker constructors
+extern void (*__init_array_start[])(void) __attribute__((weak));
+extern void (*__init_array_end[])(void) __attribute__((weak));
+// from linker destructors
+extern void (*__fini_array_start[])(void) __attribute__((weak));
+extern void (*__fini_array_end[])(void) __attribute__((weak));
+// dummy This section holds executable instructions that contribute to the
+// process initialization code. When a program starts to run, the system
+// arranges to execute the code in this section before calling the main
+// program entry point (called main for C programs).
+void __attribute__((weak)) _init(void) {}
+// dummy заглушка This section holds executable instructions that contribute
+// to the process termination code. That is, when a program exits normally,
+// the system arranges to execute the code in this section
+void __attribute__((weak)) _fini(void) {}
+
+/* Iterate over all the init routines.  */
+void __libc_init_array(void) {
+    // static initialization constructors function
+    int count;
+    int i;
+    // counts of preinit functions DK what it is
+    count = __preinit_array_end - __preinit_array_start;
+    for (i = 0; i < count; i++) __preinit_array_start[i]();
+    _init();
+    // counts of init constructors
+    count = __init_array_end - __init_array_start;
+    for (i = 0; i < count; i++) __init_array_start[i]();
+}
+/* Run all the cleanup routines.  */
+void __libc_fini_array(void) {
+    //!< destructors not usefull in microcontrollers
+    int count;
+    int i;
+    count = __fini_array_end - __fini_array_start;
+    for (i = count; i > 0; i--) { __fini_array_start[i - 1](); }
+    _fini();
+}
 
 extern void *_data_lma, *_data_vma, *_edata, *_sbss, *_ebss; // from .ld
-extern void *__global_pointer, *_eusrstack; // from .ld
+extern void *__global_pointer, *_eusrstack;                  // from .ld
 
 void __attribute__((naked, noreturn)) Reset_Handler() {
+    // set ??? (global pointer to linux)
     asm("la gp, __global_pointer$");
+    // set stack
     asm("la sp, _eusrstack");
     void** pSource;
     void** pDest;
@@ -224,14 +269,17 @@ void __attribute__((naked, noreturn)) Reset_Handler() {
     asm("li t0, 0x0b");
     asm("csrw 0x804, t0");
 
-    /* Enable floating point and interrupt */
-    asm("li t0, 0x6088");
-    asm("csrw mstatus, t0");
 
     // set start address of vector table
     asm("la t0, vectors");
     asm("ori t0, t0, 3"); // add to low bits
     asm("csrw mtvec, t0");
+
+    __libc_init_array();
+    
+    /* Enable floating point and interrupt */
+    asm("li t0, 0x6088");
+    asm("csrw mstatus, t0");
 
     // asm("jal SystemInit");
     asm("la t0, main");
@@ -241,6 +289,7 @@ void __attribute__((naked, noreturn)) Reset_Handler() {
     // main();
     while (1) {}
 }
-void Default_Handler() {
+extern "C" void Default_Handler() {
     while (1) {}
+}
 }
