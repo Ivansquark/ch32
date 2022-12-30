@@ -5,7 +5,7 @@ function_to_fork1() {
     echo "|                  ***   GDB  ***                   |"
     echo "+---------------------------------------------------+"
     gdb-multiarch
-    //killall -9 openocd
+    killall -9 openocd
 }
 
 # ... execution continues in parent process ..
@@ -34,3 +34,6 @@ killall -9 openocd
 echo "+---------------------------------------------------+"
 echo "|         ***  OPENOCD  KILLED ***                  |"
 echo "+---------------------------------------------------+"
+
+
+# not always close openocd

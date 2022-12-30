@@ -1,0 +1,24 @@
+#ifndef GPIO_H
+#define GPIO_H
+
+#include "main.h"
+
+namespace Gpio {
+
+namespace In {
+void init();
+inline bool isA0() { return (GPIOA->INDR & GPIO_INDR_IDR0); }
+} // namespace In
+
+namespace Out {
+void init();
+inline void setRed() { GPIOA->BSHR |= GPIO_BSHR_BS15; }
+inline void resetRed() { GPIOA->BSHR |= GPIO_BSHR_BR15; }
+inline void setBlue() { GPIOB->BSHR |= GPIO_BSHR_BS4; }
+inline void resetBlue() { GPIOB->BSHR |= GPIO_BSHR_BR4; }
+
+} // namespace Out
+
+} // namespace Gpio
+
+#endif // GPIO_H

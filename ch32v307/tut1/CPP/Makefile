@@ -21,11 +21,11 @@ SRC = src/
 perINC = Peripheral/inc/
 perSRC = Peripheral/src/
 #///////////////////////////////////
-CFLAGS = -c -Wall -Wextra -g -O0 \
+CFLAGS = -c -Wall -Wextra -g -Of \
 	   -fno-pic -fno-common \
 	   -Wno-pointer-arith \
 	   -ffast-math -fno-math-errno -ffunction-sections -fdata-sections
-CPPFLAGS = -c -std=c++17 -Wall -Wextra -g -O0 \
+CPPFLAGS = -c -std=c++17 -Wall -Wextra -g3 -O0 \
 	   -fno-pic -fno-common -D"assert_param(x)=" \
 	   -fno-exceptions \
 	   -Wno-pointer-arith -fno-rtti \
@@ -49,7 +49,8 @@ $(BLD)main.lst: $(BLD)main.elf
 #------------------------------------  LINKER ---------------------------------
 $(BLD)main.elf:	$(BLD)core_riscv.o $(BLD)startup.o
 $(BLD)main.elf: $(BLD)ch32v30x_i2c.o $(BLD)ch32v30x_rcc.o
-$(BLD)main.elf: $(BLD)rcc.o $(BLD)eeprom.o
+$(BLD)main.elf: $(BLD)rcc.o $(BLD)eeprom.o $(BLD)gpio.o
+$(BLD)main.elf: $(BLD)basic_timer.o $(BLD)systim.o
 $(BLD)main.elf: $(BLD)main.o
 	$(CPP) -o $@ -T$(LIB)Link.ld $^ -I$(LIB) $(LFLAGS)
 #    $@ — target name

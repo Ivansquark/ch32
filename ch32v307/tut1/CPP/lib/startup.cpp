@@ -109,11 +109,14 @@ void (*vectors[])() __attribute__((section(".vector"))) = {
     0,                       /* zero */
     Ecall_M_Mode_Handler,    /* Ecall M Mode */
     0,                       /* zero */
-    0, Ecall_U_Mode_Handler, /* Ecall U Mode */
+    0,                       /* zero */
+    Ecall_U_Mode_Handler,    /* Ecall U Mode */
     Break_Point_Handler,     /* Break Point */
     0,                       /* zero */
-    0, SysTick_Handler,      /* SysTick */
-    0, SW_Handler,           /* SW */
+    0,                       /* zero */
+    SysTick_Handler,         /* SysTick */
+    0,                       /* zero */
+    SW_Handler,              /* SW */
     0,                       /* zero */
     /* External Interrupts */
     WWDG_IRQHandler,            /* Window Watchdog */
@@ -274,7 +277,7 @@ void __attribute__((naked, noreturn)) Reset_Handler() {
     for (pDest = &_sbss; pDest != &_ebss; pDest++) { *pDest = 0; }
 
     /* Enable nested and hardware stack */
-    asm("li t0, 0x0b");
+    asm("li t0, 0x1f");
     asm("csrw 0x804, t0");
 
 
@@ -286,8 +289,13 @@ void __attribute__((naked, noreturn)) Reset_Handler() {
     __libc_init_array();
     
     /* Enable floating point and interrupt */
-    asm("li t0, 0x6088");
-    asm("csrw mstatus, t0");
+    //asm("li t0, 0x6088");
+    //asm("csrw mstatus, t0");
+    
+    //enable interrupt
+    //__asm volatile ("csrw 0x800, %0" : : "r" (0x6088) );
+    //disable interrupt
+    __asm volatile ("csrw 0x800, %0" : : "r" (0x6000) );
 
     // asm("jal SystemInit");
     asm("la t0, main");

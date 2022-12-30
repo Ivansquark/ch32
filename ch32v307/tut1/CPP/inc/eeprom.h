@@ -13,7 +13,7 @@ class Eeprom {
         
   private:
     void init();
-    static constexpr uint8_t ADDRESS_R = 0xA1;
+    static constexpr uint8_t ADDRESS_R = 0xA0;
     static constexpr uint8_t ADDRESS_W = 0xA0;
 };
 
