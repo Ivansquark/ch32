@@ -11,6 +11,8 @@ bool getIsTimeout();
 void setIsTimeout(bool state);
 } // namespace SysTim
 
-extern "C" __attribute__((interrupt)) void SysTick_Handler(void);
+extern "C" 
+__attribute__((interrupt))
+void SysTick_Handler(void);
 
 #endif // SYSTIM

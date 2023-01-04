@@ -48,8 +48,8 @@ $(BLD)main.lst: $(BLD)main.elf
 
 #------------------------------------  LINKER ---------------------------------
 $(BLD)main.elf:	$(BLD)core_riscv.o $(BLD)startup.o
-$(BLD)main.elf: $(BLD)ch32v30x_i2c.o $(BLD)ch32v30x_rcc.o
-$(BLD)main.elf: $(BLD)rcc.o $(BLD)eeprom.o $(BLD)gpio.o
+$(BLD)main.elf: $(BLD)ch32v30x_i2c.o $(BLD)ch32v30x_spi.o $(BLD)ch32v30x_rcc.o
+$(BLD)main.elf: $(BLD)rcc.o $(BLD)eeprom.o $(BLD)gpio.o $(BLD)w25q.o
 $(BLD)main.elf: $(BLD)basic_timer.o $(BLD)systim.o
 $(BLD)main.elf: $(BLD)main.o
 	$(CPP) -o $@ -T$(LIB)Link.ld $^ -I$(LIB) $(LFLAGS)
