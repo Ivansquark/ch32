@@ -4,11 +4,17 @@
 #include "main.h"
 
 namespace SysTim {
-void init(uint64_t reload_val);
+// 10 us irq
+void init(uint64_t reload_val = 1440);
 void start();
 void stop();
 bool getIsTimeout();
 void setIsTimeout(bool state);
+
+uint32_t getCounter();
+void setCounter(uint32_t val);
+
+void delay_10us(uint32_t times);
 } // namespace SysTim
 
 extern "C" 

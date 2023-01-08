@@ -2,7 +2,8 @@
 
 namespace SysTim {
 bool IsTimeout = false;
-}
+uint32_t counter = 0;
+} // namespace SysTim
 
 void SysTim::init(uint64_t reload_val) {
     SysTick->CTLR |= (1 << 2); // 1: HCLK selected as time base
@@ -22,8 +23,16 @@ void SysTim::stop() {
 
 bool SysTim::getIsTimeout() { return IsTimeout; }
 void SysTim::setIsTimeout(bool state) { IsTimeout = state; }
+uint32_t SysTim::getCounter() { return counter; }
+void SysTim::setCounter(uint32_t val) { counter = val; }
 
-void SysTick_Handler(void) { 
+void SysTim::delay_10us(uint32_t times) {
+    counter = 0;
+    while (counter < times) {}
+}
+
+void SysTick_Handler(void) {
     SysTim::IsTimeout = true;
+    SysTim::counter++;
     SysTick->SR = 0;
 }

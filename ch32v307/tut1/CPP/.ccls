@@ -9,5 +9,8 @@
 -Iinc/
 -IPeripheral/inc/
 -Ilib/
+-ILWIP/include/
+-ILWIP/arch/
+-ILWIP/
 -isystem/opt/ch32_riscv_gcc/riscv-none-embed/include/
 #-I/opt/ch32_riscv_gcc/riscv-none-embed/include/

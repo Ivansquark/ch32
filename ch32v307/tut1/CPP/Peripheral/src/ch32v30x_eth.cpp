@@ -1302,11 +1302,11 @@ FlagStatus ETH_GetlinkStaus(void)
 
     if((ETH->DMASR & 0x80000000) != (uint32_t)RESET)
     {
-        bitstatus = PHY_10BASE_T_LINKED;
+        bitstatus = (FlagStatus)PHY_10BASE_T_LINKED;
     }
     else
     {
-        bitstatus = PHY_10BASE_T_NOT_LINKED;
+        bitstatus = (FlagStatus)PHY_10BASE_T_NOT_LINKED;
     }
 
     return bitstatus;

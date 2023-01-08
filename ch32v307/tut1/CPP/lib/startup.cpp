@@ -56,6 +56,7 @@ void USART2_IRQHandler() __attribute__((weak, alias("Default_Handler")));
 void USART3_IRQHandler() __attribute__((weak, alias("Default_Handler")));
 void EXTI15_10_IRQHandler() __attribute__((weak, alias("Default_Handler")));
 void RTCAlarm_IRQHandler() __attribute__((weak, alias("Default_Handler")));
+void USBWakeUp_IRQHandler() __attribute__((weak, alias("Default_Handler")));
 void TIM8_BRK_IRQHandler() __attribute__((weak, alias("Default_Handler")));
 void TIM8_UP_IRQHandler() __attribute__((weak, alias("Default_Handler")));
 void TIM8_TRG_COM_IRQHandler() __attribute__((weak, alias("Default_Handler")));
@@ -74,7 +75,16 @@ void DMA2_Channel2_IRQHandler() __attribute__((weak, alias("Default_Handler")));
 void DMA2_Channel3_IRQHandler() __attribute__((weak, alias("Default_Handler")));
 void DMA2_Channel4_IRQHandler() __attribute__((weak, alias("Default_Handler")));
 void DMA2_Channel5_IRQHandler() __attribute__((weak, alias("Default_Handler")));
+void ETH_IRQHandler() __attribute__((weak, alias("Default_Handler")));
+void ETH_WKUP_IRQHandler() __attribute__((weak, alias("Default_Handler")));
+void CAN2_TX_IRQHandler() __attribute__((weak, alias("Default_Handler")));
+void CAN2_RX0_IRQHandler() __attribute__((weak, alias("Default_Handler")));
+void CAN2_RX1_IRQHandler() __attribute__((weak, alias("Default_Handler")));
+void CAN2_SCE_IRQHandler() __attribute__((weak, alias("Default_Handler")));
 void OTG_FS_IRQHandler() __attribute__((weak, alias("Default_Handler")));
+void USBHSWakeup_IRQHandler() __attribute__((weak, alias("Default_Handler")));
+void USBHS_IRQHandler() __attribute__((weak, alias("Default_Handler")));
+void DVP_IRQHandler() __attribute__((weak, alias("Default_Handler")));
 void UART6_IRQHandler() __attribute__((weak, alias("Default_Handler")));
 void UART7_IRQHandler() __attribute__((weak, alias("Default_Handler")));
 void UART8_IRQHandler() __attribute__((weak, alias("Default_Handler")));
@@ -161,7 +171,7 @@ void (*vectors[])() __attribute__((section(".vector"))) = {
     USART3_IRQHandler,          /* USART3 */
     EXTI15_10_IRQHandler,       /* EXTI Line 15..10 */
     RTCAlarm_IRQHandler,        /* RTC Alarm through EXTI Line */
-    0,                          /* zero */
+    USBWakeUp_IRQHandler,       /* USB Wakeup from suspend */
     TIM8_BRK_IRQHandler,        /* TIM8 Break */
     TIM8_UP_IRQHandler,         /* TIM8 Update */
     TIM8_TRG_COM_IRQHandler,    /* TIM8 Trigger and Commutation */
@@ -180,16 +190,16 @@ void (*vectors[])() __attribute__((section(".vector"))) = {
     DMA2_Channel3_IRQHandler,   /* DMA2 Channel 3 */
     DMA2_Channel4_IRQHandler,   /* DMA2 Channel 4 */
     DMA2_Channel5_IRQHandler,   /* DMA2 Channel 5 */
-    0,                          /* zero */
-    0,                          /* zero */
-    0,                          /* zero */
-    0,                          /* zero */
-    0,                          /* zero */
-    0,                          /* zero */
+    ETH_IRQHandler,             /* ETH */
+    ETH_WKUP_IRQHandler,        /* ETH_WKUP */
+    CAN2_TX_IRQHandler,         /* CAN2 TX */
+    CAN2_RX0_IRQHandler,        /* CAN2 RX0 */
+    CAN2_RX1_IRQHandler,        /* CAN2 RX1 */
+    CAN2_SCE_IRQHandler,        /* CAN2 SCE */
     OTG_FS_IRQHandler,          /* OTGFS */
-    0,                          /* zero */
-    0,                          /* zero */
-    0,                          /* zero */
+    USBHSWakeup_IRQHandler,     /* USBHS Wakeup */
+    USBHS_IRQHandler,           /* USBHS */
+    DVP_IRQHandler,             /* DVP */
     UART6_IRQHandler,           /* UART6 */
     UART7_IRQHandler,           /* UART7 */
     UART8_IRQHandler,           /* UART8 */

@@ -6,9 +6,11 @@
 #include "rcc.h"
 #include "systim.h"
 #include "w25q.h"
+#include "eth.h"
 
 Rcc rcc(8);
 Eeprom eeprom;
+Eth eth;
 
 void timeout();
 bool IsTimeout;
@@ -16,24 +18,24 @@ bool IsTimeout;
 void delay(volatile uint32_t val);
 int main(void) {
     W25q flash;
-    //flash.reset();
+    // flash.reset();
     delay(1000000);
-    //flash.WAKEUP();
+    // flash.WAKEUP();
     delay(10000);
     uint16_t id = 0;
-    //do {
+    // do {
     //    id = 0;
     //    //id = flash.readSR();
     //    id = flash.readID();
     //}
-    //while (id != flash.W25Q32);
+    // while (id != flash.W25Q32);
     const char* str = "Hello wq25 flash";
     uint8_t tempArr[20] = {0};
     flash.write((uint8_t*)str, 0, 15);
-    //flash.erase_Sector(0);
-    //flash.write(tempArr, 0, sizeof(tempArr));
+    // flash.erase_Sector(0);
+    // flash.write(tempArr, 0, sizeof(tempArr));
     flash.read(tempArr, 0x0, sizeof(tempArr));
-    SysTim::init(144000000); // 1 s
+    // SysTim::init(144000000); // 1 s
     __enable_irq();
     BasicTimer6::Instance().setCallback(timeout);
     BasicTimer6::Instance().start(500);
@@ -41,20 +43,11 @@ int main(void) {
     bool timeoutSate = false;
     Gpio::Out::init();
     while (1) {
-        // if (IsTimeout) {
-        //    IsTimeout = false;
-        //    if (!timeoutSate) {
-        //        timeoutSate = true;
-        //        Gpio::Out::setRed();
-        //        Gpio::Out::resetBlue();
-        //    } else {
-        //        timeoutSate = false;
-        //        Gpio::Out::resetRed();
-        //        Gpio::Out::setBlue();
-        //    }
-        //}
-        if (SysTim::getIsTimeout()) {
-            SysTim::setIsTimeout(false);
+        eth.rx_handler();
+
+
+        if (IsTimeout) {
+            IsTimeout = false;
             if (!timeoutSate) {
                 timeoutSate = true;
                 Gpio::Out::setRed();
@@ -65,6 +58,18 @@ int main(void) {
                 Gpio::Out::setBlue();
             }
         }
+        // if (SysTim::getIsTimeout()) {
+        //    SysTim::setIsTimeout(false);
+        //    if (!timeoutSate) {
+        //        timeoutSate = true;
+        //        Gpio::Out::setRed();
+        //        Gpio::Out::resetBlue();
+        //    } else {
+        //        timeoutSate = false;
+        //        Gpio::Out::resetRed();
+        //        Gpio::Out::setBlue();
+        //    }
+        //}
     }
 }
 
