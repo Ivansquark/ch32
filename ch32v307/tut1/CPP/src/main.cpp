@@ -2,22 +2,22 @@
 
 #include "basic_timer.h"
 #include "eeprom.h"
+#include "eth.h"
 #include "gpio.h"
 #include "rcc.h"
 #include "systim.h"
 #include "w25q.h"
-#include "eth.h"
 
 Rcc rcc(8);
 Eeprom eeprom;
 Eth eth;
+W25q flash;
 
 void timeout();
 bool IsTimeout;
 
 void delay(volatile uint32_t val);
 int main(void) {
-    W25q flash;
     // flash.reset();
     delay(1000000);
     // flash.WAKEUP();
@@ -44,7 +44,6 @@ int main(void) {
     Gpio::Out::init();
     while (1) {
         eth.rx_handler();
-
 
         if (IsTimeout) {
             IsTimeout = false;

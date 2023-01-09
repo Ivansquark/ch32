@@ -1,5 +1,6 @@
 ENTRY( _start )
-__stack_size = 2048;
+__stack_size = 0x800;   /*2048*/
+_Min_Heap_Size = 0x800; /*2048*/
 PROVIDE( _stack_size = __stack_size );
 
 MEMORY
@@ -28,7 +29,8 @@ SECTIONS
         _sinit = .;
         . = ALIGN(4);
         KEEP(*(SORT_NONE(.init)))
-        . = ALIGN(4);		_einit = .;
+        . = ALIGN(4);
+        _einit = .;
     } >FLASH AT>FLASH
   
     .vector :
@@ -45,7 +47,7 @@ SECTIONS
         *(.rodata*)
         *(.gnu.linkonce.t.*)
         . = ALIGN(4);
-} >FLASH AT>FLASH 
+    } >FLASH AT>FLASH 
     
     .fini :
     {
@@ -109,26 +111,28 @@ SECTIONS
         KEEP (*(.dtors))
     } >FLASH AT>FLASH  
     
-    .dalign :
-    {
+    /* Used by the startup to initialize data */
+    _data_start_flash = LOADADDR(.data);
+
+    /* begining of RAM 0x20000000 */
+    .stack : /*ORIGIN(RAM) + LENGTH(RAM) - __stack_size :*/
+    {            
         . = ALIGN(4);
-        PROVIDE(_data_vma = .);
-    } >RAM AT>FLASH	
+        PROVIDE(_susrstack = . ); /*stack overflow when below 0x20000000*/
+        . = . + __stack_size;
+        PROVIDE( _eusrstack = .); /*stack start 0x20000800*/
+    } >RAM
     
-    .dlalign :
-    {
-        . = ALIGN(4); 
-        PROVIDE(_data_lma = .);
-    } >FLASH AT>FLASH
     .data :
     {
         . = ALIGN(4);
+        PROVIDE(_data_start_ram = .);
         *(.gnu.linkonce.r.*)
         . = ALIGN(4);
         *(.data .data.*)
         *(.gnu.linkonce.d.*)
         . = ALIGN(8);
-        PROVIDE( __global_pointer$ = . + 0x800 );
+        PROVIDE( __global_pointer = . + 0x800 );
         *(.sdata .sdata.*)
         *(.sdata2.*)
         *(.gnu.linkonce.s.*)
@@ -158,13 +162,17 @@ SECTIONS
     PROVIDE( _end = _ebss);
     PROVIDE( end = . );
     
-    .stack ORIGIN(RAM) + LENGTH(RAM) - __stack_size :
-    {
-        PROVIDE( _heap_end = . );    
-        . = ALIGN(4);
-        PROVIDE(_susrstack = . );
-        . = . + __stack_size;
-        PROVIDE( _eusrstack = .);
-    } >RAM 
+    /* heap, if its needed */
+    .heap :
+	{
+    . = ALIGN(4);
+    /*_heap_start = __bss_end__;*/
+    _heap_start = .;
+    /*PROVIDE(current_ends = 0);*/
+    PROVIDE( end = . );                /*_sbrk uses end for malloc*/
+		_heap_limit = _heap_start + _Min_Heap_Size;
+		. = . + _Min_Heap_Size;
+    PROVIDE( _heap_end = . );
+	} >RAM /*set data in ROM then in RAM in startup file*/
 }
 

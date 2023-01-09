@@ -201,6 +201,9 @@ list_chop(list_t list)
 void *
 list_pop(list_t list)
 {
+    if(list == NULL) {
+        return NULL;
+    }
   struct list *l;
   l = (struct list*)*list;
   if(*list != NULL) {

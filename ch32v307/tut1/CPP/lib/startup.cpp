@@ -112,22 +112,22 @@ _start() {
 }
 
 void (*vectors[])() __attribute__((section(".vector"))) = {
-    _start,                  /*first instruction*/
-    0,                       /* zero */
-    NMI_Handler,             /* NMI */
-    HardFault_Handler,       /* Hard Fault */
-    0,                       /* zero */
-    Ecall_M_Mode_Handler,    /* Ecall M Mode */
-    0,                       /* zero */
-    0,                       /* zero */
-    Ecall_U_Mode_Handler,    /* Ecall U Mode */
-    Break_Point_Handler,     /* Break Point */
-    0,                       /* zero */
-    0,                       /* zero */
-    SysTick_Handler,         /* SysTick */
-    0,                       /* zero */
-    SW_Handler,              /* SW */
-    0,                       /* zero */
+    _start,               /*first instruction*/
+    0,                    /* zero */
+    NMI_Handler,          /* NMI */
+    HardFault_Handler,    /* Hard Fault */
+    0,                    /* zero */
+    Ecall_M_Mode_Handler, /* Ecall M Mode */
+    0,                    /* zero */
+    0,                    /* zero */
+    Ecall_U_Mode_Handler, /* Ecall U Mode */
+    Break_Point_Handler,  /* Break Point */
+    0,                    /* zero */
+    0,                    /* zero */
+    SysTick_Handler,      /* SysTick */
+    0,                    /* zero */
+    SW_Handler,           /* SW */
+    0,                    /* zero */
     /* External Interrupts */
     WWDG_IRQHandler,            /* Window Watchdog */
     PVD_IRQHandler,             /* PVD through EXTI Line detect */
@@ -260,57 +260,63 @@ void __libc_fini_array(void) {
     _fini();
 }
 
-extern void *_data_lma, *_data_vma, *_edata, *_sbss, *_ebss; // from .ld
-extern void *__global_pointer, *_eusrstack;                  // from .ld
+// from .ld
+extern void *_data_start_flash, *_data_start_ram, *_edata, *_sbss, *_ebss;
+extern void *__global_pointer, *_eusrstack;
 
+// naked cause we have not proper stack pointer yet
 void __attribute__((naked, noreturn)) Reset_Handler() {
-    // set ??? (global pointer to linux)
-    //asm("la gp, __global_pointer$");
+    // set ??? (global pointer to linux) [reduces firmware size]
+    __asm volatile("la gp, __global_pointer");
     // set stack
-    asm("la sp, _eusrstack");
+    __asm volatile("la sp, _eusrstack");
     void** pSource;
     void** pDest;
     // copy data section from flash to RAM
-    pSource = &_data_lma, pDest = &_data_vma;
-    while(pDest < &_edata) {
+    for (pSource = &_data_start_flash, pDest = &_data_start_ram;
+         pDest != &_edata; pSource++, pDest++) {
+        if (pDest > &_edata) { break; }
         *pDest = *pSource;
-        pSource++; pDest++;
     }
-    //for (pSource = &_data_lma, pDest = &_data_vma; pDest != &_edata;
-    //     pSource++, pDest++) {
-    //    if(pDest > &_edata) {
-    //        break;
-    //    }
-    //    *pDest = *pSource;
-    //}
     // clear bss section
     for (pDest = &_sbss; pDest != &_ebss; pDest++) { *pDest = 0; }
 
-    /* Enable nested and hardware stack */
-    asm("li t0, 0x1f");
-    asm("csrw 0x804, t0");
+    /* Pipeline and instruction prediction */
+    //__asm volatile("li t0, 0x1f");
+    //__asm volatile("csrw 0xbc0, t0");
+    __asm volatile("csrwi 0xbc0, 0x1f");
 
+    /* Enable nested and hardware stack */
+    // asm("li t0, 0x1f");
+    // asm("csrw 0x804, t0");
+    __asm volatile("csrwi 0x804, 0x1f");
+
+    /* Enable floating point and machine mode*/
+    /* 0x800 mapped on mstatus*/
+    /* gdb: i r mstatus => FSS=3 - floating point enable MPP=3 - machine mode*/
+    // asm("li t0, 0x7800");
+    // asm("csrw mstatus, t0");
+    __asm volatile("li t0, 0x7800");
+    __asm volatile("csrw 0x800, t0");
+
+    // enable interrupt
+    //__asm volatile ("csrw 0x800, %0" : : "r" (0x6088) );
+    //__asm volatile ("csrsi 0x800, 0x8" );
+    // disable interrupt
+    //__asm volatile ("csrw 0x800, %0" : : "r" (0x6000) );
+    __asm volatile("csrci 0x800, 0x8");
 
     // set start address of vector table
-    asm("la t0, vectors");
-    asm("ori t0, t0, 3"); // add to low bits
-    asm("csrw mtvec, t0");
+    __asm volatile("la t0, vectors");
+    __asm volatile("ori t0, t0, 3"); // add two low bits
+    __asm volatile("csrw mtvec, t0");
 
     __libc_init_array();
-    
-    /* Enable floating point and interrupt */
-    //asm("li t0, 0x6088");
-    //asm("csrw mstatus, t0");
-    
-    //enable interrupt
-    //__asm volatile ("csrw 0x800, %0" : : "r" (0x6088) );
-    //disable interrupt
-    __asm volatile ("csrw 0x800, %0" : : "r" (0x6000) );
 
     // asm("jal SystemInit");
-    asm("la t0, main");
-    asm("csrw mepc, t0"); // set prog counter
-    asm("mret");
+    __asm volatile("la t0, main");
+    __asm volatile("csrw mepc, t0"); // set exeption prog counter
+    __asm volatile("mret");
 
     // main();
     while (1) {}
