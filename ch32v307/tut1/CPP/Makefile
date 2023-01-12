@@ -32,11 +32,11 @@ lwipSrcNetif = LWIP/netif/
 lwipBLD = build/lwip/
 #lwipSYSTEM = LWIP/system/
 #///////////////////////////////////
-CFLAGS = -c -Wall -Wextra -g -Of \
+CFLAGS = -c -Wall -Wextra -g -O0 \
 	   -fno-pic -fno-common \
 	   -Wno-pointer-arith \
 	   -ffast-math -fno-math-errno -ffunction-sections -fdata-sections
-CPPFLAGS = -c -std=c++17 -Wall -Wextra -g3 -O0 \
+CPPFLAGS = -c -std=c++17 -Wall -Wextra -g3 -Ofast \
 	   -fno-pic -fno-common -D"assert_param(x)=" \
 	   -fno-exceptions \
 	   -Wno-pointer-arith -fno-rtti \
@@ -72,7 +72,7 @@ $(BLD)main.elf: $(lwipBLD)pbuf.o $(lwipBLD)timeouts.o $(lwipBLD)udp.o
 $(BLD)main.elf: $(lwipBLD)inet_chksum.o
 $(BLD)main.elf: $(lwipBLD)tcp_out.o $(lwipBLD)tcp_in.o $(lwipBLD)tcp.o
 $(BLD)main.elf: $(lwipBLD)ethernet.o $(lwipBLD)ethernetif.o
-$(BLD)main.elf: $(BLD)eth.o
+$(BLD)main.elf: $(BLD)eth.o $(BLD)my_udp.o $(BLD)my_tcp.o $(BLD)my_http.o
 $(BLD)main.elf: $(BLD)main.o
 	$(CPP) -o $@ -T$(LIB)Link.ld $^ -I$(LIB) $(LFLAGS)
 #    $@ — target name

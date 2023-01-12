@@ -1,8 +1,8 @@
 #include "systim.h"
 
 namespace SysTim {
-bool IsTimeout = false;
-uint32_t counter = 0;
+volatile bool IsTimeout = false;
+volatile uint32_t counter = 0;
 } // namespace SysTim
 
 void SysTim::init(uint64_t reload_val) {

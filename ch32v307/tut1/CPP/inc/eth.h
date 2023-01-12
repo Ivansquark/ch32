@@ -76,6 +76,11 @@ class Eth {
     
     void rx_handler();
 
+    static uint8_t RxBuff[2048];
+    static uint8_t TxBuff[2048];
+    static uint16_t currentRxBuffLen;
+    static uint16_t currentTxBuffLen;
+
   private:
     void init();
     void init_phy();

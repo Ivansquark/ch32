@@ -1,6 +1,16 @@
 #include "w25q.h"
+W25q* W25q::pThis = nullptr;
+W25q::W25q() {
+    pThis = this;
+    init();
+}
 
-W25q::W25q() { init(); }
+void W25q::writeHtml() {
+    write((uint8_t*)headIndexHtml, AddressHeadIndexHtml, strlen(headIndexHtml));
+    write((uint8_t*)indexHtml, AddressIndexHtml, strlen(indexHtml));
+    write((uint8_t*)headIco, AddressHeadIco, strlen(headIco));
+    write((uint8_t*)ico, AddressIco, sizeof(ico));
+}
 
 uint16_t W25q::readWriteByte(uint8_t TxData) {
     uint8_t i = 0;

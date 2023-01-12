@@ -9,6 +9,11 @@ __attribute__((aligned(4))) ETH_DMADESCTypeDef DMATxDscrTab[ETH_TXBUFNB];
 __attribute__((aligned(4))) uint8_t Rx_Buff[ETH_RXBUFNB][ETH_MAX_PACKET_SIZE];
 __attribute__((aligned(4))) uint8_t Tx_Buff[ETH_TXBUFNB][ETH_MAX_PACKET_SIZE];
 
+uint8_t Eth::RxBuff[2048] = {0};
+uint8_t Eth::TxBuff[2048] = {0};
+uint16_t Eth::currentRxBuffLen = 0;
+uint16_t Eth::currentTxBuffLen = 0;
+
 Eth::Eth() { init(); }
 
 void Eth::init() {
@@ -213,19 +218,17 @@ void Eth::init_phy() {
     /* MACCCR RGMII */
     tmpreg = ETH->MACCR;
     tmpreg &= MACCR_CLEAR_MASK;
-    tmpreg |= (uint32_t)(ETH_InitStructure->ETH_Watchdog |
-                         ETH_InitStructure->ETH_Jabber |
-                         ETH_InitStructure->ETH_InterFrameGap |
-                         ETH_InitStructure->ETH_CarrierSense |
-                         ETH_InitStructure->ETH_Speed |
-                         ETH_InitStructure->ETH_ReceiveOwn |
-                         ETH_InitStructure->ETH_LoopbackMode |
-                         ETH_InitStructure->ETH_Mode |
-                         ETH_InitStructure->ETH_ChecksumOffload |
-                         ETH_InitStructure->ETH_RetryTransmission |
-                         ETH_InitStructure->ETH_AutomaticPadCRCStrip |
-                         ETH_InitStructure->ETH_BackOffLimit |
-                         ETH_InitStructure->ETH_DeferralCheck);
+    tmpreg |= (uint32_t)(
+        ETH_InitStructure->ETH_Watchdog | ETH_InitStructure->ETH_Jabber |
+        ETH_InitStructure->ETH_InterFrameGap |
+        ETH_InitStructure->ETH_CarrierSense | ETH_InitStructure->ETH_Speed |
+        ETH_InitStructure->ETH_ReceiveOwn |
+        ETH_InitStructure->ETH_LoopbackMode | ETH_InitStructure->ETH_Mode |
+        ETH_InitStructure->ETH_ChecksumOffload |
+        ETH_InitStructure->ETH_RetryTransmission |
+        ETH_InitStructure->ETH_AutomaticPadCRCStrip |
+        ETH_InitStructure->ETH_BackOffLimit |
+        ETH_InitStructure->ETH_DeferralCheck);
     /* MAC */
     ETH->MACCR = (uint32_t)tmpreg;
 #ifdef USE10BASE_T
@@ -276,16 +279,15 @@ void Eth::init_phy() {
                          ETH_InitStructure->ETH_SecondFrameOperate);
     ETH->DMAOMR = (uint32_t)tmpreg;
 
-    ETH->DMABMR =
-        (uint32_t)(ETH_InitStructure->ETH_AddressAlignedBeats |
-                   ETH_InitStructure->ETH_FixedBurst |
-                   ETH_InitStructure
-                       ->ETH_RxDMABurstLength | /* !! if 4xPBL is selected for
-                                                   Tx or Rx it is applied for
-                                                   the other */
-                   ETH_InitStructure->ETH_TxDMABurstLength |
-                   (ETH_InitStructure->ETH_DescriptorSkipLength << 2) |
-                   ETH_InitStructure->ETH_DMAArbitration | ETH_DMABMR_USP);
+    ETH->DMABMR = (uint32_t)(
+        ETH_InitStructure->ETH_AddressAlignedBeats |
+        ETH_InitStructure->ETH_FixedBurst |
+        ETH_InitStructure->ETH_RxDMABurstLength | /* !! if 4xPBL is selected for
+                                                     Tx or Rx it is applied for
+                                                     the other */
+        ETH_InitStructure->ETH_TxDMABurstLength |
+        (ETH_InitStructure->ETH_DescriptorSkipLength << 2) |
+        ETH_InitStructure->ETH_DMAArbitration | ETH_DMABMR_USP);
     mem_free(ETH_InitStructure);
     /* Enable the Ethernet Rx Interrupt */
     ETH_DMAITConfig(ETH_DMA_IT_NIS | ETH_DMA_IT_R | ETH_DMA_IT_T, ENABLE);
@@ -459,7 +461,6 @@ uint32_t Eth::ETH_TxPkt_ChainMode(u16 FrameLength) {
     /* Selects the next DMA Tx descriptor list for next buffer to send */
     DMATxDescToSet = reinterpret_cast<ETH_DMADESCTypeDef*>(
         DMATxDescToSet->Buffer2NextDescAddr);
-
     /* Return SUCCESS */
     return ETH_SUCCESS;
 }
