@@ -1,6 +1,7 @@
 #ifndef __LWIPOPTS_H__
 #define __LWIPOPTS_H__
 
+#define LWIP_NOASSERT                   1
 #define LWIP_DEBUG 0
 /**
  * SYS_LIGHTWEIGHT_PROT==1: if you want inter-task protection for certain
@@ -40,10 +41,10 @@ a lot of data that needs to be copied, this should be set high. */
 #define MEMP_NUM_UDP_PCB        2
 /* MEMP_NUM_TCP_PCB: the number of simulatenously active TCP
    connections. */
-#define MEMP_NUM_TCP_PCB        2
+#define MEMP_NUM_TCP_PCB        4
 /* MEMP_NUM_TCP_PCB_LISTEN: the number of listening TCP
    connections. */
-#define MEMP_NUM_TCP_PCB_LISTEN 2
+#define MEMP_NUM_TCP_PCB_LISTEN 4
 /* MEMP_NUM_TCP_SEG: the number of simultaneously queued TCP
    segments. */
 #define MEMP_NUM_TCP_SEG        TCP_SND_QUEUELEN
@@ -71,7 +72,7 @@ a lot of data that needs to be copied, this should be set high. */
 #define TCP_MSS                 (1460)     /* TCP_MSS = (Ethernet MTU - IP header size - TCP header size) */
 
 /* TCP sender buffer space (bytes). */
-#define TCP_SND_BUF             (4*TCP_MSS)
+#define TCP_SND_BUF             (2*TCP_MSS)
 
 /*  TCP_SND_QUEUELEN: TCP sender buffer space (pbufs). This must be at least
   as much as (2 * TCP_SND_BUF/TCP_MSS) for things to work. */

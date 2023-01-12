@@ -56,7 +56,7 @@ err_t Tcp::server_accept(void* arg, struct tcp_pcb* newpcb, err_t err) {
         //* initialize lwIP tcp_err callback function for newpcb */
         tcp_err(newpcb, server_error);
         //* initialize lwIP tcp_poll callback function for newpcb */
-        tcp_poll(newpcb, server_poll, 1);
+        tcp_poll(newpcb, server_poll, 10); //every 5 secs
         //* set callback on ack event from remote host (when data was sended)
         tcp_sent(newpcb, server_sent);
         //* set callback on connect to server function
@@ -194,7 +194,8 @@ err_t Tcp::server_recv(void* arg, struct tcp_pcb* tpcb, struct pbuf* p,
 
 err_t Tcp::server_send(const uint8_t* data, uint16_t len) {
     tcp_write(tpcbPtr, (const void*)(data), len, 1);
-    tcp_recved(tpcbPtr, TCP_MSS);
+    tcp_output(tpcbPtr); //send data now
+    //tcp_recved(tpcbPtr, TCP_MSS);
 }
 // FUNCTION CALLED ON ACK SIGNAL FROM REMOTE HOST WHEN IT GETS SENDED DATA
 err_t Tcp::server_sent(void* arg, struct tcp_pcb* tpcb, u16_t len) {
