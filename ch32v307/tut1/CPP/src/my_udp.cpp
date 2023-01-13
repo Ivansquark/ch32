@@ -70,7 +70,7 @@ void Udp::sendToPC(const uint8_t* buff, uint16_t len) {
     uint32_t timeout = 0xFFFFF;
     // while (timeout-- && (ETH->DMASR & ETH_DMASR_TPS) != 0 &&
     //                     (ETH->DMASR & ETH_DMASR_TPS) != 0x6) {}
-    while ((ETH->DMASR & ETH_DMASR_TPS) != 0 &&
+    while (timeout-- && (ETH->DMASR & ETH_DMASR_TPS) != 0 &&
            (ETH->DMASR & ETH_DMASR_TPS) != 0x600000) {}
     // while (timeout-- && ((ETH->DMASR & ETH_DMASR_TS) == 0 )) {}
     struct pbuf* p;

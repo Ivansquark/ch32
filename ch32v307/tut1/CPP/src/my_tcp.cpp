@@ -8,10 +8,7 @@ Tcp::Tcp() {
     pThis = this;
     init();
 }
-void Tcp::init() {
-    w25.writeHtml();
-    create_server();
-}
+void Tcp::init() { create_server(); }
 void Tcp::create_server() {
     ip_addr_t DestIPaddr;
     IP4_ADDR(&DestIPaddr, ip[0], ip[1], ip[2], ip[3]);
@@ -56,7 +53,7 @@ err_t Tcp::server_accept(void* arg, struct tcp_pcb* newpcb, err_t err) {
         //* initialize lwIP tcp_err callback function for newpcb */
         tcp_err(newpcb, server_error);
         //* initialize lwIP tcp_poll callback function for newpcb */
-        tcp_poll(newpcb, server_poll, 10); //every 5 secs
+        tcp_poll(newpcb, server_poll, 10); // every 5 secs
         //* set callback on ack event from remote host (when data was sended)
         tcp_sent(newpcb, server_sent);
         //* set callback on connect to server function
@@ -72,9 +69,12 @@ err_t Tcp::server_accept(void* arg, struct tcp_pcb* newpcb, err_t err) {
     return ret_err;
 }
 
-//---------------- RECEIVE DATA FROM CLIENT ----------------------------
+//---------------- RECEIVE DATA FROM CLIENT (callback)-------------------------
 err_t Tcp::server_recv(void* arg, struct tcp_pcb* tpcb, struct pbuf* p,
                        err_t err) {
+    //! this function executes in lwip_input (We must set state and checked in
+    // another)
+    //
     // - Mutex that disable receive (whith ACK answer) while transmit proceed -
     // if (pThis->isFrameReadyForSend) {
     //    return ERR_USE;
@@ -103,7 +103,6 @@ err_t Tcp::server_recv(void* arg, struct tcp_pcb* tpcb, struct pbuf* p,
         ret_err = err;
     } else if (es->state == ES_ACCEPTED) {
         //------ FIRST RECEIVED DATA /* first data chunk in p->payload */ -----
-        es->state = ES_RECEIVE;
         es->p = p; ///* store reference to incoming pbuf (chain) */
         pThis->lenSendTCP = es->p->len;
         //* initialize LwIP tcp_sent callback function */
@@ -112,17 +111,21 @@ err_t Tcp::server_recv(void* arg, struct tcp_pcb* tpcb, struct pbuf* p,
 
         // if (isFullFrameInPacket(p->len)) {
         if (p->len) {
+            es->state = ES_RECEIVE;
             // TODO: parse frame (full not full) goto ES_RECEIVE
-            pThis->currentHttpState =
-                pThis->http.parse((const uint8_t*)p->payload, p->len);
+            // pThis->currentHttpState =
+            //    Http::pThis->parse((const uint8_t*)p->payload, p->len);
             Eth::currentRxBuffLen = p->len;
             memcpy(Eth::RxBuff, (const uint8_t*)p->payload, p->len);
             pThis->isFrameReadyForSend = true;
+
+            pThis->setIsDataIn(true, tpcb, es);
+
             // FirmwareUpdate::parsePayload((uint8_t *)pThis->mFrame +
             // sizeof(Head), p->len);
             pbuf_free(p);
             // pbuf_free(es->p);
-            es->p = NULL;
+            // es->p = NULL;
             pThis->totalLen = 0;
             tcp_recved(tpcb, TCP_MSS); // send ACK (with new WND size)
         } else {
@@ -141,6 +144,7 @@ err_t Tcp::server_recv(void* arg, struct tcp_pcb* tpcb, struct pbuf* p,
             //! - CHECK FOR FULL FRAME IN PACKET (ALL FRAMES EXCEPT cmdSet) -
             // if (isFullFrameInPacket(p->len)) {
             if (p->len) {
+                pThis->setIsDataIn(true, tpcb, es);
                 // FirmwareUpdate::parsePayload((BYTE_t *)pThis->mFrame +
                 // sizeof(Head), p->len);
                 pbuf_free(p);
@@ -194,8 +198,9 @@ err_t Tcp::server_recv(void* arg, struct tcp_pcb* tpcb, struct pbuf* p,
 
 err_t Tcp::server_send(const uint8_t* data, uint16_t len) {
     tcp_write(tpcbPtr, (const void*)(data), len, 1);
-    tcp_output(tpcbPtr); //send data now
-    //tcp_recved(tpcbPtr, TCP_MSS);
+    tcp_output(tpcbPtr); // send data now
+    return ERR_OK;
+    // tcp_recved(tpcbPtr, TCP_MSS);
 }
 // FUNCTION CALLED ON ACK SIGNAL FROM REMOTE HOST WHEN IT GETS SENDED DATA
 err_t Tcp::server_sent(void* arg, struct tcp_pcb* tpcb, u16_t len) {
@@ -206,7 +211,7 @@ err_t Tcp::server_sent(void* arg, struct tcp_pcb* tpcb, u16_t len) {
     /* still got pbufs to send */
     if (es->p != NULL) {
         pbuf_free(es->p);
-        es->p = NULL;
+        // es->p = NULL;
     } else {
         /* if no more data to send and client closed connection*/
         if (es->state == ES_CLOSE) { server_connection_close(tpcb, es); }

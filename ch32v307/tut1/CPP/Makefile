@@ -36,7 +36,7 @@ CFLAGS = -c -Wall -Wextra -g -O0 \
 	   -fno-pic -fno-common \
 	   -Wno-pointer-arith \
 	   -ffast-math -fno-math-errno -ffunction-sections -fdata-sections
-CPPFLAGS = -c -std=c++17 -Wall -Wextra -g3 -Ofast \
+CPPFLAGS = -c -std=c++17 -Wall -Wextra -g3 -O0 \
 	   -fno-pic -fno-common -D"assert_param(x)=" \
 	   -fno-exceptions \
 	   -Wno-pointer-arith -fno-rtti \

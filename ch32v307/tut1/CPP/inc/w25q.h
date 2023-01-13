@@ -11,18 +11,21 @@ class W25q {
     static W25q* pThis;
 
     // Http server info
+
+    //static constexpr const char* headIndexHtml =
+    //    "HTTP/1.1 200 OK\r\nServer: nginx\r\nContent-Type: text/html\r\nConnection: "
+    //    "keep-alive\r\n\r\n";
     static constexpr const char* headIndexHtml =
         "HTTP/1.1 200 OK\n"
         "Content-Type: text/html; charset=UTF-8\n"
-        "Content-Length: 66\n";
+        "Content-Length: 733\r\n\r\n";
+    static constexpr const char* indexHtml1 = "<!DOCTYPE html>"
+                                             "<html>"
+                                             "<body>"
+                                             "<h1>My First Heading</h1>"
+                                             "</body>"
+                                             "</html>";
     static constexpr const char* indexHtml =
-        "<!DOCTYPE html>"
-        "<html>"
-        "<body>"
-        "<h1>My First Heading</h1>"
-        "</body>"
-        "</html>";
-    static constexpr const char* indexHtml1 =
         "<!DOCTYPE html>"
         "<html lang=\"en\">"
         "<head>"
@@ -56,8 +59,8 @@ class W25q {
         "</html>";
     static constexpr const char* headIco =
         "HTTP/1.1 200 OK\r\n"
-        "Content-Type: image/ico; charset=UTF-8\r\n"
-        "Content-Length: 539\r\n";
+        "Content-Type: image/png; charset=UTF-8\r\n"
+        "Content-Length: 539\r\n\r\n";
 
     static constexpr unsigned char ico[539] = {
         0x00, 0x00, 0x01, 0x00, 0x01, 0x00, 0x32, 0x2a, 0x02, 0x00, 0x01, 0x00,

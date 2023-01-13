@@ -4,17 +4,11 @@
 #include "eth.h"
 #include "lwip/tcp.h"
 #include "main.h"
-#include "my_http.h"
-#include "w25q.h"
 
 class Tcp {
   public:
     Tcp();
     static Tcp* pThis;
-
-    Http http;
-    Http::ParseState currentHttpState = Http::ParseState::NOT;
-
     enum server_states
     {
         ES_NONE = 0,
@@ -59,8 +53,18 @@ class Tcp {
     static void server_connection_close(struct tcp_pcb* tpcb,
                                         struct server_struct* es);
 
+    bool IsDataIn = false;
+    tcp_pcb* current_tcp_pcb; // state structure
+    struct server_struct* current_es; // state structure
+    inline bool getIsDataIn() { return IsDataIn; }
+    inline void setIsDataIn(bool state, tcp_pcb* pcb,
+                            struct server_struct* es) {
+        IsDataIn = state;
+        current_tcp_pcb = pcb;
+        current_es = es;
+    }
+
   private:
-    W25q w25;
     void init();
     void create_server();
     //--------------- ACCEPT NEW CONNECTION TO SERVER -------------------------

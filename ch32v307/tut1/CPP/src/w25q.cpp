@@ -3,6 +3,7 @@ W25q* W25q::pThis = nullptr;
 W25q::W25q() {
     pThis = this;
     init();
+    writeHtml();
 }
 
 void W25q::writeHtml() {
