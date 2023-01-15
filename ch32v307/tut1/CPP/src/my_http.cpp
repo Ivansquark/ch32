@@ -34,6 +34,7 @@ void Http::httpHandler() {
         return;
     } else {
         if (tcp.current_tcp_pcb) {
+            tcp.IsDataIn = false;
             pcb = tcp.current_tcp_pcb;
             currentParseState = parse(Eth::RxBuff, Eth::currentRxBuffLen);
             switch (currentParseState) {
@@ -51,9 +52,10 @@ void Http::httpHandler() {
                 tcp_write(pcb, (const void*)(arr),
                           sizeHeadIndexHtml + sizeIndexHtml,
                           TCP_WRITE_FLAG_COPY);
-                tcp_output(pcb); // send data now
+                // tcp_output(pcb); // send data now
                 tcp.current_es->state = Tcp::ES_CLOSE;
-                //tcp.server_connection_close(pcb, tcp.current_es);
+                pbuf_free(tcp.current_es->p);
+                tcp.server_connection_close(pcb, tcp.current_es);
             } break;
             case Http::GET_ICO: {
                 uint16_t sizeHeadIco = W25q::pThis->SizeHeadIco;
@@ -66,29 +68,32 @@ void Http::httpHandler() {
                 tcp.server_send(arr, sizeHeadIco + sizeIco);
                 tcp_write(pcb, (const void*)(arr), sizeHeadIco + sizeIco,
                           TCP_WRITE_FLAG_COPY);
-                tcp_output(pcb); // send data now
+                // tcp_output(pcb); // send data now
                 tcp.current_es->state = Tcp::ES_CLOSE;
-                //tcp.server_connection_close(pcb, tcp.current_es);
-                //tcp.server_connection_close(pcb, nullptr);
+                pbuf_free(tcp.current_es->p);
+                tcp.server_connection_close(pcb, tcp.current_es);
+                // tcp.server_connection_close(pcb, nullptr);
             } break;
             case Http::GET_CSS: {
                 //tcp.server_send(NULL, 0);
                 tcp.current_es->state = Tcp::ES_CLOSE;
-                //tcp.server_connection_close(pcb, tcp.current_es);
-                //tcp.server_connection_close(pcb, nullptr);
+                pbuf_free(tcp.current_es->p);
+                tcp.server_connection_close(pcb, tcp.current_es);
+                // tcp.server_connection_close(pcb, nullptr);
             } break;
             case Http::GET_JS: {
-                //tcp.server_send(NULL, 0);
+                // tcp.server_send(NULL, 0);
                 tcp.current_es->state = Tcp::ES_CLOSE;
-                //tcp.server_connection_close(pcb, tcp.current_es);
-                //tcp.server_connection_close(pcb, nullptr);
+                pbuf_free(tcp.current_es->p);
+                tcp.server_connection_close(pcb, tcp.current_es);
+                // tcp.server_connection_close(pcb, nullptr);
             } break;
             default:
                 tcp.current_es->state = Tcp::ES_CLOSE;
-                //tcp.server_connection_close(pcb, tcp.current_es);
+                pbuf_free(tcp.current_es->p);
+                // tcp.server_connection_close(pcb, tcp.current_es);
                 break;
             }
-            //tcp.setIsDataIn(false, NULL, NULL);
         }
     }
 }

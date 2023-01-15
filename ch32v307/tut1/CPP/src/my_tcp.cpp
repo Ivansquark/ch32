@@ -108,78 +108,20 @@ err_t Tcp::server_recv(void* arg, struct tcp_pcb* tpcb, struct pbuf* p,
         //* initialize LwIP tcp_sent callback function */
         tcp_sent(es->pcb, server_sent);
         // copy received data in global buffer
-
-        // if (isFullFrameInPacket(p->len)) {
-        if (p->len) {
-            es->state = ES_RECEIVE;
-            // TODO: parse frame (full not full) goto ES_RECEIVE
-            // pThis->currentHttpState =
-            //    Http::pThis->parse((const uint8_t*)p->payload, p->len);
-            Eth::currentRxBuffLen = p->len;
-            memcpy(Eth::RxBuff, (const uint8_t*)p->payload, p->len);
-            pThis->isFrameReadyForSend = true;
-
-            pThis->setIsDataIn(true, tpcb, es);
-
-            // FirmwareUpdate::parsePayload((uint8_t *)pThis->mFrame +
-            // sizeof(Head), p->len);
-            pbuf_free(p);
-            // pbuf_free(es->p);
-            // es->p = NULL;
-            pThis->totalLen = 0;
-            tcp_recved(tpcb, TCP_MSS); // send ACK (with new WND size)
-        } else {
-            tcp_recved(tpcb, TCP_MSS); // send ACK (with new WND size)
-            pThis->totalLen = p->len;
-            pbuf_free(p);
-        }
+        es->state = ES_RECEIVE;
+        // TODO: parse frame (full not full) goto ES_RECEIVE
+        Eth::currentRxBuffLen = p->len;
+        memcpy(Eth::RxBuff, (const uint8_t*)p->payload, p->len);
+        pThis->isFrameReadyForSend = true;
+        pThis->setIsDataIn(true, tpcb, es);
+        pbuf_free(p);
+        // pbuf_free(es->p);
+        // es->p = NULL;
+        tcp_recved(tpcb, TCP_MSS); // send ACK (with new WND size)
         ret_err = ERR_OK;
     } else if (es->state == ES_RECEIVE) {
         ///* more data recved from client and previous data has already sent*/
-        if (es->p == NULL) {
-            // empty received buffer (first packet of frame received here)
-            es->p = p;
-            // copy received data in global buffer
-            // memcpy((char *)pThis->mFrame, (const char *)p->payload, p->len);
-            //! - CHECK FOR FULL FRAME IN PACKET (ALL FRAMES EXCEPT cmdSet) -
-            // if (isFullFrameInPacket(p->len)) {
-            if (p->len) {
-                pThis->setIsDataIn(true, tpcb, es);
-                // FirmwareUpdate::parsePayload((BYTE_t *)pThis->mFrame +
-                // sizeof(Head), p->len);
-                pbuf_free(p);
-                es->p = NULL;
-                pThis->totalLen = 0;
-                tcp_recved(tpcb, TCP_MSS); // send ACK (with new WND size)
-            } else {
-                tcp_recved(tpcb, TCP_MSS); // send ACK (with new WND size)
-                pThis->totalLen = p->len;
-                pbuf_free(p);
-            }
-            ret_err = ERR_OK;
-        } else {
-            //- RECEIVE IN NOT EMPTY BUFFER (ONLY FOR BIG FRAME - cmdSet) -
-            // memcpy((char *)pThis->mFrame + pThis->totalLen, (const char
-            // *)p->payload, p->len);
-            pThis->totalLen += p->len;
-            // if (isFullFrameInPacket(pThis->totalLen)) {
-            if (pThis->totalLen) {
-                // parsePayload((BYTE_t *)pThis->mFrame, p->len);
-                // pThis->lenSendTCP = es->p->len;
-                tcp_recved(tpcb, TCP_MSS); // send ACK (with new WND size)
-                pbuf_free(p);
-                // pbuf_free(es->p);
-                es->p = NULL;
-                pThis->totalLen = 0;
-            } else {
-                // parse packet (cause may receive several protocol command in
-                // packet) FREE ALL BUFFERS IF WE GET SOME WIERD DATA
-                tcp_recved(tpcb, TCP_MSS); // send ACK (with new WND size)
-                pbuf_free(p);
-                // pbuf_free(es->p);
-                es->p = NULL;
-            }
-        }
+        //long GET request or some other requests
         ret_err = ERR_OK;
     } else if (es->state == ES_CLOSE) {
         /* data received when connection already closed */

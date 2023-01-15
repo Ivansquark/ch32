@@ -11,6 +11,8 @@ class W25q {
     static W25q* pThis;
 
     // Http server info
+    //
+    // TODO: make ffs system
 
     //static constexpr const char* headIndexHtml =
     //    "HTTP/1.1 200 OK\r\nServer: nginx\r\nContent-Type: text/html\r\nConnection: "
