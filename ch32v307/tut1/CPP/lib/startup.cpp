@@ -321,7 +321,7 @@ void __attribute__((naked, noreturn)) Reset_Handler() {
     // main();
     while (1) {}
 }
-extern "C" void Default_Handler() {
+void Default_Handler() {
     while (1) {}
 }
 }
