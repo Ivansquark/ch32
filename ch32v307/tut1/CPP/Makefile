@@ -20,6 +20,11 @@ BLD = build/
 SRC = src/
 perINC = Peripheral/inc/
 perSRC = Peripheral/src/
+#////////////// FFS ////////////////
+ffsINC = ffs/inc/
+ffsSRC = ffs/src/
+ffsBLD = build/ffs/
+
 #///////////////////////////////////
 lwipINCLUDE = LWIP/include/
 lwip = LWIP/
@@ -61,8 +66,7 @@ $(BLD)main.lst: $(BLD)main.elf
 $(BLD)main.elf:	$(BLD)core_riscv.o $(BLD)startup.o
 $(BLD)main.elf: $(BLD)ch32v30x_i2c.o $(BLD)ch32v30x_spi.o $(BLD)ch32v30x_rcc.o
 $(BLD)main.elf: $(BLD)ch32v30x_gpio.o $(BLD)ch32v30x_eth.o $(BLD)ch32v30x_rng.o
-$(BLD)main.elf: $(BLD)rcc.o $(BLD)eeprom.o $(BLD)gpio.o $(BLD)w25q.o
-$(BLD)main.elf: $(BLD)basic_timer.o $(BLD)systim.o $(BLD)eth.o
+$(BLD)main.elf: $(BLD)ch32v30x_misc.o $(BLD)ch32v30x_sdio.o $(BLD)ch32v30x_dma.o
 $(BLD)main.elf: $(BLD)memb.o	$(BLD)list.o
 $(BLD)main.elf: $(lwipBLD)ip4.o $(lwipBLD)ip4_frag.o $(lwipBLD)ip4_addr.o
 $(BLD)main.elf: $(lwipBLD)icmp.o $(lwipBLD)etharp.o
@@ -72,7 +76,12 @@ $(BLD)main.elf: $(lwipBLD)pbuf.o $(lwipBLD)timeouts.o $(lwipBLD)udp.o
 $(BLD)main.elf: $(lwipBLD)inet_chksum.o
 $(BLD)main.elf: $(lwipBLD)tcp_out.o $(lwipBLD)tcp_in.o $(lwipBLD)tcp.o
 $(BLD)main.elf: $(lwipBLD)ethernet.o $(lwipBLD)ethernetif.o
-$(BLD)main.elf: $(BLD)eth.o $(BLD)my_udp.o $(BLD)my_tcp.o $(BLD)my_http.o
+$(BLD)main.elf: $(ffsBLD)diskio.o $(ffsBLD)ff.o
+$(BLD)main.elf: $(lwipBLD)ethernet.o $(lwipBLD)ethernetif.o
+$(BLD)main.elf: $(BLD)my_udp.o $(BLD)my_tcp.o $(BLD)my_http.o
+$(BLD)main.elf: $(BLD)rcc.o $(BLD)eeprom.o $(BLD)gpio.o $(BLD)w25q.o
+$(BLD)main.elf: $(BLD)basic_timer.o $(BLD)systim.o $(BLD)eth.o
+$(BLD)main.elf: $(BLD)sd.o
 $(BLD)main.elf: $(BLD)main.o
 	$(CPP) -o $@ -T$(LIB)Link.ld $^ -I$(LIB) $(LFLAGS)
 #    $@ — target name
@@ -85,22 +94,20 @@ $(BLD)main.elf: $(BLD)main.o
 	@echo "*******************************************************"
 	@echo "*******************   SIZE   **************************"
 	@echo "*******************************************************"
-	arm-none-eabi-size $(BLD)main.elf
+	$(GCC_PATH)-size $(BLD)main.elf
 	@echo "*******************************************************"
 #___________________ BUILD __________________________________	
 $(BLD)%.o: $(LIB)%.cpp
 	@ # **** mutex for parallel execution (mkdir must be locked) ****
 	@if mkdir /var/lock/.myscript.exclusivelock; \
-	then if [ ! -d "$(BLD)" ]; then mkdir $(BLD) $(lwipBLD); fi; \
+	then if [ ! -d "$(BLD)" ]; then mkdir $(BLD) $(lwipBLD) $(ffsBLD); fi; \
 	rmdir /var/lock/.myscript.exclusivelock; \
 	fi
 	$(CPP) $< -o $@ -I$(INC) -I$(LIB) $(CPPFLAGS)	
 # ASM startup
 #$(BLD)startup_ch32v30x_D8.o: $(LIB)startup_ch32v30x_D8.S
 #	$(CC) -c $(LIB)startup_ch32v30x_D8.S -o $(BLD)startup_ch32v30x_D8.o 	
-#_____________________________________________________________________________
 #_________________________ LWIP functions  ___________________________________	
-#_____________________________________________________________________________
 $(lwipBLD)ip4.o: $(lwipSrcCoreIP4)ip4.cpp
 	$(CC) $(lwipSrcCoreIP4)ip4.cpp -o $(lwipBLD)ip4.o -I$(INC) \
 	-I$(perINC) -I$(LIB) -I$(lwipINCLUDE) -I$(lwip) $(CPPFLAGS)
@@ -171,21 +178,28 @@ $(BLD)eth.o: $(SRC)eth.cpp
 	$(CC) $(SRC)eth.cpp -o $(BLD)eth.o -I$(INC) \
 	-I$(perINC) -I$(LIB) -I$(lwipINCLUDE) -I$(lwip) $(CPPFLAGS)
 
-#_____________________________________________________________________________
+#_________________________ Fat FS ____________________________________________
+$(ffsBLD)%.o: $(ffsSRC)%.cpp
+	@ # **** mutex for parallel execution (mkdir must be locked) ****
+	@if mkdir /var/lock/.myscript.exclusivelock; \
+	then if [ ! -d "$(BLD)" ]; then mkdir $(BLD) $(lwipBLD) $(ffsBLD); fi; \
+	rmdir /var/lock/.myscript.exclusivelock; \
+	fi
+	$(CPP) $< -o $@ -I$(INC) -I$(LIB) -I$(ffsINC) -I$(perINC) $(CPPFLAGS)
+
 #_________________________ Basic functions ___________________________________	
-#_____________________________________________________________________________
 $(BLD)%.o: $(SRC)%.cpp
 	@ # **** mutex for parallel execution (mkdir must be locked) ****
 	@if mkdir /var/lock/.myscript.exclusivelock; \
-	then if [ ! -d "$(BLD)" ]; then mkdir $(BLD) $(lwipBLD); fi; \
+	then if [ ! -d "$(BLD)" ]; then mkdir $(BLD) $(lwipBLD) $(ffsBLD); fi; \
 	rmdir /var/lock/.myscript.exclusivelock; \
 	fi
 	$(CPP) $< -o $@ -I$(INC) -I$(LIB) -I$(perINC) -I$(lwipINCLUDE) -I$(lwip) \
-	$(CPPFLAGS)
+	-I$(ffsINC) $(CPPFLAGS)
 $(BLD)%.o: $(perSRC)%.cpp
 	@ # **** mutex for parallel execution (mkdir must be locked) ****
 	@if mkdir /var/lock/.myscript.exclusivelock; \
-	then if [ ! -d "$(BLD)" ]; then mkdir $(BLD) $(lwipBLD); fi; \
+	then if [ ! -d "$(BLD)" ]; then mkdir $(BLD) $(lwipBLD) $(ffsBLD); fi; \
 	rmdir /var/lock/.myscript.exclusivelock; \
 	fi
 	$(CPP) $< -o $@ -I$(INC) -I$(LIB) -I$(perINC) $(CPPFLAGS)

@@ -12,5 +12,6 @@
 -ILWIP/include/
 -ILWIP/arch/
 -ILWIP/
+-Iffs/inc/
 -isystem/opt/ch32_riscv_gcc/riscv-none-embed/include/
 #-I/opt/ch32_riscv_gcc/riscv-none-embed/include/

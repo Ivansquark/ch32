@@ -3,21 +3,28 @@
 #include "basic_timer.h"
 #include "eeprom.h"
 #include "eth.h"
+#include "ff.h"
 #include "gpio.h"
 #include "my_http.h"
 #include "my_tcp.h"
 #include "my_udp.h"
 #include "rcc.h"
+#include "sd.h"
 #include "systim.h"
 #include "w25q.h"
 
 Rcc rcc(8);
 Eeprom eeprom;
-//W25q flash;
+// W25q flash;
 Eth eth;
 Udp udp;
 Http http;
-
+Sd sd;
+FATFS fs;
+FRESULT res;
+FIL test;
+BYTE work[FF_MAX_SS];
+UINT testBytes; // initialize fatFS
 void timeout();
 bool IsTimeout;
 
@@ -25,6 +32,7 @@ constexpr uint16_t SIZE = 256 * 12;
 uint8_t tempArr[SIZE];
 
 void delay(volatile uint32_t val);
+uint32_t get_fattime(void);
 
 int main(void) {
     // flash.reset();
@@ -43,7 +51,7 @@ int main(void) {
     // flash.write((uint8_t*)str, 0, 15);
     // flash.erase_Sector(0);
     // flash.write(tempArr, 0, sizeof(tempArr));
-    //flash.read(tempArr, 0x0, sizeof(tempArr));
+    // flash.read(tempArr, 0x0, sizeof(tempArr));
     // SysTim::init(144000000); // 1 s
     __enable_irq();
     BasicTimer6::Instance().setCallback(timeout);
@@ -51,6 +59,24 @@ int main(void) {
     IsTimeout = false;
     bool timeoutSate = false;
     Gpio::Out::init();
+
+    //res = f_mkfs("", 0, work, sizeof work);
+    int res = f_mount(&fs, "", 0);
+    // MKFS_PARM mkfs_parm{FM_ANY, 0, 4096, 0, 4096};
+    // res = f_mkfs("", FM_ANY, 0, work, sizeof work);
+    // res = f_mkfs("", &mkfs_parm, work, sizeof(work));
+    const char* filename = "index.html";
+    res = f_open(&test, (char*)filename, FA_WRITE);
+    W25q::pThis->read(tempArr, 4096, 512);
+
+    UINT writeLen = 0;
+    if (res == FR_OK) {
+        f_write(&test, W25q::pThis->indexHtml, W25q::pThis->SizeIndexHtml,
+                &writeLen);
+    }
+    res = f_open(&test, (char*)filename, FA_READ);
+    // res = f_open(1, (char*)filename, 0);
+    //if (res == FR_OK) { f_read(&test, tempFile, 100, &readedLen); }
 
     while (1) {
         eth.rx_handler();
@@ -75,7 +101,9 @@ int main(void) {
             add += 1;
             static uint16_t lineCounter;
 
-            for (int i = 0; i < sizeof(tempArr); i++) { tempArr[i] = i + add; }
+            for (uint32_t i = 0; i < sizeof(tempArr); i++) {
+                tempArr[i] = i + add;
+            }
             Udp::Header head;
             head.PackFlag = 0xFFFF;
             head.pixel.dataLen = 0x100;
@@ -153,4 +181,14 @@ void timeout() { IsTimeout = true; }
 
 void delay(volatile uint32_t val) {
     while (val--) {}
+}
+
+uint32_t get_fattime(void) {
+    return 1;
+    //(Rtc::pThis->currentDate.year << 25)
+    //| (Rtc::pThis->currentDate.month << 21)
+    //| (Rtc::pThis->currentDate.day << 16)
+    //| (Rtc::pThis->currentTime.hour << 11)
+    //| (Rtc::pThis->currentTime.minute << 5)
+    //| (Rtc::pThis->currentTime.second >> 1);
 }
