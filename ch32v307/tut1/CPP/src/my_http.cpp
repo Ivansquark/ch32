@@ -22,6 +22,9 @@ Http::ParseState Http::parse(const uint8_t* data, uint16_t len) {
         } else if (data[4] == '/' && data[5] == 's' && data[6] == 'c') {
             // GET /script.js
             return ParseState::GET_JS;
+        } else if (data[4] == '/' && data[5] == 'c' && data[6] == 'o') {
+            // GET /content.bin
+            return ParseState::GET_CONTENT;
         }
     } else {
         return ParseState::NOT;
@@ -75,18 +78,45 @@ void Http::httpHandler() {
                 // tcp.server_connection_close(pcb, nullptr);
             } break;
             case Http::GET_CSS: {
-                //tcp.server_send(NULL, 0);
+                uint16_t sizeHeadCss = W25q::pThis->SizeHeadCss;
+                uint16_t sizeCss = W25q::pThis->SizeCss;
+                uint8_t tempArr[sizeHeadCss + sizeCss];
+                memcpy(tempArr, W25q::pThis->headCss, sizeHeadCss);
+                memcpy(tempArr + sizeHeadCss, W25q::pThis->css, sizeCss);
+                tcp_write(pcb, (const void*)(tempArr), sizeHeadCss + sizeCss,
+                          TCP_WRITE_FLAG_COPY);
                 tcp.current_es->state = Tcp::ES_CLOSE;
                 pbuf_free(tcp.current_es->p);
                 tcp.server_connection_close(pcb, tcp.current_es);
                 // tcp.server_connection_close(pcb, nullptr);
             } break;
             case Http::GET_JS: {
-                // tcp.server_send(NULL, 0);
+                uint16_t sizeHeadJs = W25q::pThis->SizeHeadJs;
+                uint16_t sizeJs = W25q::pThis->SizeJs;
+                uint8_t tempArr[sizeHeadJs + sizeJs];
+                memcpy(tempArr, W25q::pThis->headJs, sizeHeadJs);
+                memcpy(tempArr + sizeHeadJs, W25q::pThis->js, sizeJs);
+                tcp_write(pcb, (const void*)(tempArr), sizeHeadJs + sizeJs,
+                          TCP_WRITE_FLAG_COPY);
                 tcp.current_es->state = Tcp::ES_CLOSE;
                 pbuf_free(tcp.current_es->p);
                 tcp.server_connection_close(pcb, tcp.current_es);
                 // tcp.server_connection_close(pcb, nullptr);
+            } break;
+            case Http::GET_CONTENT: {
+                // TODO: send answer
+                uint16_t sizeHeadContent = W25q::pThis->SizeHeadContentStream;
+                uint16_t sizeContent = 2;
+                uint8_t tempArr[sizeHeadContent + sizeContent];
+                memcpy(tempArr, W25q::pThis->headContentStream,
+                       sizeHeadContent);
+                memcpy(tempArr + sizeHeadContent, &debugVal, sizeContent);
+                tcp_write(pcb, (const void*)(tempArr),
+                          sizeHeadContent + sizeContent, TCP_WRITE_FLAG_COPY);
+                // tcp.current_es->state = Tcp::ES_CLOSE;
+                pbuf_free(tcp.current_es->p);
+                // tcp.server_connection_close(pcb, tcp.current_es);
+                // TODO: try not to close conection
             } break;
             default:
                 tcp.current_es->state = Tcp::ES_CLOSE;

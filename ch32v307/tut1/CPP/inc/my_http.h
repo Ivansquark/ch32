@@ -19,21 +19,22 @@ class Http {
         GET_HTML,
         GET_ICO,
         GET_CSS,
-        GET_JS
+        GET_JS,
+        GET_CONTENT
     };
     ParseState currentParseState = ParseState::NOT;
     ParseState parse(const uint8_t* data, uint16_t len);
-    
+
     bool isHttpRequest();
     void httpHandler();
 
-    //struct Tcp::server_struct* es = NULL;
+    // struct Tcp::server_struct* es = NULL;
     tcp_pcb* pcb = NULL;
 
   private:
     void init();
-
-    //uint8_t buff[1024 * 2] = {0};
+    uint16_t debugVal = 0;
+    // uint8_t buff[1024 * 2] = {0};
 };
 
 #endif // MY_HTTP_H

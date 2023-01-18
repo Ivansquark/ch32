@@ -25,66 +25,69 @@ const update = () => {
     });
     const actives = document.querySelectorAll(".active");
     progress.style.width =
-    ((actives.length - 1) / (circles.length - 1)) * 100 + "%";
+        ((actives.length - 1) / (circles.length - 1)) * 100 + "%";
     if (currentActive === 1) {
         prev.disabled = true;
-        document.getElementById("info").textContent="START TEXT";
+        document.getElementById("info").textContent = "START TEXT";
     } else if (currentActive === circles.length) {
         next.disabled = true;
-        document.getElementById("info").textContent="END TEXT";
+        document.getElementById("info").textContent = "END TEXT";
     } else {
         prev.disabled = false;
         next.disabled = false;
     }
 };
 var xhr;
-var idTimer1, idTimer2;
+var idTimer1;
 var temp = false;
-var add = 0;
 function Timer1() {
-    xhr.open("GET", "content.html?r=" + Math.random(), true); //Math.random() - защита от кеширования
-    xhr.responseType = "text";
+    xhr.open("GET", "content.bin?r=" + Math.random(), true);
+    xhr.responseType = "arraybuffer";
     xhr.onload = function (oEvent) {
-        document.getElementById('information').innerHTML = xhr.response;
+        var val = new Uint16Array(this.response);
+        myChart.data = val[0];
+        //myChart.update();
+        draw(val);
     }
     xhr.send(null);
     idTimer1 = setTimeout("Timer1()", 10);
-    if(!temp) {
+    if (!temp) {
         temp = true;
-        document.getElementById("info").textContent="END TEXT";
+        document.getElementById("info").textContent = "END";
     } else {
         temp = false;
-        document.getElementById("info").textContent="START TEXT";
+        document.getElementById("info").textContent = "START";
     }
-    draw(add++);
+
+    var val = new ArrayBuffer(1);
+    val[0] = 4096;
+    draw(val[0]);
 }
 var IsStarted = false;
 function startstring() {
-    if(!IsStarted) {
+    if (!IsStarted) {
         IsStarted = true;
         document.getElementById('start').innerHTML = 'STOP';
         Timer1();
     } else {
         IsStarted = false;
         clearTimeout(idTimer1);
-        clearTimeout(idTimer2);
         document.getElementById('start').innerHTML = 'START';
-        document.getElementById('information').innerHTML = "";
     }
 }
 function onload() {
-    xhr = new(XMLHttpRequest);
+    xhr = new (XMLHttpRequest);
 }
 function draw(i) {
-    var V = 3*i/4096    
+    var V = 3 * i / 4096
     var canvas = document.getElementById('myChart');
     if (canvas.getContext) {
         var ctx = canvas.getContext('2d');
-        ctx.clearRect(0, 0, canvas.width, canvas.height);        
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
         ctx.fillStyle = "red";
-        ctx.fillRect(0, 0, canvas.width*V/3, 50);        
+        ctx.fillRect(0, 0, canvas.width * V / 3, 50);
         ctx.fillStyle = "blue";
-        ctx.font = "italic 30pt Arial";        
+        ctx.font = "italic 30pt Arial";
         ctx.fillText(V.toFixed(3) + "V", 35, 150);
     }
 }

@@ -10,13 +10,62 @@ class W25q {
     W25q();
     static W25q* pThis;
 
-    // Http server info
-    //
-    // TODO: make ffs system
+    //@brief Write data to flash.(no need Erase)
+    void write(uint8_t* pBuffer, uint32_t WriteAddr, uint16_t size);
+    void read(uint8_t* pBuffer, uint32_t ReadAddr, uint16_t size);
+    void erase_Sector(uint32_t Dst_Addr);
+    uint16_t readID(void);
+    uint16_t readSR(void);
+    void reset();
+    void WAKEUP(void);
 
-    // static constexpr const char* headIndexHtml =
-    //    "HTTP/1.1 200 OK\r\nServer: nginx\r\nContent-Type:
-    //    text/html\r\nConnection: " "keep-alive\r\n\r\n";
+    /* Winbond SPIFalsh ID */
+    static constexpr uint16_t W25Q80 = 0XEF13;
+    static constexpr uint16_t W25Q16 = 0XEF14;
+    static constexpr uint16_t W25Q32 = 0XEF15;
+    static constexpr uint16_t W25Q64 = 0XEF16;
+    static constexpr uint16_t W25Q128 = 0XEF17;
+
+  private:
+    void init();
+    void delay(volatile uint32_t val);
+    uint16_t readWriteByte(uint8_t TxData);
+    void writeSR(uint8_t sr);
+    void wait_Busy(void);
+    void write_Enable(void);
+    void write_Disable(void);
+    void write_Page(uint8_t* pBuffer, uint32_t WriteAddr, uint16_t size);
+    void write_NoCheck(uint8_t* pBuffer, uint32_t WriteAddr, uint16_t size);
+    void erase_Chip(void);
+    void powerDown(void);
+
+    inline void setCS() { GPIOA->BSHR |= GPIO_BSHR_BR2; }
+    inline void resetCS() { GPIOA->BSHR |= GPIO_BSHR_BS2; }
+
+    /* Winbond SPIFalsh Instruction List */
+    static constexpr uint16_t W25X_WriteEnable = 0x06;
+    static constexpr uint16_t W25X_WriteDisable = 0x04;
+    static constexpr uint16_t W25X_ReadStatusReg = 0x05;
+    static constexpr uint16_t W25X_WriteStatusReg = 0x01;
+    static constexpr uint16_t W25X_ReadData = 0x03;
+    static constexpr uint16_t W25X_FastReadData = 0x0B;
+    static constexpr uint16_t W25X_FastReadDual = 0x3B;
+    static constexpr uint16_t W25X_PageProgram = 0x02;
+    static constexpr uint16_t W25X_BlockErase = 0xD8;
+    static constexpr uint16_t W25X_SectorErase = 0x20;
+    static constexpr uint16_t W25X_ChipErase = 0xC7;
+    static constexpr uint16_t W25X_PowerDown = 0xB9;
+    static constexpr uint16_t W25X_ReleasePowerDown = 0xAB;
+    static constexpr uint16_t W25X_EnableReset = 0x66;
+    static constexpr uint16_t W25X_Reset = 0x99;
+    static constexpr uint16_t W25X_DeviceID = 0xAB;
+    static constexpr uint16_t W25X_ManufactDeviceID = 0x90;
+    static constexpr uint16_t W25X_JedecDeviceID = 0x9F;
+
+    uint8_t SPI_FLASH_BUF[4096] = {0};
+
+  public:
+    // Http server info
     static constexpr const char* headIndexHtml =
         "HTTP/1.1 200 OK\n"
         "Content-Type: text/html; charset=UTF-8\n"
@@ -252,15 +301,15 @@ class W25q {
         "var xhr;"
         "var idTimer1"
         "var temp = false;"
-        "var ctx = document.getElementById(\"myChart\");"
+        "//var ctx = document.getElementById(\"myChart\");"
         "function Timer1() {"
         "   xhr.open(\"GET\", \"content.bin?r=\" + Math.random(), true);"
         "   xhr.responseType = \"arraybuffer\";"
         "   xhr.onload = function (oEvent) {"
-        "       var uint16 = new Uint16(this.response);"
-        "       myChart.data = uint16;"
-        "       myChart.update();"
-        "       draw(uint16);"
+        "       var val = new Uint16Array(this.response);"
+        "       myChart.data = val[0];"
+        "       //myChart.update();"
+        "       draw(val);"
         "   }"
         "   xhr.send(null);"
         "   idTimer1 = setTimeout(\"Timer1()\", 1000);"
@@ -313,62 +362,12 @@ class W25q {
     const uint16_t SizeIndexHtml = strlen(indexHtml);
     const uint16_t SizeHeadIco = strlen(headIco);
     const uint16_t SizeIco = sizeof(ico);
-
-    //@brief Write data to flash.(no need Erase)
-    void write(uint8_t* pBuffer, uint32_t WriteAddr, uint16_t size);
-    void read(uint8_t* pBuffer, uint32_t ReadAddr, uint16_t size);
-    void erase_Sector(uint32_t Dst_Addr);
-    uint16_t readID(void);
-    uint16_t readSR(void);
-    void reset();
-    void WAKEUP(void);
-
-    /* Winbond SPIFalsh ID */
-    static constexpr uint16_t W25Q80 = 0XEF13;
-    static constexpr uint16_t W25Q16 = 0XEF14;
-    static constexpr uint16_t W25Q32 = 0XEF15;
-    static constexpr uint16_t W25Q64 = 0XEF16;
-    static constexpr uint16_t W25Q128 = 0XEF17;
-
-  private:
-    void init();
-    void delay(volatile uint32_t val);
-    uint16_t readWriteByte(uint8_t TxData);
-    void writeSR(uint8_t sr);
-    void wait_Busy(void);
-    void write_Enable(void);
-    void write_Disable(void);
-    void write_Page(uint8_t* pBuffer, uint32_t WriteAddr, uint16_t size);
-    void write_NoCheck(uint8_t* pBuffer, uint32_t WriteAddr, uint16_t size);
-    void erase_Chip(void);
-    void powerDown(void);
-
-    inline void setCS() { GPIOA->BSHR |= GPIO_BSHR_BR2; }
-    inline void resetCS() { GPIOA->BSHR |= GPIO_BSHR_BS2; }
-
-    /* Winbond SPIFalsh Instruction List */
-    static constexpr uint16_t W25X_WriteEnable = 0x06;
-    static constexpr uint16_t W25X_WriteDisable = 0x04;
-    static constexpr uint16_t W25X_ReadStatusReg = 0x05;
-    static constexpr uint16_t W25X_WriteStatusReg = 0x01;
-    static constexpr uint16_t W25X_ReadData = 0x03;
-    static constexpr uint16_t W25X_FastReadData = 0x0B;
-    static constexpr uint16_t W25X_FastReadDual = 0x3B;
-    static constexpr uint16_t W25X_PageProgram = 0x02;
-    static constexpr uint16_t W25X_BlockErase = 0xD8;
-    static constexpr uint16_t W25X_SectorErase = 0x20;
-    static constexpr uint16_t W25X_ChipErase = 0xC7;
-    static constexpr uint16_t W25X_PowerDown = 0xB9;
-    static constexpr uint16_t W25X_ReleasePowerDown = 0xAB;
-    static constexpr uint16_t W25X_EnableReset = 0x66;
-    static constexpr uint16_t W25X_Reset = 0x99;
-    static constexpr uint16_t W25X_DeviceID = 0xAB;
-    static constexpr uint16_t W25X_ManufactDeviceID = 0x90;
-    static constexpr uint16_t W25X_JedecDeviceID = 0x9F;
-
-    uint8_t SPI_FLASH_BUF[4096] = {0};
-
-  public:
+    const uint16_t SizeHeadCss = strlen(headCss);
+    const uint16_t SizeCss = strlen(css);
+    const uint16_t SizeHeadJs = strlen(headJs);
+    const uint16_t SizeJs = strlen(js);
+    const uint16_t SizeHeadContentStream = strlen(headContentStream);
+    const uint16_t SizeContentStream = 2;
 };
 
 #endif // W25Q_H
