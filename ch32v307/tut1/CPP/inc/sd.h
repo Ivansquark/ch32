@@ -39,7 +39,10 @@
 
 /* SDIO clock */
 #define SDIO_INIT_CLK_DIV 0xB2
-#define SDIO_TRANSFER_CLK_DIV 0x00
+//#define SDIO_INIT_CLK_DIV 0xFD
+#define SDIO_TRANSFER_CLK_DIV 0x00 //+2 //96/2 = 48 MHz
+//#define SDIO_TRANSFER_CLK_DIV 0x01 //+2 //144/3 = 48 MHz
+//#define SDIO_TRANSFER_CLK_DIV 0x04 //+6 //144/6 = 24 MHz
 
 /* SDIO work mode */
 #define SD_POLLING_MODE 0
@@ -346,9 +349,10 @@ class Sd {
 
     __attribute__((aligned(4))) u32* tempbuff;
 
-    u8 CardType = SDIO_STD_CAPACITY_SD_CARD_V1_1;
+    //u8 CardType = SDIO_STD_CAPACITY_SD_CARD_V1_1;
+    u8 CardType = SDIO_HIGH_CAPACITY_SD_CARD;
     u32 CSD_Tab[4], CID_Tab[4], RCA = 0;
-    u8 DeviceMode = SD_DMA_MODE;
+    u8 DeviceMode = SD_POLLING_MODE;
     u8 StopCondition = 0;
     volatile SD_Error TransferError = SD_OK;
     volatile u8 TransferEnd = 0;
@@ -375,5 +379,7 @@ class Sd {
     SD_Error FindSCR(u16 rca, u32* pscr);
     u8 convert_from_bytes_to_power_of_two(u16 NumberOfBytes);
 };
-
+extern "C" 
+__attribute__((interrupt))
+void SDIO_IRQHandler(void);
 #endif // SD_H

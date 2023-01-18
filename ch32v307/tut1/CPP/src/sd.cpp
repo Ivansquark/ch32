@@ -29,6 +29,7 @@ SD_Error Sd::init() {
 
     GPIO_InitStructure.GPIO_Pin = GPIO_Pin_7;
     GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPU;
+    //GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
     GPIO_Init(GPIOD, &GPIO_InitStructure);
 
     SDIO_DeInit();
@@ -181,6 +182,7 @@ SD_Error Sd::SD_PowerON(void) {
         }
         CardType = SDIO_MULTIMEDIA_CARD;
     }
+    // SDIO_SetSDIOOperation(ENABLE);
     return (errorstatus);
 }
 
@@ -731,6 +733,7 @@ SD_Error Sd::SD_WriteBlock(u8* buf, long long addr, u16 blksize) {
     if (errorstatus != SD_OK) { return errorstatus; }
     StopCondition = 0;
 
+    // SDIO_SetSDIOOperation(ENABLE);
     SDIO_DataInitStructure.SDIO_DataBlockSize = power << 4;
     ;
     SDIO_DataInitStructure.SDIO_DataLength = blksize;
@@ -996,7 +999,7 @@ SD_Error Sd::SD_WriteMultiBlocks(u8* buf, long long addr, u16 blksize,
  *
  * @return  None
  */
-void SDIO_IRQHandler(void) { Sd::pThis->SD_ProcessIRQSrc(); }
+extern "C" void SDIO_IRQHandler(void) { Sd::pThis->SD_ProcessIRQSrc(); }
 
 SD_Error Sd::SD_ProcessIRQSrc(void) {
     if (SDIO->STA & (1 << 8)) {
@@ -1273,7 +1276,7 @@ SDCardState Sd::SD_GetState(void) {
     }
 }
 
-SD_Error Sd::FindSCR([[maybe_unused]]u16 rca, u32* pscr) {
+SD_Error Sd::FindSCR([[maybe_unused]] u16 rca, u32* pscr) {
     u32 index = 0;
     SD_Error errorstatus = SD_OK;
     u32 tempscr[2] = {0, 0};
@@ -1300,12 +1303,15 @@ SD_Error Sd::FindSCR([[maybe_unused]]u16 rca, u32* pscr) {
 
     if (errorstatus != SD_OK) { return errorstatus; }
 
+    // SDIO->CLKCR |= (1<<14);//SDIO_HardwareFlowControl_Enable;
     SDIO_DataInitStructure.SDIO_DataTimeOut = SD_DATATIMEOUT;
     SDIO_DataInitStructure.SDIO_DataLength = 8;
     SDIO_DataInitStructure.SDIO_DataBlockSize = SDIO_DataBlockSize_8b;
     SDIO_DataInitStructure.SDIO_TransferDir = SDIO_TransferDir_ToSDIO;
     SDIO_DataInitStructure.SDIO_TransferMode = SDIO_TransferMode_Block;
     SDIO_DataInitStructure.SDIO_DPSM = SDIO_DPSM_Enable;
+    //SDIO->DCTRL |= (1 << 8);  // RWSTART
+    //SDIO->DCTRL |= (1 << 11); // SD_IO_EN
     SDIO_DataConfig(&SDIO_DataInitStructure);
 
     SDIO_CmdInitStructure.SDIO_Argument = 0x0;

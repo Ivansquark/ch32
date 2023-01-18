@@ -35,12 +35,16 @@ void Rcc::init(uint8_t quarz) {
             RCC->CFGR0 |= (uint32_t)RCC_PPRE2_DIV1;
             /* PCLK1 = HCLK */
             RCC->CFGR0 |= (uint32_t)RCC_PPRE1_DIV2;
-            /*  PLL configuration: PLLCLK = HSE * 18 = 144 MHz */
             RCC->CFGR0 &= (uint32_t)(
                 (uint32_t) ~(RCC_PLLSRC | RCC_PLLXTPRE | RCC_PLLMULL));
 
+            /*  PLL configuration: PLLCLK = HSE * 18 = 144 MHz */
             RCC->CFGR0 |= (uint32_t)(RCC_PLLSRC_HSE | RCC_PLLXTPRE_HSE |
                                      RCC_PLLMULL18_EXTEN);
+            /*  PLL configuration: PLLCLK = HSE * 12 = 96 MHz */
+            //RCC->CFGR0 |= (uint32_t)(RCC_PLLSRC_HSE | RCC_PLLXTPRE_HSE |
+            //                         RCC_PLLMULL12_EXTEN);
+            
 
             /* Enable PLL */
             RCC->CTLR |= RCC_PLLON;

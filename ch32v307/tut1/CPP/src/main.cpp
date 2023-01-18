@@ -19,7 +19,7 @@ Eeprom eeprom;
 Eth eth;
 Udp udp;
 Http http;
-Sd sd;
+//Sd sd;
 FATFS fs;
 FRESULT res;
 FIL test;
@@ -81,7 +81,6 @@ int main(void) {
     while (1) {
         eth.rx_handler();
         // TCP handler
-        // TODO: make Rx Tx buff
         http.httpHandler();
 
         if (IsTimeout) {
