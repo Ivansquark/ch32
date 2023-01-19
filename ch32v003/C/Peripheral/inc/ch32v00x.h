@@ -2414,8 +2414,6 @@ typedef struct
 #define EXTEN_OPA_NSEL                          ((uint32_t)0x00020000)
 #define EXTEN_OPA_PSEL                          ((uint32_t)0x00040000)
 
-#include <ch32v00x_conf.h>
-
 #ifdef __cplusplus
 }
 #endif

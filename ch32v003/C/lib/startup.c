@@ -127,8 +127,14 @@ void __attribute__((naked, noreturn)) Reset_Handler()
     __asm volatile("csrci 0x800, 0x8");
 
     // set start address of vector table
+    // mtvec[1:0] -
+    // [0]=0 -non vectored format (one handler to all address in mcause)
+    // [0]=1 - vectored format (check [1] bit)
+    // [1]=0 - is an instruction to jump to the exception or interrupt function,
+    // or it can be another instruction - ?????????????????
+    // [1]=1 -  the absolute addresses handlers is stored at the vector table
     __asm volatile("la t0, vectors");
-    __asm volatile("ori t0, t0, 3"); // add two low bits
+    __asm volatile("ori t0, t0, 3"); // [1:0] = 1:1 absolute vectored
     __asm volatile("csrw mtvec, t0");
 
     // asm("jal SystemInit");

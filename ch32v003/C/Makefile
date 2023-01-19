@@ -18,6 +18,7 @@ INC = inc/
 LIB = lib/
 BLD = build/
 SRC = src/
+perINC = Peripheral/inc/
 #///////////////////////////////////
 CFLAGS = -c -Wall -Wextra -g -O0 \
 	   -fno-pic -fno-common \
@@ -47,7 +48,7 @@ $(BLD)main.lst: $(BLD)main.elf
 #------------------------------------  LINKER ---------------------------------
 #$(BLD)main.elf: $(BLD)startup_ch32v30x_D8.o
 $(BLD)main.elf:	$(BLD)core_riscv.o $(BLD)startup.o
-$(BLD)main.elf: $(BLD)main.o				
+$(BLD)main.elf: $(BLD)main.o $(BLD)gpio.o
 	$(CC) -o $@ -T$(LIB)Link.ld $^ -I$(LIB) $(LFLAGS)
 #    $@ — target name
 #    $< — first dependancy name
@@ -81,7 +82,7 @@ $(BLD)%.o: $(SRC)%.c
 	then if [ ! -d "$(BLD)" ]; then mkdir $(BLD); fi; \
 	rmdir /var/lock/.myscript.exclusivelock; \
 	fi
-	$(CC) $< -o $@ -I$(INC) -I$(LIB) $(CFLAGS)
+	$(CC) $< -o $@ -I$(INC) -I$(perINC) -I$(LIB) $(CFLAGS)
 clean:
 	rm -rf build 
 	
