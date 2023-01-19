@@ -11,7 +11,9 @@ Tcp::Tcp() {
 void Tcp::init() { create_server(); }
 void Tcp::create_server() {
     ip_addr_t DestIPaddr;
-    IP4_ADDR(&DestIPaddr, ip[0], ip[1], ip[2], ip[3]);
+    //IP4_ADDR(&DestIPaddr, ip[0], ip[1], ip[2], ip[3]);
+    IP4_ADDR(&DestIPaddr, Eth::pThis->IP_ADDRESS[0], Eth::pThis->IP_ADDRESS[1],
+             Eth::pThis->IP_ADDRESS[2], Eth::pThis->IP_ADDRESS[3]);
     //* create protocol control block for new connection
     tcp_server_pcb = tcp_new();
     err_t err;
@@ -89,17 +91,19 @@ err_t Tcp::server_recv(void* arg, struct tcp_pcb* tpcb, struct pbuf* p,
     if (p == NULL) {
         /* remote host closed connection */
         es->state = ES_CLOSE;
-        if (es->p == NULL) {
-            /* we're done sending, close connection */
-            server_connection_close(tpcb, es);
-        }
+        //if (es->p == NULL) {
+        //    /* we're done sending, close connection */
+        //    server_connection_close(tpcb, es);
+        //}
+        server_connection_close(tpcb, es);
         ret_err = ERR_OK;
     } else if (err != ERR_OK) {
         /* a non empty frame received but for some reason err != ERR_OK */
-        if (p != NULL) {
+        //if (p != NULL) {
             pbuf_free(p); /* free received pbuf (nothing do with data)*/
             es->p = NULL;
-        }
+            server_connection_close(tpcb, es);
+        //}
         ret_err = err;
     } else if (es->state == ES_ACCEPTED) {
         //------ FIRST RECEIVED DATA /* first data chunk in p->payload */ -----
@@ -121,7 +125,8 @@ err_t Tcp::server_recv(void* arg, struct tcp_pcb* tpcb, struct pbuf* p,
         ret_err = ERR_OK;
     } else if (es->state == ES_RECEIVE) {
         ///* more data recved from client and previous data has already sent*/
-        //long GET request or some other requests
+        // long GET request or some other requests
+        pbuf_free(p);
         ret_err = ERR_OK;
     } else if (es->state == ES_CLOSE) {
         /* data received when connection already closed */
@@ -169,7 +174,10 @@ void Tcp::server_connection_close(struct tcp_pcb* tpcb,
     tcp_recv(tpcb, NULL);
     tcp_err(tpcb, NULL);
     tcp_poll(tpcb, NULL, 0);
-    if (es != NULL) { mem_free(es); }
+    if (es != NULL) {
+        pbuf_free(es->p);
+        mem_free(es);
+    }
     tcp_close(tpcb);
     pThis->isPC_connected = false;
 }

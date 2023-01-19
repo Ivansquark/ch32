@@ -81,7 +81,7 @@ $(BLD)main.elf: $(lwipBLD)ethernet.o $(lwipBLD)ethernetif.o
 $(BLD)main.elf: $(BLD)my_udp.o $(BLD)my_tcp.o $(BLD)my_http.o
 $(BLD)main.elf: $(BLD)rcc.o $(BLD)eeprom.o $(BLD)gpio.o $(BLD)w25q.o
 $(BLD)main.elf: $(BLD)basic_timer.o $(BLD)systim.o $(BLD)eth.o
-$(BLD)main.elf: $(BLD)sd.o
+$(BLD)main.elf: $(BLD)sd.o $(BLD)adc.o
 $(BLD)main.elf: $(BLD)main.o
 	$(CPP) -o $@ -T$(LIB)Link.ld $^ -I$(LIB) $(LFLAGS)
 #    $@ — target name

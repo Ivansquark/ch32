@@ -1,5 +1,6 @@
 #include "eth.h"
 
+Eth* Eth::pThis = nullptr;
 /* Globe variable */
 LIST(ch307_mac_rec);
 MEMB(ch307_mac_rec_frame_mem, FrameTypeDef, ETH_RXBUFNB);
@@ -14,7 +15,14 @@ uint8_t Eth::TxBuff[2048] = {0};
 uint16_t Eth::currentRxBuffLen = 0;
 uint16_t Eth::currentTxBuffLen = 0;
 
-Eth::Eth() { init(); }
+Eth::Eth(uint8_t ip0, uint8_t ip1, uint8_t ip2, uint8_t ip3) {
+    pThis = this;
+    IP_ADDRESS[0] = ip0;
+    IP_ADDRESS[1] = ip1;
+    IP_ADDRESS[2] = ip2;
+    IP_ADDRESS[3] = ip3;
+    init();
+}
 
 void Eth::init() {
     SysTim::init();
@@ -333,9 +341,12 @@ void Eth::init_lwip() {
     ip_addr_set_zero_ip4(&gw);
 #else
     /* IP addresses initialization */
-    IP4_ADDR(&ipaddr, 192, 168, 1, 100);
+    // IP4_ADDR(&ipaddr, 192, 168, 1, 100);
+    IP4_ADDR(&ipaddr, IP_ADDRESS[0], IP_ADDRESS[1], IP_ADDRESS[2],
+             IP_ADDRESS[3]);
     IP4_ADDR(&netmask, 255, 255, 255, 0);
-    IP4_ADDR(&gw, 192, 168, 1, 1);
+    IP4_ADDR(&gw, 192, 168, IP_ADDRESS[2], 1);
+    //IP4_ADDR(&gw, 192, 168, 1, 1);
 #endif
     /* Initilialize the LwIP stack without RTOS */
     lwip_init();

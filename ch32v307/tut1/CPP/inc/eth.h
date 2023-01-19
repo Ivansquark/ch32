@@ -58,7 +58,8 @@ LIST_EXTERN(ch307_mac_rec);
 MEMB_EXTERN(ch307_mac_rec_frame_mem);
 class Eth {
   public:
-    Eth();
+    Eth(uint8_t ip0 = 0, uint8_t ip1 = 0, uint8_t ip2 = 0, uint8_t ip3 = 0);
+    static Eth* pThis;
 
     // @fn      ETH_RxPkt_ChainMode
     // @brief   MAC receive a ethernet frame in chain mode.
@@ -81,6 +82,7 @@ class Eth {
     static uint16_t currentRxBuffLen;
     static uint16_t currentTxBuffLen;
 
+    uint8_t IP_ADDRESS[4];
   private:
     void init();
     void init_phy();
@@ -93,7 +95,6 @@ class Eth {
     ip4_addr_t ipaddr;
     ip4_addr_t netmask;
     ip4_addr_t gw;
-    uint8_t IP_ADDRESS[4];
     uint8_t NETMASK_ADDRESS[4];
     uint8_t GATEWAY_ADDRESS[4];
 };

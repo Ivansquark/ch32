@@ -25,6 +25,12 @@ Http::ParseState Http::parse(const uint8_t* data, uint16_t len) {
         } else if (data[4] == '/' && data[5] == 'c' && data[6] == 'o') {
             // GET /content.bin
             return ParseState::GET_CONTENT;
+        } else if (data[4] == '/' && data[5] == 'o' && data[6] == 'n') {
+            // GET /on
+            return ParseState::GET_LED_ON;
+        } else if (data[4] == '/' && data[5] == 'o' && data[6] == 'f') {
+            // GET /off
+            return ParseState::GET_LED_OFF;
         }
     } else {
         return ParseState::NOT;
@@ -41,18 +47,26 @@ void Http::httpHandler() {
             pcb = tcp.current_tcp_pcb;
             currentParseState = parse(Eth::RxBuff, Eth::currentRxBuffLen);
             switch (currentParseState) {
-            case Http::GET_HTML: {
+            case GET_HTML: {
                 // TODO: send answer
                 uint16_t sizeHeadIndexHtml = W25q::pThis->SizeHeadIndexHtml;
                 uint16_t sizeIndexHtml = W25q::pThis->SizeIndexHtml;
-                uint8_t arr[sizeHeadIndexHtml + sizeIndexHtml];
-                W25q::pThis->read((uint8_t*)arr,
-                                  W25q::pThis->AddressHeadIndexHtml,
-                                  sizeHeadIndexHtml);
-                W25q::pThis->read(((uint8_t*)arr + sizeHeadIndexHtml),
-                                  W25q::pThis->AddressIndexHtml, sizeIndexHtml);
+                // uint8_t arr[sizeHeadIndexHtml + sizeIndexHtml];
+                // W25q::pThis->read((uint8_t*)arr,
+                //                  W25q::pThis->AddressHeadIndexHtml,
+                //                  sizeHeadIndexHtml);
+                // W25q::pThis->read(((uint8_t*)arr + sizeHeadIndexHtml),
+                //                  W25q::pThis->AddressIndexHtml,
+                //                  sizeIndexHtml);
                 // tcp.server_send(arr, sizeHeadIndexHtml + sizeIndexHtml);
-                tcp_write(pcb, (const void*)(arr),
+                // tcp_write(pcb, (const void*)(arr),
+                //          sizeHeadIndexHtml + sizeIndexHtml,
+                //          TCP_WRITE_FLAG_COPY);
+                uint8_t tempArr[sizeHeadIndexHtml + sizeIndexHtml];
+                memcpy(tempArr, W25q::pThis->headIndexHtml, sizeHeadIndexHtml);
+                memcpy(tempArr + sizeHeadIndexHtml, W25q::pThis->indexHtml,
+                       sizeIndexHtml);
+                tcp_write(pcb, (const void*)(tempArr),
                           sizeHeadIndexHtml + sizeIndexHtml,
                           TCP_WRITE_FLAG_COPY);
                 // tcp_output(pcb); // send data now
@@ -60,16 +74,20 @@ void Http::httpHandler() {
                 pbuf_free(tcp.current_es->p);
                 tcp.server_connection_close(pcb, tcp.current_es);
             } break;
-            case Http::GET_ICO: {
+            case GET_ICO: {
                 uint16_t sizeHeadIco = W25q::pThis->SizeHeadIco;
                 uint16_t sizeIco = W25q::pThis->SizeIco;
-                uint8_t arr[sizeHeadIco + sizeIco];
-                W25q::pThis->read((uint8_t*)arr, W25q::pThis->AddressHeadIco,
-                                  sizeHeadIco);
-                W25q::pThis->read(((uint8_t*)arr + sizeHeadIco),
-                                  W25q::pThis->AddressIco, sizeIco);
-                tcp.server_send(arr, sizeHeadIco + sizeIco);
-                tcp_write(pcb, (const void*)(arr), sizeHeadIco + sizeIco,
+                // uint8_t arr[sizeHeadIco + sizeIco];
+                // W25q::pThis->read((uint8_t*)arr, W25q::pThis->AddressHeadIco,
+                //                  sizeHeadIco);
+                // W25q::pThis->read(((uint8_t*)arr + sizeHeadIco),
+                //                  W25q::pThis->AddressIco, sizeIco);
+                // tcp.server_send(arr, sizeHeadIco + sizeIco);
+
+                uint8_t tempArr[sizeHeadIco + sizeIco];
+                memcpy(tempArr, W25q::pThis->headIco, sizeHeadIco);
+                memcpy(tempArr + sizeHeadIco, W25q::pThis->ico, sizeIco);
+                tcp_write(pcb, (const void*)(tempArr), sizeHeadIco + sizeIco,
                           TCP_WRITE_FLAG_COPY);
                 // tcp_output(pcb); // send data now
                 tcp.current_es->state = Tcp::ES_CLOSE;
@@ -77,7 +95,7 @@ void Http::httpHandler() {
                 tcp.server_connection_close(pcb, tcp.current_es);
                 // tcp.server_connection_close(pcb, nullptr);
             } break;
-            case Http::GET_CSS: {
+            case GET_CSS: {
                 uint16_t sizeHeadCss = W25q::pThis->SizeHeadCss;
                 uint16_t sizeCss = W25q::pThis->SizeCss;
                 uint8_t tempArr[sizeHeadCss + sizeCss];
@@ -90,7 +108,7 @@ void Http::httpHandler() {
                 tcp.server_connection_close(pcb, tcp.current_es);
                 // tcp.server_connection_close(pcb, nullptr);
             } break;
-            case Http::GET_JS: {
+            case GET_JS: {
                 uint16_t sizeHeadJs = W25q::pThis->SizeHeadJs;
                 uint16_t sizeJs = W25q::pThis->SizeJs;
                 uint8_t tempArr[sizeHeadJs + sizeJs];
@@ -101,22 +119,55 @@ void Http::httpHandler() {
                 tcp.current_es->state = Tcp::ES_CLOSE;
                 pbuf_free(tcp.current_es->p);
                 tcp.server_connection_close(pcb, tcp.current_es);
-                // tcp.server_connection_close(pcb, nullptr);
             } break;
-            case Http::GET_CONTENT: {
+            case GET_CONTENT: {
                 // TODO: send answer
                 uint16_t sizeHeadContent = W25q::pThis->SizeHeadContentStream;
                 uint16_t sizeContent = 2;
                 uint8_t tempArr[sizeHeadContent + sizeContent];
                 memcpy(tempArr, W25q::pThis->headContentStream,
                        sizeHeadContent);
+                debugVal = Adc::pThis->getAdc();
                 memcpy(tempArr + sizeHeadContent, &debugVal, sizeContent);
                 tcp_write(pcb, (const void*)(tempArr),
                           sizeHeadContent + sizeContent, TCP_WRITE_FLAG_COPY);
                 // tcp.current_es->state = Tcp::ES_CLOSE;
                 pbuf_free(tcp.current_es->p);
-                // tcp.server_connection_close(pcb, tcp.current_es);
+                debugVal++;
+                tcp.server_connection_close(pcb, tcp.current_es);
                 // TODO: try not to close conection
+            } break;
+            case GET_LED_ON: {
+                Gpio::Out::setBlue();
+                uint16_t sizeHeadContent = W25q::pThis->SizeHeadContentStream;
+                uint16_t sizeContent = 1;
+                uint8_t tempArr[sizeHeadContent + sizeContent];
+                memcpy(tempArr, W25q::pThis->headContentStream,
+                       sizeHeadContent);
+                tempArr[sizeHeadContent - 1 - 4] = '1';
+                bool state = true;
+                memcpy(tempArr + sizeHeadContent, &state, sizeContent);
+                tcp_write(pcb, (const void*)(tempArr),
+                          sizeHeadContent + sizeContent, TCP_WRITE_FLAG_COPY);
+                // tcp.current_es->state = Tcp::ES_CLOSE;
+                pbuf_free(tcp.current_es->p);
+                tcp.server_connection_close(pcb, tcp.current_es);
+            } break;
+            case GET_LED_OFF: {
+                Gpio::Out::resetBlue();
+                uint16_t sizeHeadContent = W25q::pThis->SizeHeadContentStream;
+                uint16_t sizeContent = 1;
+                uint8_t tempArr[sizeHeadContent + sizeContent];
+                memcpy(tempArr, W25q::pThis->headContentStream,
+                       sizeHeadContent);
+                tempArr[sizeHeadContent - 1 - 4] = '1';
+                bool state = false;
+                memcpy(tempArr + sizeHeadContent, &state, sizeContent);
+                tcp_write(pcb, (const void*)(tempArr),
+                          sizeHeadContent + sizeContent, TCP_WRITE_FLAG_COPY);
+                // tcp.current_es->state = Tcp::ES_CLOSE;
+                pbuf_free(tcp.current_es->p);
+                tcp.server_connection_close(pcb, tcp.current_es);
             } break;
             default:
                 tcp.current_es->state = Tcp::ES_CLOSE;

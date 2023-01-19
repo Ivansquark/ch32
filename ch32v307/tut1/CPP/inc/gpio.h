@@ -8,6 +8,8 @@ namespace Gpio {
 namespace In {
 void init();
 inline bool isA0() { return (GPIOA->INDR & GPIO_INDR_IDR0); }
+inline bool isBlue() { return !(GPIOA->INDR & GPIO_INDR_IDR4); }
+inline bool isRed() { return !(GPIOA->INDR & GPIO_INDR_IDR15); }
 } // namespace In
 
 namespace Out {

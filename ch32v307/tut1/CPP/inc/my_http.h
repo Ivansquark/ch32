@@ -1,6 +1,8 @@
 #ifndef MY_HTTP_H
 #define MY_HTTP_H
 
+#include "adc.h"
+#include "gpio.h"
 #include "main.h"
 #include "my_tcp.h"
 #include "string.h"
@@ -20,7 +22,9 @@ class Http {
         GET_ICO,
         GET_CSS,
         GET_JS,
-        GET_CONTENT
+        GET_CONTENT,
+        GET_LED_ON,
+        GET_LED_OFF
     };
     ParseState currentParseState = ParseState::NOT;
     ParseState parse(const uint8_t* data, uint16_t len);

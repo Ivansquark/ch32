@@ -1,5 +1,5 @@
 ENTRY( _start )
-__stack_size = 0x800;   /*2048*/
+__stack_size = 0x1000;   /*4096*/
 _Min_Heap_Size = 0x800; /*2048*/
 PROVIDE( _stack_size = __stack_size );
 

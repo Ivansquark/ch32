@@ -1,5 +1,6 @@
 #include "main.h"
 
+#include "adc.h"
 #include "basic_timer.h"
 #include "eeprom.h"
 #include "eth.h"
@@ -14,9 +15,12 @@
 #include "w25q.h"
 
 Rcc rcc(8);
+
+Adc adc1;
 Eeprom eeprom;
 // W25q flash;
-Eth eth;
+Eth eth(192, 168, 0, 100);
+//Eth eth(192, 168, 1, 100);
 Udp udp;
 Http http;
 //Sd sd;
@@ -88,11 +92,11 @@ int main(void) {
             if (!timeoutSate) {
                 timeoutSate = true;
                 Gpio::Out::setRed();
-                Gpio::Out::resetBlue();
+                //Gpio::Out::resetBlue();
             } else {
                 timeoutSate = false;
                 Gpio::Out::resetRed();
-                Gpio::Out::setBlue();
+                //Gpio::Out::setBlue();
             }
         }
         if (udp.SendFlag) {
