@@ -522,6 +522,9 @@ mem_init(void)
 
   /* align the heap */
   ram = (u8_t *)LWIP_MEM_ALIGN(LWIP_RAM_HEAP_POINTER);
+  ///////////////////////////////////////////////////////
+  memset(ram, 0, MEM_SIZE_ALIGNED);
+  ///////////////////////////////////////////////////////
   /* initialize the start of the heap */
   mem = (struct mem *)(void *)ram;
   mem->next = MEM_SIZE_ALIGNED;

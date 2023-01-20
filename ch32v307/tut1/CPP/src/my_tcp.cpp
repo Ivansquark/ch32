@@ -11,7 +11,7 @@ Tcp::Tcp() {
 void Tcp::init() { create_server(); }
 void Tcp::create_server() {
     ip_addr_t DestIPaddr;
-    //IP4_ADDR(&DestIPaddr, ip[0], ip[1], ip[2], ip[3]);
+    // IP4_ADDR(&DestIPaddr, ip[0], ip[1], ip[2], ip[3]);
     IP4_ADDR(&DestIPaddr, Eth::pThis->IP_ADDRESS[0], Eth::pThis->IP_ADDRESS[1],
              Eth::pThis->IP_ADDRESS[2], Eth::pThis->IP_ADDRESS[3]);
     //* create protocol control block for new connection
@@ -41,11 +41,17 @@ err_t Tcp::server_accept(void* arg, struct tcp_pcb* newpcb, err_t err) {
     struct server_struct* es;
     /* allocate structure es to maintain tcp connection informations (different
      * for each connection) */
-    es = (struct server_struct*)mem_malloc(sizeof(struct server_struct));
-    if (es != NULL) {
+
+    // this goes to memory fragmentation
+    // es = (struct server_struct*)mem_malloc(sizeof(struct server_struct));
+    es = &Tcp::pThis->my_es[Tcp::pThis->currentConnections++];
+    // TODO: make list to get some connections
+    if (Tcp::pThis->currentConnections < Tcp::pThis->MAX_CONNECTIONS) {
         es->state = ES_ACCEPTED;
         es->pcb = newpcb;
         es->retries = 0;
+        // es[Tcp::pThis->currentConnections].currentIndex =
+        //    Tcp::pThis->currentConnections - 1;
         es->p = NULL;
         // pass newly allocated es structure as argument to newpcb (argument to
         // all callback functions)*/
@@ -55,18 +61,15 @@ err_t Tcp::server_accept(void* arg, struct tcp_pcb* newpcb, err_t err) {
         //* initialize lwIP tcp_err callback function for newpcb */
         tcp_err(newpcb, server_error);
         //* initialize lwIP tcp_poll callback function for newpcb */
-        tcp_poll(newpcb, server_poll, 10); // every 5 secs
+        // tcp_poll(newpcb, server_poll, 10); // every 5 secs
         //* set callback on ack event from remote host (when data was sended)
         tcp_sent(newpcb, server_sent);
         //* set callback on connect to server function
         ret_err = ERR_OK;
         err = ERR_OK;
-        pThis->isPC_connected = true;
     } else {
+        ret_err = ERR_ABRT;
         server_connection_close(newpcb, es);
-        /* return memory error */
-        ret_err = ERR_MEM;
-        err = ERR_OK;
     }
     return ret_err;
 }
@@ -86,12 +89,12 @@ err_t Tcp::server_recv(void* arg, struct tcp_pcb* tpcb, struct pbuf* p,
     err_t ret_err;
     LWIP_ASSERT("arg != NULL", arg != NULL);
     es = (struct server_struct*)arg;
-    pThis->tpcbPtr = tpcb; // copy ptr of control block
+    es->answer_pcb = tpcb; // copy ptr of control block
     /* if we receive an empty tcp frame from client => close connection */
     if (p == NULL) {
         /* remote host closed connection */
         es->state = ES_CLOSE;
-        //if (es->p == NULL) {
+        // if (es->p == NULL) {
         //    /* we're done sending, close connection */
         //    server_connection_close(tpcb, es);
         //}
@@ -99,10 +102,10 @@ err_t Tcp::server_recv(void* arg, struct tcp_pcb* tpcb, struct pbuf* p,
         ret_err = ERR_OK;
     } else if (err != ERR_OK) {
         /* a non empty frame received but for some reason err != ERR_OK */
-        //if (p != NULL) {
-            pbuf_free(p); /* free received pbuf (nothing do with data)*/
-            es->p = NULL;
-            server_connection_close(tpcb, es);
+        // if (p != NULL) {
+        pbuf_free(p); /* free received pbuf (nothing do with data)*/
+        es->p = NULL;
+        server_connection_close(tpcb, es);
         //}
         ret_err = err;
     } else if (es->state == ES_ACCEPTED) {
@@ -112,12 +115,13 @@ err_t Tcp::server_recv(void* arg, struct tcp_pcb* tpcb, struct pbuf* p,
         //* initialize LwIP tcp_sent callback function */
         tcp_sent(es->pcb, server_sent);
         // copy received data in global buffer
-        es->state = ES_RECEIVE;
+        es->state = ES_WRITE_ANSWER;
         // TODO: parse frame (full not full) goto ES_RECEIVE
         Eth::currentRxBuffLen = p->len;
         memcpy(Eth::RxBuff, (const uint8_t*)p->payload, p->len);
-        pThis->isFrameReadyForSend = true;
-        pThis->setIsDataIn(true, tpcb, es);
+        es->parseState = Tcp::pThis->parse(Eth::RxBuff, Eth::currentRxBuffLen);
+
+            
         pbuf_free(p);
         // pbuf_free(es->p);
         // es->p = NULL;
@@ -159,27 +163,27 @@ err_t Tcp::server_sent(void* arg, struct tcp_pcb* tpcb, u16_t len) {
     if (es->p != NULL) {
         pbuf_free(es->p);
         // es->p = NULL;
-    } else {
-        /* if no more data to send and client closed connection*/
-        if (es->state == ES_CLOSE) { server_connection_close(tpcb, es); }
     }
+    if (es->state == ES_CLOSE) { server_connection_close(tpcb, es); }
     return ERR_OK;
 }
 
 void Tcp::server_connection_close(struct tcp_pcb* tpcb,
                                   struct server_struct* es) {
     // remove all callbacks
+    if (Tcp::pThis->currentConnections) { Tcp::pThis->currentConnections--; }
     tcp_arg(tpcb, NULL);
     tcp_sent(tpcb, NULL);
     tcp_recv(tpcb, NULL);
     tcp_err(tpcb, NULL);
     tcp_poll(tpcb, NULL, 0);
-    if (es != NULL) {
+    if (es->p != NULL) {
         pbuf_free(es->p);
-        mem_free(es);
+        // mem_free(es);
     }
+    es->answer_pcb = NULL;
+    es->pcb = NULL;
     tcp_close(tpcb);
-    pThis->isPC_connected = false;
 }
 
 //----------------- POLL FUNCTION ---------------------------------------
@@ -202,4 +206,35 @@ err_t Tcp::server_poll(void* arg, struct tcp_pcb* tpcb) {
 
 void Tcp::server_error([[maybe_unused]] void* arg, [[maybe_unused]] err_t er) {
     // dummy function
+}
+
+Tcp::ParseState Tcp::parse(const uint8_t* data, uint16_t len) {
+    if (!len) { return ParseState::NOT; }
+    if (data[0] == 'G' && data[1] == 'E' && data[2] == 'T') {
+        if (data[4] == '/' && data[5] == 0x20) {
+            // GET /
+            return ParseState::GET_HTML;
+        } else if (data[4] == '/' && data[5] == 'f') {
+            // GET /facicon.ico
+            return ParseState::GET_ICO;
+        } else if (data[4] == '/' && data[5] == 's' && data[6] == 't') {
+            // GET /style.css
+            return ParseState::GET_CSS;
+        } else if (data[4] == '/' && data[5] == 's' && data[6] == 'c') {
+            // GET /script.js
+            return ParseState::GET_JS;
+        } else if (data[4] == '/' && data[5] == 'c' && data[6] == 'o') {
+            // GET /content.bin
+            return ParseState::GET_CONTENT;
+        } else if (data[4] == '/' && data[5] == 'o' && data[6] == 'n') {
+            // GET /on
+            return ParseState::GET_LED_ON;
+        } else if (data[4] == '/' && data[5] == 'o' && data[6] == 'f') {
+            // GET /off
+            return ParseState::GET_LED_OFF;
+        }
+    } else {
+        return ParseState::NOT;
+    }
+    return ParseState::NOT;
 }

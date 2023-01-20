@@ -83,14 +83,16 @@ class Eth {
     static uint16_t currentTxBuffLen;
 
     uint8_t IP_ADDRESS[4];
+    
+    void init_lwip();
+    struct netif WCH_NetIf;
+
   private:
     void init();
     void init_phy();
-    void init_lwip();
     static void LED_LINKSET(bool state);
     static void LED_DATASET(bool state);
 
-    struct netif WCH_NetIf;
 
     ip4_addr_t ipaddr;
     ip4_addr_t netmask;

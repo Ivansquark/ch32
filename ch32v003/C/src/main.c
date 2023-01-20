@@ -7,9 +7,9 @@ int main(void)
 {
     gpio_init();
     while (1) {
-        A0_set();
+        C1_set();
         delay_ticks(1000000);
-        A0_reset();
+        C1_reset();
         delay_ticks(1000000);
     }
 }

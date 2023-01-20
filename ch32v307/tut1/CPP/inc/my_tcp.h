@@ -14,15 +14,38 @@ class Tcp {
         ES_NONE = 0,
         ES_ACCEPTED,
         ES_RECEIVE,
+        ES_WRITE_ANSWER,
         ES_CLOSE
     };
+    /////////////////////////////////////////////////////
+    enum ParseState : uint8_t
+    {
+        NOT,
+        NOT_FULL,
+        GET_HTML,
+        GET_ICO,
+        GET_CSS,
+        GET_JS,
+        GET_CONTENT,
+        GET_LED_ON,
+        GET_LED_OFF
+    };
+    ///////////////////////////////////////////////////////
     struct server_struct {
         enum server_states state; /* connection status */
+        enum ParseState parseState;
+        uint8_t currentIndex = 0;
         uint8_t retries;
         tcp_pcb* pcb; /* pointer on the current tcp structure */
+        tcp_pcb* answer_pcb;
         pbuf* p;      /* pointer on pbuf to be transmitted */
     };
+    uint8_t currentConnections = 0;
+    static constexpr uint8_t MAX_CONNECTIONS = 8;
+    static constexpr uint8_t MaxRetries = 10;
 
+
+    ParseState parse(const uint8_t* data, uint16_t len);
     // static struct server_struct *ss; //  global server structure ptr for
     // transmittion
 
@@ -43,6 +66,8 @@ class Tcp {
     bool FirmwareUpdateFlag = false;
     volatile uint32_t totalLen = 0;
     static err_t server_send(const uint8_t* data, uint16_t len);
+
+    struct server_struct my_es[MAX_CONNECTIONS + 1];
     //------- FUNCTION CALLED ON CLOSE CONNECTION -----------------------------
     /**
      * @brief  This functions closes the tcp connection
@@ -54,7 +79,7 @@ class Tcp {
                                         struct server_struct* es);
 
     bool IsDataIn = false;
-    tcp_pcb* current_tcp_pcb; // state structure
+    tcp_pcb* current_tcp_pcb;         // state structure
     struct server_struct* current_es; // state structure
     inline bool getIsDataIn() { return IsDataIn; }
     inline void setIsDataIn(bool state, tcp_pcb* pcb,
@@ -63,10 +88,10 @@ class Tcp {
         current_tcp_pcb = pcb;
         current_es = es;
     }
+    void create_server();
 
   private:
     void init();
-    void create_server();
     //--------------- ACCEPT NEW CONNECTION TO SERVER -------------------------
     /**
      * @brief  This function is the implementation of tcp_accept LwIP callback
