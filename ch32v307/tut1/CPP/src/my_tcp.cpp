@@ -66,9 +66,10 @@ err_t Tcp::server_accept(void* arg, struct tcp_pcb* newpcb, err_t err) {
         tcp_sent(newpcb, server_sent);
         //* set callback on connect to server function
         ret_err = ERR_OK;
-        err = ERR_OK;
+        Tcp::pThis->IsMaxConnections = false;
     } else {
         ret_err = ERR_ABRT;
+        Tcp::pThis->IsMaxConnections = true;
         server_connection_close(newpcb, es);
     }
     return ret_err;
@@ -121,7 +122,6 @@ err_t Tcp::server_recv(void* arg, struct tcp_pcb* tpcb, struct pbuf* p,
         memcpy(Eth::RxBuff, (const uint8_t*)p->payload, p->len);
         es->parseState = Tcp::pThis->parse(Eth::RxBuff, Eth::currentRxBuffLen);
 
-            
         pbuf_free(p);
         // pbuf_free(es->p);
         // es->p = NULL;
@@ -171,16 +171,22 @@ err_t Tcp::server_sent(void* arg, struct tcp_pcb* tpcb, u16_t len) {
 void Tcp::server_connection_close(struct tcp_pcb* tpcb,
                                   struct server_struct* es) {
     // remove all callbacks
-    if (Tcp::pThis->currentConnections) { Tcp::pThis->currentConnections--; }
+    es->retries = 0;
+    es->state = ES_NONE;
+    es->parseState = NOT;
+    if (!Tcp::pThis->IsMaxConnections) {
+        if (Tcp::pThis->currentConnections) {
+            Tcp::pThis->currentConnections--;
+        }
+    } else {
+        Tcp::pThis->IsMaxConnections = false;
+    }
     tcp_arg(tpcb, NULL);
     tcp_sent(tpcb, NULL);
     tcp_recv(tpcb, NULL);
     tcp_err(tpcb, NULL);
     tcp_poll(tpcb, NULL, 0);
-    if (es->p != NULL) {
-        pbuf_free(es->p);
-        // mem_free(es);
-    }
+    if (es->p != NULL) { pbuf_free(es->p); }
     es->answer_pcb = NULL;
     es->pcb = NULL;
     tcp_close(tpcb);

@@ -42,7 +42,7 @@ class Tcp {
     };
     uint8_t currentConnections = 0;
     static constexpr uint8_t MAX_CONNECTIONS = 8;
-    static constexpr uint8_t MaxRetries = 10;
+    static constexpr uint8_t MaxRetries = 3;
 
 
     ParseState parse(const uint8_t* data, uint16_t len);
@@ -68,6 +68,7 @@ class Tcp {
     static err_t server_send(const uint8_t* data, uint16_t len);
 
     struct server_struct my_es[MAX_CONNECTIONS + 1];
+    bool IsMaxConnections = false;
     //------- FUNCTION CALLED ON CLOSE CONNECTION -----------------------------
     /**
      * @brief  This functions closes the tcp connection
