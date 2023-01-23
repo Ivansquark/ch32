@@ -38,15 +38,31 @@ err_t Tcp::server_accept(void* arg, struct tcp_pcb* newpcb, err_t err) {
     LWIP_UNUSED_ARG(err);
     /* set priority for the newly accepted tcp connection newpcb */
     tcp_setprio(newpcb, TCP_PRIO_MIN);
-    struct server_struct* es;
-    /* allocate structure es to maintain tcp connection informations (different
-     * for each connection) */
+    struct server_struct* es = NULL;
 
     // this goes to memory fragmentation
     // es = (struct server_struct*)mem_malloc(sizeof(struct server_struct));
-    es = &Tcp::pThis->my_es[Tcp::pThis->currentConnections++];
+
+    uint8_t tempConnections = Tcp::pThis->currentConnections;
     // TODO: make list to get some connections
-    if (Tcp::pThis->currentConnections < Tcp::pThis->MAX_CONNECTIONS) {
+    if (tempConnections < Tcp::pThis->MAX_CONNECTIONS) {
+        // TODO: make list with current index
+        // find first free index if already has connections
+        if (Tcp::pThis->currentConnections) {
+            for (int i = 0; i < tempConnections; i++) {
+                if (Tcp::pThis->my_es[i].currentIndex == 0) {
+                    Tcp::pThis->my_es[i].currentIndex = i;
+                    es = &Tcp::pThis->my_es[i];
+                    Tcp::pThis->currentConnections++;
+                    break;
+                }
+            }
+        } else {
+            // first connection
+            es = &Tcp::pThis->my_es[Tcp::pThis->currentConnections++];
+            Tcp::pThis->my_es[0].currentIndex = 0;
+        }
+        //es = &Tcp::pThis->my_es[0];
         es->state = ES_ACCEPTED;
         es->pcb = newpcb;
         es->retries = 0;
@@ -61,7 +77,7 @@ err_t Tcp::server_accept(void* arg, struct tcp_pcb* newpcb, err_t err) {
         //* initialize lwIP tcp_err callback function for newpcb */
         tcp_err(newpcb, server_error);
         //* initialize lwIP tcp_poll callback function for newpcb */
-        // tcp_poll(newpcb, server_poll, 10); // every 5 secs
+        tcp_poll(newpcb, server_poll, 10); // every 5 secs
         //* set callback on ack event from remote host (when data was sended)
         tcp_sent(newpcb, server_sent);
         //* set callback on connect to server function
@@ -70,6 +86,8 @@ err_t Tcp::server_accept(void* arg, struct tcp_pcb* newpcb, err_t err) {
     } else {
         ret_err = ERR_ABRT;
         Tcp::pThis->IsMaxConnections = true;
+        //es = &Tcp::pThis->my_es[Tcp::pThis->MAX_CONNECTIONS];
+        //es->pcb = newpcb;
         server_connection_close(newpcb, es);
     }
     return ret_err;
@@ -95,19 +113,13 @@ err_t Tcp::server_recv(void* arg, struct tcp_pcb* tpcb, struct pbuf* p,
     if (p == NULL) {
         /* remote host closed connection */
         es->state = ES_CLOSE;
-        // if (es->p == NULL) {
-        //    /* we're done sending, close connection */
-        //    server_connection_close(tpcb, es);
-        //}
         server_connection_close(tpcb, es);
         ret_err = ERR_OK;
     } else if (err != ERR_OK) {
         /* a non empty frame received but for some reason err != ERR_OK */
-        // if (p != NULL) {
         pbuf_free(p); /* free received pbuf (nothing do with data)*/
         es->p = NULL;
         server_connection_close(tpcb, es);
-        //}
         ret_err = err;
     } else if (es->state == ES_ACCEPTED) {
         //------ FIRST RECEIVED DATA /* first data chunk in p->payload */ -----
@@ -123,13 +135,12 @@ err_t Tcp::server_recv(void* arg, struct tcp_pcb* tpcb, struct pbuf* p,
         es->parseState = Tcp::pThis->parse(Eth::RxBuff, Eth::currentRxBuffLen);
 
         pbuf_free(p);
-        // pbuf_free(es->p);
-        // es->p = NULL;
         tcp_recved(tpcb, TCP_MSS); // send ACK (with new WND size)
         ret_err = ERR_OK;
     } else if (es->state == ES_RECEIVE) {
         ///* more data recved from client and previous data has already sent*/
         // long GET request or some other requests
+        tcp_recved(tpcb, TCP_MSS); // send ACK (with new WND size)
         pbuf_free(p);
         ret_err = ERR_OK;
     } else if (es->state == ES_CLOSE) {
@@ -138,6 +149,7 @@ err_t Tcp::server_recv(void* arg, struct tcp_pcb* tpcb, struct pbuf* p,
         tcp_recved(tpcb, p->tot_len);
         /* free pbuf and do nothing */
         pbuf_free(p);
+        server_connection_close(tpcb, es);
         ret_err = ERR_OK;
     } else {
         tcp_recved(tpcb, p->tot_len);
@@ -162,7 +174,6 @@ err_t Tcp::server_sent(void* arg, struct tcp_pcb* tpcb, u16_t len) {
     /* still got pbufs to send */
     if (es->p != NULL) {
         pbuf_free(es->p);
-        // es->p = NULL;
     }
     if (es->state == ES_CLOSE) { server_connection_close(tpcb, es); }
     return ERR_OK;
@@ -174,12 +185,13 @@ void Tcp::server_connection_close(struct tcp_pcb* tpcb,
     es->retries = 0;
     es->state = ES_NONE;
     es->parseState = NOT;
-    if (!Tcp::pThis->IsMaxConnections) {
+    es->currentIndex = 0;
+    if (Tcp::pThis->IsMaxConnections) {
+        Tcp::pThis->IsMaxConnections = false;
+    } else {
         if (Tcp::pThis->currentConnections) {
             Tcp::pThis->currentConnections--;
         }
-    } else {
-        Tcp::pThis->IsMaxConnections = false;
     }
     tcp_arg(tpcb, NULL);
     tcp_sent(tpcb, NULL);

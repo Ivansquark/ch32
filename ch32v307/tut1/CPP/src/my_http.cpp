@@ -8,22 +8,39 @@ Http::Http() {
 }
 
 void Http::httpHandler() {
-    int tempConnections = tcp.currentConnections;
-    for (int i = 0; i < tempConnections; i++) {
-        if(tcp.my_es[i].state == tcp.ES_ACCEPTED) {
+    // int tempConnections = tcp.currentConnections;
+
+    for (int i = 0; i < tcp.MAX_CONNECTIONS; i++) {
+        if (!tcp.my_es[i].currentIndex && i > 0) { continue; }
+        if (tcp.my_es[i].state == tcp.ES_ACCEPTED) {
+            continue;
+        } else if (tcp.my_es[i].state == tcp.ES_NONE) {
+            continue;
+        } else if (tcp.my_es[i].state == tcp.ES_RECEIVE) {
+            continue;
+        } else if (tcp.my_es[i].state == tcp.ES_CLOSE) {
             continue;
         } else if (tcp.my_es[i].state == tcp.ES_WRITE_ANSWER ||
-             tcp.my_es[i].retries > 0) {
+                   tcp.my_es[i].retries > 0) {
+            if (tcp.my_es[i].state != tcp.ES_WRITE_ANSWER) {
+                // retryState
+                if (retryCounter > MaxRetryCount) {
+                    retryCounter = 0;
+                } else {
+                    retryCounter++;
+                    continue;
+                }
+            }
             // TODO: check retries
             tcp.my_es[i].retries++;
             if (tcp.my_es[i].retries > 10) {
-                tcp.server_connection_close(pcb, &tcp.my_es[i]);
+                // tcp.server_connection_close(pcb, &tcp.my_es[i]);
                 continue;
             }
             // write answer
             err_t err = ERR_OK;
             if (!tcp.my_es[i].answer_pcb) {
-                tcp.server_connection_close(pcb, &tcp.my_es[i]);
+                // tcp.server_connection_close(pcb, &tcp.my_es[i]);
                 continue;
             }
             pcb = tcp.my_es[i].answer_pcb;
@@ -41,7 +58,7 @@ void Http::httpHandler() {
                 // tcp_output(pcb); // send data now
                 tcp.my_es[i].state = Tcp::ES_CLOSE;
                 pbuf_free(tcp.my_es[i].p);
-                tcp.server_connection_close(pcb, tcp.current_es);
+                // tcp.server_connection_close(pcb, &tcp.my_es[i]);
             } break;
             case Tcp::GET_ICO: {
                 uint16_t sizeHeadIco = W25q::pThis->SizeHeadIco;
@@ -55,7 +72,7 @@ void Http::httpHandler() {
                 // tcp_output(pcb); // send data now
                 tcp.my_es[i].state = Tcp::ES_CLOSE;
                 pbuf_free(tcp.my_es[i].p);
-                tcp.server_connection_close(pcb, tcp.current_es);
+                // tcp.server_connection_close(pcb, &tcp.my_es[i]);
             } break;
             case Tcp::GET_CSS: {
                 uint16_t sizeHeadCss = W25q::pThis->SizeHeadCss;
@@ -67,7 +84,7 @@ void Http::httpHandler() {
                                 sizeHeadCss + sizeCss, TCP_WRITE_FLAG_COPY);
                 tcp.my_es[i].state = Tcp::ES_CLOSE;
                 pbuf_free(tcp.my_es[i].p);
-                tcp.server_connection_close(pcb, tcp.current_es);
+                // tcp.server_connection_close(pcb, &tcp.my_es[i]);
             } break;
             case Tcp::GET_JS: {
                 uint16_t sizeHeadJs = W25q::pThis->SizeHeadJs;
@@ -79,7 +96,7 @@ void Http::httpHandler() {
                                 sizeHeadJs + sizeJs, TCP_WRITE_FLAG_COPY);
                 tcp.my_es[i].state = Tcp::ES_CLOSE;
                 pbuf_free(tcp.my_es[i].p);
-                tcp.server_connection_close(pcb, tcp.current_es);
+                // tcp.server_connection_close(pcb, &tcp.my_es[i]);
             } break;
             case Tcp::GET_CONTENT: {
                 // TODO: send answer
@@ -135,15 +152,18 @@ void Http::httpHandler() {
             default:
                 tcp.my_es[i].state = Tcp::ES_CLOSE;
                 pbuf_free(tcp.my_es[i].p);
-                tcp.server_connection_close(pcb, &tcp.my_es[i]);
+                // tcp.server_connection_close(pcb, &tcp.my_es[i]);
                 break;
             }
             if (err == ERR_MEM) {
                 Gpio::Out::setBlue();
-                tcp.server_connection_close(pcb, &tcp.my_es[i]);
+                tcp.my_es[i].state = Tcp::ES_CLOSE;
+                // tcp.server_connection_close(pcb, &tcp.my_es[i]);
             }
         } else {
-            tcp.server_connection_close(pcb, &tcp.my_es[i]);
+            // tcp.my_es[i].state = Tcp::ES_CLOSE;
+            pcb = tcp.my_es[i].answer_pcb;
+            if (pcb) { tcp.server_connection_close(pcb, &tcp.my_es[i]); }
         }
     }
 }

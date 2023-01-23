@@ -31,6 +31,12 @@ void Eth::init() {
 }
 
 void Eth::rx_handler() {
+    if (ETH->DMASR & ETH_DMA_IT_R) {
+        ETH_DMAClearITPendingBit(ETH_DMA_IT_R);
+        void* p;
+        p = Eth::ETH_RxPkt_ChainMode();
+        if (p != NULL) { list_add(ch307_mac_rec, p); /* add to rec list. */ }
+    }
     if (list_head(ch307_mac_rec) != NULL) {
         /* received a packet */
         ethernetif_input(&WCH_NetIf);
@@ -298,9 +304,9 @@ void Eth::init_phy() {
         ETH_InitStructure->ETH_DMAArbitration | ETH_DMABMR_USP);
     mem_free(ETH_InitStructure);
     /* Enable the Ethernet Rx Interrupt */
-    ETH_DMAITConfig(ETH_DMA_IT_NIS | ETH_DMA_IT_R | ETH_DMA_IT_T, ENABLE);
+    //ETH_DMAITConfig(ETH_DMA_IT_NIS | ETH_DMA_IT_R | ETH_DMA_IT_T, ENABLE);
 
-    NVIC_EnableIRQ(ETH_IRQn);
+    //NVIC_EnableIRQ(ETH_IRQn);
     ETH_DMATxDescChainInit(DMATxDscrTab, &Tx_Buff[0][0], ETH_TXBUFNB);
     ETH_DMARxDescChainInit(DMARxDscrTab, &Rx_Buff[0][0], ETH_RXBUFNB);
     ETH_Start();
@@ -346,7 +352,7 @@ void Eth::init_lwip() {
              IP_ADDRESS[3]);
     IP4_ADDR(&netmask, 255, 255, 255, 0);
     IP4_ADDR(&gw, 192, 168, IP_ADDRESS[2], 1);
-    //IP4_ADDR(&gw, 192, 168, 1, 1);
+    // IP4_ADDR(&gw, 192, 168, 1, 1);
 #endif
     /* Initilialize the LwIP stack without RTOS */
     lwip_init();

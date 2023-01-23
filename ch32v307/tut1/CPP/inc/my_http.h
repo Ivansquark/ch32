@@ -26,6 +26,8 @@ class Http {
     uint16_t debugVal = 0;
     uint8_t esCounter = 0;
     // uint8_t buff[1024 * 2] = {0};
+    uint32_t retryCounter = 0;
+    static constexpr uint32_t MaxRetryCount = 0xFFFF;
 };
 
 #endif // MY_HTTP_H

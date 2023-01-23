@@ -118,6 +118,7 @@ err_t            tcp_process_refused_data(struct tcp_pcb *pcb);
 
 #ifndef TCP_TMR_INTERVAL
 #define TCP_TMR_INTERVAL       250  /* The TCP timer interval in milliseconds. */
+//#define TCP_TMR_INTERVAL       50  /* The TCP timer interval in milliseconds. */
 #endif /* TCP_TMR_INTERVAL */
 
 #ifndef TCP_FAST_INTERVAL

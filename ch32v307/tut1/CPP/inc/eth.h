@@ -87,6 +87,8 @@ class Eth {
     void init_lwip();
     struct netif WCH_NetIf;
 
+    bool IsInterrupt = false;
+
   private:
     void init();
     void init_phy();
