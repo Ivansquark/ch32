@@ -48,7 +48,7 @@ $(BLD)main.lst: $(BLD)main.elf
 #------------------------------------  LINKER ---------------------------------
 #$(BLD)main.elf: $(BLD)startup_ch32v30x_D8.o
 $(BLD)main.elf:	$(BLD)core_riscv.o $(BLD)startup.o
-$(BLD)main.elf: $(BLD)main.o $(BLD)gpio.o
+$(BLD)main.elf: $(BLD)main.o $(BLD)gpio.o $(BLD)timer.o $(BLD)uart.o
 	$(CC) -o $@ -T$(LIB)Link.ld $^ -I$(LIB) $(LFLAGS)
 #    $@ — target name
 #    $< — first dependancy name

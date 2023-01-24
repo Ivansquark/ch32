@@ -43,7 +43,7 @@ SECTIONS
     _data_start_flash = LOADADDR(.data);
 
 
-	.stack ORIGIN(RAM) + LENGTH(RAM) - __stack_size :
+	.stack ORIGIN(RAM) + __stack_size :
 	{
 	    . = ALIGN(4);
 	    PROVIDE(_susrstack = . );
