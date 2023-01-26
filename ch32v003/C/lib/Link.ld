@@ -12,19 +12,21 @@ MEMORY
 
 SECTIONS
 {
+    /* start two position in vector table */
     .init :
     { 
       _sinit = .;
       . = ALIGN(4);
       KEEP(*(SORT_NONE(.init)))
-      . = ALIGN(4);
+      . = ALIGN(8); /*for vector table second position 0*/
       _einit = .;
     } >FLASH AT>FLASH
     
     .vector :
     {
+      . = ALIGN(8);
         *(.vector);
-        . = ALIGN(64);
+        /*. = ALIGN(64);*/
     } >FLASH AT>FLASH
     
     .text :

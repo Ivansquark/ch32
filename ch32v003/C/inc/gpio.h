@@ -11,10 +11,10 @@
 
 #define C1_set() (GPIOC->BSHR = GPIO_BSHR_BS1)
 #define C1_reset() (GPIOC->BSHR = GPIO_BSHR_BR1)
-#define C2_set() (GPIOC->BSHR = GPIO_BSHR_BS1)
-#define C2_reset() (GPIOC->BSHR = GPIO_BSHR_BR1)
+#define C2_set() (GPIOC->BSHR = GPIO_BSHR_BS2)
+#define C2_reset() (GPIOC->BSHR = GPIO_BSHR_BR2)
 
-#define Is_C3() (GPIOC->INDR & GPIO_INDR_IDR3)
+#define Is_C3() ((GPIOC->INDR) & (GPIO_INDR_IDR3))
 
 void gpio_init();
 

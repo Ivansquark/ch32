@@ -20,7 +20,7 @@ BLD = build/
 SRC = src/
 perINC = Peripheral/inc/
 #///////////////////////////////////
-CFLAGS = -c -Wall -Wextra -g -O0 \
+CFLAGS = -c -Wall -Wextra -g -O0 -march=rv32ec -mabi=ilp32e \
 	   -fno-pic -fno-common \
 	   -Wno-pointer-arith \
 	   -ffast-math -fno-math-errno -ffunction-sections -fdata-sections
@@ -29,7 +29,7 @@ CPPFLAGS = -c -std=c++17 -Wall -Wextra -g -O0 \
 	   -fno-exceptions \
 	   -Wno-pointer-arith -fno-rtti \
 	   -ffast-math -fno-math-errno -ffunction-sections -fdata-sections
-LFLAGS = -nostartfiles \
+LFLAGS = -nostartfiles -mabi=ilp32e -march=rv32ec \
 		 -specs=nano.specs -specs=nosys.specs -fno-exceptions \
 		 -Xlinker -Map=$(BLD)main.map -Xlinker --gc-sections
 #-fno-use-cxa-atexit \

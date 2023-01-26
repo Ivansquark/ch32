@@ -1,5 +1,6 @@
 void Reset_Handler();
 void Default_Handler();
+void Temp_Handler();
 void _start();
 int main();
 
@@ -25,9 +26,9 @@ void DMA1_Channel6_IRQHandler() __attribute__((weak, alias("Default_Handler")));
 void DMA1_Channel7_IRQHandler() __attribute__((weak, alias("Default_Handler")));
 void ADC1_IRQHandler() __attribute__((weak, alias("Default_Handler")));
 void I2C1_EV_IRQHandler() __attribute__((weak, alias("Default_Handler")));
-void I2C1_ER_IRQHandler() __attribute__((weak, alias("Default_Handler")));
+void I2C1_ER_IRQHandler() __attribute__((weak, alias("Temp_Handler")));
 void USART1_IRQHandler() __attribute__((weak, alias("Default_Handler")));
-void SPI1_IRQHandler() __attribute__((weak, alias("Default_Handler")));
+void SPI1_IRQHandler() __attribute__((weak, alias("Temp_Handler")));
 void TIM1_BRK_IRQHandler() __attribute__((weak, alias("Default_Handler")));
 void TIM1_UP_IRQHandler() __attribute__((weak, alias("Default_Handler")));
 void TIM1_TRG_COM_IRQHandler() __attribute__((weak, alias("Default_Handler")));
@@ -35,13 +36,18 @@ void TIM1_CC_IRQHandler() __attribute__((weak, alias("Default_Handler")));
 void TIM2_IRQHandler() __attribute__((weak, alias("Default_Handler")));
 
 // set first instruction: jump to Reset_Handler (naked - no push in stack)
-void __attribute__((naked, noreturn)) __attribute__((section(".init"))) _start()
+//__attribute__((aligned(4)))
+// void __attribute__((naked, noreturn)) __attribute__((section(".init")))
+// _start()
+void __attribute__((naked)) __attribute__((section(".init"))) _start()
 {
+    //asm(".option   norvc;");
     asm("j	Reset_Handler");
 }
+//__attribute__((aligned(8)))
 void (*vectors[])() __attribute__((section(".vector"))) = {
-    _start,            /*first instruction*/
-    0,                 /* zero */
+    //_start,            /*first instruction*/
+    //0,                 /* zero */
     NMI_Handler,       /* NMI */
     HardFault_Handler, /* Hard Fault */
     0,                 /* zero */
@@ -89,6 +95,8 @@ extern void *__global_pointer, *_eusrstack;
 // naked cause we have not proper stack pointer yet
 void __attribute__((naked, noreturn)) Reset_Handler()
 {
+    // duumy instr to compilere to create vect table
+    __asm volatile("la t0, vectors");
     // set ??? (global pointer to linux) [reduces firmware size]
     __asm volatile("la gp, __global_pointer");
     // set stack
@@ -115,16 +123,16 @@ void __attribute__((naked, noreturn)) Reset_Handler()
 
     /* Enable floating point and machine mode*/
     /* 0x800 mapped on mstatus*/
-    /* gdb: i r mstatus => FSS=3 - floating point enable MPP=3 - machine mode*/
-    __asm volatile("li t0, 0x80");
+    /* gdb: i r mstatus => MPP=3 - machine mode*/
+    __asm volatile("li t0, 0x88");
     __asm volatile("csrw 0x800, t0");
 
     // enable interrupt
     //__asm volatile ("csrw 0x800, %0" : : "r" (0x6088) );
-    //__asm volatile ("csrsi 0x800, 0x8" );
+    __asm volatile ("csrsi 0x800, 0x8" );
     // disable interrupt
     //__asm volatile ("csrw 0x800, %0" : : "r" (0x6000) );
-    __asm volatile("csrci 0x800, 0x8");
+    //__asm volatile("csrci mstatus, 0x8");
 
     // set start address of vector table
     // mtvec[1:0] -
@@ -133,7 +141,7 @@ void __attribute__((naked, noreturn)) Reset_Handler()
     // [1]=0 - is an instruction to jump to the exception or interrupt function,
     // or it can be another instruction - ?????????????????
     // [1]=1 -  the absolute addresses handlers is stored at the vector table
-    __asm volatile("la t0, vectors");
+    __asm volatile("la t0, _start");
     __asm volatile("ori t0, t0, 3"); // [1:0] = 1:1 absolute vectored
     __asm volatile("csrw mtvec, t0");
 
@@ -146,6 +154,10 @@ void __attribute__((naked, noreturn)) Reset_Handler()
     while (1) {}
 }
 void Default_Handler()
+{
+    while (1) {}
+}
+void Temp_Handler()
 {
     while (1) {}
 }

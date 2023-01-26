@@ -4,9 +4,14 @@ void uart_init()
 {
     // PD5-Tx PD6-Rx
     RCC->APB2PCENR |= RCC_IOPDEN;
-    GPIOD->CFGLR &= ~(GPIO_CFGLR_CNF5_0 | GPIO_CFGLR_CNF6);
-    GPIOD->CFGLR |= GPIO_CFGLR_CNF5_1 | GPIO_CFGLR_CNF6_1;
-    GPIOD->CFGLR |= GPIO_CFGLR_MODE5 | GPIO_CFGLR_MODE6;
+    // Tx AF-push/pull
+    GPIOD->CFGLR &= ~GPIO_CFGLR_CNF5_0;
+    GPIOD->CFGLR |= GPIO_CFGLR_CNF5_1;
+    GPIOD->CFGLR |= GPIO_CFGLR_MODE5;
+    // Rx in_floating
+    GPIOD->CFGLR &= ~GPIO_CFGLR_CNF6_1;
+    GPIOD->CFGLR |= GPIO_CFGLR_CNF6_0;
+    GPIOD->CFGLR &= ~GPIO_CFGLR_MODE6;
     // remap not need
 
     RCC->APB2PCENR |= RCC_USART1EN;
@@ -20,13 +25,19 @@ void uart_init()
     NVIC_EnableIRQ(USART1_IRQn);
 }
 
-void uart_sendbyte(uint8_t byte) { USART1->DATAR = byte; }
-
+void uart_sendbyte(uint8_t byte)
+{
+    // USART1->DATAR = (byte & (uint16_t)0x01FF);
+    USART1->DATAR = byte;
+    while (!(USART1->STATR & USART_STATR_TC)){}
+    USART1->STATR &= ~USART_STATR_TC;
+}
 
 uint8_t uartByte = 0;
-void USART1_IRQHandler(void) {
-    if(USART1->STATR & USART_STATR_RXNE) {
-    USART1->STATR &= ~ USART_STATR_RXNE;
+void USART1_IRQHandler(void)
+{
+    if (USART1->STATR & USART_STATR_RXNE) {
+        USART1->STATR &= ~USART_STATR_RXNE;
         uartByte = USART1->DATAR;
     }
 }

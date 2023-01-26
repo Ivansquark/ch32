@@ -5,6 +5,9 @@ function_to_fork1() {
     echo "|                  ***   GDB  ***                   |"
     echo "+---------------------------------------------------+"
     gdb-multiarch
+    echo "+---------------------------------------------------+"
+    echo "|               *** END  GDB  ***                   |"
+    echo "+---------------------------------------------------+"
 }
 
 # ... execution continues in parent process ..
@@ -15,6 +18,11 @@ function_to_fork2() {
     echo "+---------------------------------------------------+"
     "/opt/openocd/bin/openocd" "-c" "gdb_port 3333" \
     "-s" "/opt/openocd/share/openocd/scripts" "-f" "./lib/wch-riscv.cfg" 
+    #sleep 1
+    #killall -9 openocd
+    #echo "+---------------------------------------------------+"
+    #echo "|         ***  OPENOCD  KILLED ***                  |"
+    #echo "+---------------------------------------------------+"
 }
 
 function_to_fork2 &
@@ -22,11 +30,11 @@ function_to_fork2 &
 #echo $pidApp1
 function_to_fork1 
 #kill -9 $pidApp1
-sleep 1
+#sleep 1
 killall -9 openocd
 sleep 0.1
 echo "+---------------------------------------------------+"
 echo "|         ***  OPENOCD  KILLED ***                  |"
 echo "+---------------------------------------------------+"
-killall -9 openocd
+#killall -9 openocd
 #killall -9 gdb_script
