@@ -16,6 +16,7 @@ void dma_ch1_adc1_init()
     DMA1_Channel1->CFGR |= DMA_CFG4_MINC;
     DMA1_Channel1->CFGR &= ~DMA_CFG4_PINC;
     DMA1_Channel1->CFGR &= ~DMA_CFG4_DIR; // 0 - from peripheral
+    DMA1_Channel1->CFGR |= DMA_CFG4_CIRC; //circular mode
 
     DMA1_Channel1->CNTR = DMA_CH1_BUF_SIZE;
 

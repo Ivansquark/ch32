@@ -14,17 +14,17 @@ void adc_init()
     RCC->APB2PCENR |= RCC_ADC1EN;
     // PCLK2 - 72MHz / 6 = ADC_CLK = 12 MHz
     RCC->CFGR0 |= RCC_ADCPRE_DIV6;
-    
-    //adc in continuos mode with DMA
-    ADC1->CTLR2 |= ADC_CONT;//continous mode
+
+    // adc in continuos mode with DMA
+    ADC1->CTLR2 |= ADC_CONT;    // continous mode
     ADC1->CTLR2 |= ADC_EXTTRIG; // conversion on external signal
     ADC1->CTLR2 |= ADC_EXTSEL;  // 1:1:1 RSWSTART software trigger
     // A2 channel
     ADC1->SAMPTR2 |= ADC_SMP0; // 1:1:1 239 cycles conversion
     // ADC1->SAMPTR2 &= ~ADC_SMP0; //0:0:0 1.5 cycles conversion
-    ADC1->RSQR3 = 0; // channel 0 1 conversion
+    ADC1->RSQR3 = 7; // channel 7 1 conversion
 
-    //DMA enable
+    // DMA enable
     ADC1->CTLR2 |= ADC_DMA;
 
     ADC1->CTLR2 |= ADC_ADON;
@@ -39,6 +39,14 @@ void adc_init()
     while (ADC1->CTLR2 & ADC_CAL) {}
     Calibrattion_Val = ADC1->RDATAR;
     // Calibrattion_Val = Get_CalibrationValue(ADC1);
-   
-    ADC1->CTLR2 |= ADC_SWSTART; //start continuous conversion
+
+    ADC1->CTLR2 |= ADC_SWSTART; // start continuous conversion
+}
+
+uint16_t Get_ConversionVal(uint16_t val)
+{
+    if ((Calibrattion_Val + val) > 4095 || val == 4095) {
+        return 4095;
+    }
+    return (val + Calibrattion_Val);
 }

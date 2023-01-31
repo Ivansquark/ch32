@@ -28,9 +28,10 @@ void uart_init()
 void uart_sendbyte(uint8_t byte)
 {
     // USART1->DATAR = (byte & (uint16_t)0x01FF);
+    uint16_t timeout = 0xffff;
     USART1->DATAR = byte;
-    while (!(USART1->STATR & USART_STATR_TC)){}
-    USART1->STATR &= ~USART_STATR_TC;
+    while (!(USART1->STATR & USART_STATR_TC) && timeout--){}
+    //USART1->STATR &= ~USART_STATR_TC;
 }
 
 uint8_t uartByte = 0;
