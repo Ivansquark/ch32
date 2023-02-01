@@ -1,0 +1,13 @@
+#--gcc-toolchain=/opt/ch32_riscv_gcc/include
+#%compile_commands.json
+#--target=/opt/ch32_riscv_gcc/bin/riscv-none-embed-g++
+%c -std=c11
+%cpp -std=c++17
+%h -x
+%h c++-header
+%h %hpp --include=Base.h
+-Iinc/
+-IPeripheral/inc/
+-Ilib/
+-isystem/opt/ch32_riscv_gcc/riscv-none-embed/include/
+#-I/opt/ch32_riscv_gcc/riscv-none-embed/include/

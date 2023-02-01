@@ -1,16 +1,43 @@
 #include "main.h"
-// void GPIO_Toggle_INIT(void)
-//{
-//    GPIO_InitTypeDef GPIO_InitStructure = {0};
-//
-//    RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA, ENABLE);
-//    GPIO_InitStructure.GPIO_Pin = GPIO_Pin_0;
-//    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
-//    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-//    GPIO_Init(GPIOA, &GPIO_InitStructure);
-//}
+#include "rcc.h"
+#include "systim.h"
+
+#include "FreeRTOS.h"
+#include "task.h"
+
+/* Global define */
+#define TASK1_TASK_PRIO     5
+#define TASK1_STK_SIZE      256
+#define TASK2_TASK_PRIO     5
+#define TASK2_STK_SIZE      256
+
+/* Global Variable */
+TaskHandle_t Task1Task_Handler;
+TaskHandle_t Task2Task_Handler;
+
+void task1_task(void *pvParameters)
+{
+    while(1)
+    {
+        vTaskDelay(250);
+        vTaskDelay(250);
+    }
+}
+
+void task2_task(void *pvParameters)
+{
+    while(1)
+    {
+        vTaskDelay(500);
+        vTaskDelay(500);
+    }
+}
+
 void delay(volatile uint32_t val);
+
 int main(void) {
+    Rcc_init(8);
+
     uint8_t i = 0;
     int y = 0;
     // NVIC_PriorityGroupConfig(NVIC_PriorityGrou:wqp_2);
@@ -22,11 +49,27 @@ int main(void) {
     GPIOB->CFGLR |= GPIO_CFGLR_MODE4;
     GPIOB->CFGLR &= ~GPIO_CFGLR_CNF4;
 
+    /* create two task */
+    xTaskCreate((TaskFunction_t )task2_task,
+                        (const char*    )"task2",
+                        (uint16_t       )TASK2_STK_SIZE,
+                        (void*          )NULL,
+                        (UBaseType_t    )TASK2_TASK_PRIO,
+                        (TaskHandle_t*  )&Task2Task_Handler);
+
+    xTaskCreate((TaskFunction_t )task1_task,
+                    (const char*    )"task1",
+                    (uint16_t       )TASK1_STK_SIZE,
+                    (void*          )NULL,
+                    (UBaseType_t    )TASK1_TASK_PRIO,
+                    (TaskHandle_t*  )&Task1Task_Handler);
+    vTaskStartScheduler();
+
     while (1) {
         // GPIO_WriteBit(GPIOA, GPIO_Pin_0, (i == 0) ? (i = Bit_SET) : (i =
         // Bit_RESET));
         i++;
-        y = i;
+        y += i;
         GPIOA->BSHR |= GPIO_BSHR_BS15;
         GPIOB->BSHR |= GPIO_BSHR_BR4;
         delay(1000000);

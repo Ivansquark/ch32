@@ -5,4 +5,5 @@
 %h %hpp --include=Base.h
 -Iinc/
 -Ilib/
+-IFreeRTOS/include/
 -I/opt/ch32_riscv_gcc/riscv-none-embed/include/
