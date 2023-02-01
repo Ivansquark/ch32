@@ -204,17 +204,18 @@ void (*vectors[])() __attribute__((section(".vector"))) = {
     DMA2_Channel11_IRQHandler   /* DMA2 Channel 11 */
 };
 
-extern void *_data_lma, *_data_vma, *_edata, *_sbss, *_ebss; // from .ld
-extern void *__global_pointer, *_eusrstack; // from .ld
-
+// from .ld
+extern void *_data_start_flash, *_data_start_ram, *_edata, *_sbss, *_ebss;
+extern void *__global_pointer, *_eusrstack;
 void __attribute__((naked, noreturn)) Reset_Handler() {
-    asm("la gp, __global_pointer$");
+    asm("la gp, __global_pointer");
     asm("la sp, _eusrstack");
     void** pSource;
     void** pDest;
     // copy data section from flash to RAM
-    for (pSource = &_data_lma, pDest = &_data_vma; pDest != &_edata;
-         pSource++, pDest++) {
+    for (pSource = &_data_start_flash, pDest = &_data_start_ram;
+         pDest != &_edata; pSource++, pDest++) {
+        if (pDest > &_edata) { break; }
         *pDest = *pSource;
     }
     // clear bss section
