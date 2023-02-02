@@ -1,17 +1,25 @@
 # https://clang.llvm.org/docs/ClangFormatStyleOptions.html
 # To disable for a line use `// clang-format off`
-BasedOnStyle: LLVM # https://google.github.io/styleguide/cppguide.html
-Language: Cpp
+BasedOnStyle: LLVM
+BreakBeforeBraces: Linux
+#BreakBeforeBraces: Custom
+#BraceWrapping:
+#  AfterEnum: true
+#  AfterFunction: true
+#  AfterExternBlock: true
+#  AfterStruct: false
+#  AfterNamespace: false
+#  AfterStruct: false
+#  AfterCaseLabel: false
+#  SplitEmptyFunction: false
 DerivePointerAlignment: false
 PointerAlignment: Left
 IndentPPDirectives: BeforeHash
 IndentWidth: 4
 ColumnLimit: 80
 AllowShortEnumsOnASingleLine: false
-AllowShortBlocksOnASingleLine: true
-AllowShortIfStatementsOnASingleLine: true
-AllowShortLoopsOnASingleLine: true
-SortIncludes:    true
+AllowShortBlocksOnASingleLine: Empty
+AllowShortIfStatementsOnASingleLine: false
 SpaceAfterCStyleCast: false
 SpaceAfterTemplateKeyword: true
 MaxEmptyLinesToKeep: 1

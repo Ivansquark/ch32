@@ -19,9 +19,11 @@ LIB = lib/
 BLD = build/
 SRC = src/
 #///////////////////////////
+perINC = Peripheral/inc/
+perSRC = Peripheral/src/
+#///////////////////////////
 freeRtosINC = FreeRTOS/include/
 freeRtosSRC = FreeRTOS/
-
 #///////////////////////////////////
 CFLAGS = -c -Wall -Wextra -g -O0 \
 	   -fno-pic -fno-common \
@@ -54,8 +56,9 @@ $(BLD)main.elf: $(BLD)system_ch32v30x.o
 $(BLD)main.elf:	$(BLD)core_riscv.o $(BLD)startup.o
 $(BLD)main.elf:	$(BLD)tasks.o $(BLD)list.o $(BLD)port.o $(BLD)heap_4.o #$(BLD)timers.o
 $(BLD)main.elf: $(BLD)portASM.o				
+$(BLD)main.elf: $(BLD)ch32v30x_spi.o
+$(BLD)main.elf: $(BLD)rcc.o $(BLD)gpio.o $(BLD)spi.o
 $(BLD)main.elf: $(BLD)main.o				
-$(BLD)main.elf: $(BLD)rcc.o
 	$(CC) -o $@ -T$(LIB)Link.ld $^ -I$(LIB) $(LFLAGS)
 #    $@ — target name
 #    $< — first dependancy name
@@ -70,7 +73,11 @@ $(BLD)main.elf: $(BLD)rcc.o
 	arm-none-eabi-size $(BLD)main.elf
 	@echo "*******************************************************"
 
-#___________________ BUILD __________________________________	
+#___________________ BUILD ____________________________________________________
+
+#_____________________________________________________________________________
+#_________________________ LIB FUNC __________________________________________	
+#_____________________________________________________________________________
 $(BLD)%.o: $(LIB)%.c
 	@ # **** mutex for parallel execution (mkdir must be locked) ****
 	@if mkdir /var/lock/.myscript.exclusivelock; \
@@ -90,7 +97,7 @@ $(BLD)%.o: $(freeRtosSRC)%.c
 	then if [ ! -d "$(BLD)" ]; then mkdir $(BLD); fi; \
 	rmdir /var/lock/.myscript.exclusivelock; \
 	fi
-	$(CC) $< -o $@ -I$(INC) -I$(LIB) -I$(freeRtosINC) $(CFLAGS)
+	$(CC) $< -o $@ -I$(INC) -I$(LIB) -I$(perINC) -I$(freeRtosINC) $(CFLAGS)
 # ASM startup
 $(BLD)portASM.o: $(freeRtosSRC)portASM.S
 	$(CC) -c $(freeRtosSRC)portASM.S -o $(BLD)portASM.o -I$(freeRtosINC)
@@ -103,7 +110,10 @@ $(BLD)%.o: $(SRC)%.c
 	then if [ ! -d "$(BLD)" ]; then mkdir $(BLD); fi; \
 	rmdir /var/lock/.myscript.exclusivelock; \
 	fi
-	$(CC) $< -o $@ -I$(INC) -I$(LIB) -I$(freeRtosINC) $(CFLAGS)
+	$(CC) $< -o $@ -I$(INC) -I$(LIB) -I$(perINC) -I$(freeRtosINC) $(CFLAGS)
+
+$(BLD)%.o: $(perSRC)%.c
+	$(CC) $< -o $@ -I$(INC) -I$(LIB) -I$(perINC) -I$(freeRtosINC) $(CFLAGS)
 
 clean:
 	rm -rf build 

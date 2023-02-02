@@ -1,4 +1,7 @@
-%c -std=c11
+%compile_commands.json 
+--gcc-toolchain=/opt/ch32_riscv_gcc
+--target=riscv32
+%c  -std=c11
 %cpp -std=c++17
 %h -x
 %h c++-header
@@ -6,4 +9,7 @@
 -Iinc/
 -Ilib/
 -IFreeRTOS/include/
+-IPeripheral/inc/
 -I/opt/ch32_riscv_gcc/riscv-none-embed/include/
+-I/opt/ch32_riscv_gcc/riscv-none-embed/
+

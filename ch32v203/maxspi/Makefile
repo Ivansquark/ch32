@@ -21,16 +21,16 @@ SRC = src/
 perINC = Peripheral/inc/
 perSRC = Peripheral/src/
 
-CFLAGS = -c -Wall -Wextra -g -O0 \
+CFLAGS = -c -Wall -Wextra -g -O0 -march=rv32imac -mabi=ilp32 \
 	   -fno-pic -fno-common \
 	   -Wno-pointer-arith \
 	   -ffast-math -fno-math-errno -ffunction-sections -fdata-sections
-CPPFLAGS = -c -std=c++17 -Wall -Wextra -g3 -O0 \
+CPPFLAGS = -c -std=c++17 -Wall -Wextra -g3 -O0  -march=rv32imac -mabi=ilp32 \
 	   -fno-pic -fno-common -D"assert_param(x)=" \
 	   -fno-exceptions \
 	   -Wno-pointer-arith -fno-rtti \
 	   -ffast-math -fno-math-errno -ffunction-sections -fdata-sections
-LFLAGS = -nostartfiles \
+LFLAGS = -nostartfiles  -march=rv32imac -mabi=ilp32 \
 		 -specs=nano.specs -specs=nosys.specs -fno-exceptions \
 		 -fno-use-cxa-atexit \
 		 -Xlinker -Map=$(BLD)main.map -Xlinker --gc-sections

@@ -3,4 +3,6 @@
 
 #include "ch32v30x.h"
 
-#endif //MAIN_H
+#define UNUSED(x) (void)(x)
+
+#endif // MAIN_H

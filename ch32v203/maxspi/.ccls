@@ -1,6 +1,6 @@
-#--gcc-toolchain=/opt/ch32_riscv_gcc/include
-#%compile_commands.json
-#--target=/opt/ch32_riscv_gcc/bin/riscv-none-embed-g++
+%compile_commands.json 
+--gcc-toolchain=/opt/ch32_riscv_gcc
+--target=riscv32
 %c -std=c11
 %cpp -std=c++17
 %h -x
