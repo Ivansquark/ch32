@@ -9,9 +9,9 @@ Udp::Udp() {
     init();
 }
 
-void Udp::init() { connect(); }
+void Udp::init() { my_connect(); }
 
-void Udp::connect(void) {
+void Udp::my_connect(void) {
     udpBroadcastPcb = udp_new();
     // ip_set_option(upcb, SOF_BROADCAST); IP_ADDR_BROADCAST
     if (udpBroadcastPcb != NULL) {

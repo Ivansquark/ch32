@@ -1,7 +1,7 @@
 #ifndef __LWIPOPTS_H__
 #define __LWIPOPTS_H__
 
-#define LWIP_NOASSERT                   1
+#define LWIP_NOASSERT                   0
 #define LWIP_DEBUG 0
 /**
  * SYS_LIGHTWEIGHT_PROT==1: if you want inter-task protection for certain
@@ -14,7 +14,7 @@
  * NO_SYS==1: Provides VERY minimal functionality. Otherwise,
  * use lwIP facilities.
  */
-#define NO_SYS                  1
+#define NO_SYS                  0
 
 /**
  * NO_SYS_NO_TIMERS==1: Drop support for sys_timeout when NO_SYS==1
@@ -168,7 +168,7 @@ a lot of data that needs to be copied, this should be set high. */
 /**
  * LWIP_SOCKET==1: Enable Socket API (require to use sockets.c)
  */
-#define LWIP_SOCKET                     0
+#define LWIP_SOCKET                     1
 
 /*
    ---------------------------------
@@ -177,17 +177,18 @@ a lot of data that needs to be copied, this should be set high. */
 */
 
 
-//#define DEFAULT_UDP_RECVMBOX_SIZE       10
-//#define DEFAULT_TCP_RECVMBOX_SIZE       10
-//#define DEFAULT_ACCEPTMBOX_SIZE         10
-//#define DEFAULT_THREAD_STACKSIZE        1024
+#define DEFAULT_UDP_RECVMBOX_SIZE       10
+#define DEFAULT_TCP_RECVMBOX_SIZE       10
+#define DEFAULT_ACCEPTMBOX_SIZE         10
+#define DEFAULT_THREAD_STACKSIZE        1024
 
 
-//#define TCPIP_THREAD_NAME              "lwip"
-//#define TCPIP_THREAD_STACKSIZE          512
-//#define TCPIP_MBOX_SIZE                 8
-//#define TCPIP_THREAD_PRIO               3
+#define TCPIP_THREAD_NAME              "lwip"
+#define TCPIP_THREAD_STACKSIZE          512
+#define TCPIP_MBOX_SIZE                 8
+#define TCPIP_THREAD_PRIO               3
 
+#define LWIP_TCPIP_CORE_LOCKING         1 //TODO Initialize mutex
 
 
 //#define LWIP_ALTCP                      1

@@ -7,7 +7,15 @@
 #include "ch32v30x_rng.h"
 #include "main.h"
 #include "string.h"
+#include "gpio.h"
 #include "systim.h"
+
+#include "lwip_list.h"
+#include "memb.h"
+
+#include "lwip/api.h"
+#include "lwip/inet.h"
+#include "lwip/sockets.h"
 
 #include "lwip/init.h"
 #include "lwip/netif.h"
@@ -15,11 +23,11 @@
 #include <lwip/opt.h>
 //#include "lwip/dhcp.h"
 #include "ethernetif.h"
-#include "list.h"
 #include "lwip/def.h"
 #include "lwip/timeouts.h"
-#include "memb.h"
 #include "netif/ethernet.h"
+
+//#include "task.h"
 
 #define ETH_RXBUFNB 4
 #define ETH_TXBUFNB 4
@@ -52,7 +60,6 @@ extern ETH_DMADESCTypeDef DMARxDscrTab[ETH_RXBUFNB];
 extern ETH_DMADESCTypeDef DMATxDscrTab[ETH_TXBUFNB];
 
 uint32_t CH30x_RNG_GENERATE();
-u32_t sys_now(void);
 extern volatile uint8_t net_data_led_require;
 LIST_EXTERN(ch307_mac_rec);
 MEMB_EXTERN(ch307_mac_rec_frame_mem);
@@ -89,6 +96,7 @@ class Eth {
 
     bool IsInterrupt = false;
 
+    void delay(volatile uint32_t us);
   private:
     void init();
     void init_phy();
@@ -101,6 +109,8 @@ class Eth {
     ip4_addr_t gw;
     uint8_t NETMASK_ADDRESS[4];
     uint8_t GATEWAY_ADDRESS[4];
+
+
 };
 
 extern "C" 
@@ -108,4 +118,7 @@ extern "C"
 __attribute__((interrupt))
 void ETH_IRQHandler(void);
 
+extern "C" 
+__attribute__((weak))
+uint32_t xTaskGetTickCount(void);
 #endif // ETH_H

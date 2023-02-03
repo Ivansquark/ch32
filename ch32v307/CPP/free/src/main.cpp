@@ -10,17 +10,18 @@
 #include "my_udp.h"
 #include "rcc.h"
 #include "sd.h"
-#include "systim.h"
 #include "w25q.h"
 
 #include "FreeRTOS.h"
 #include "task.h"
 
+uint32_t SystemCoreClock = 144000000;
+
 Rcc rcc(8);
 
 Adc adc1;
 Eeprom eeprom;
-// W25q flash;
+W25q flash;
 // Eth eth(192, 168, 0, 100);
 Eth eth(192, 168, 1, 100);
 Udp udp;
@@ -35,48 +36,85 @@ uint8_t tempArr[SIZE];
 void delay(volatile uint32_t val);
 
 /* Global define */
-#define TASK1_TASK_PRIO 5
-#define TASK1_STK_SIZE 256
-#define TASK2_TASK_PRIO 5
-#define TASK2_STK_SIZE 256
+#define TASK_HTTP_TASK_PRIO 1
+#define TASK_HTTP_STK_SIZE 2048
+#define TASK_RECEIVE_TASK_PRIO 5
+#define TASK_RECEIVE_STK_SIZE 512
 
 /* Global Variable */
-TaskHandle_t Task1Task_Handler;
-TaskHandle_t Task2Task_Handler;
+TaskHandle_t TaskHttp_Handler;
+TaskHandle_t TaskReceive_Handler;
+TaskHandle_t TaskUdp_Handler;
 
-void task1_task(void* pvParameters) {
+void receive_task([[maybe_unused]] void* pvParameters) {
     Gpio::Out::init();
     while (1) {
-
-        Gpio::Out::setRed();
-        vTaskDelay(250);
-        Gpio::Out::resetRed();
-        vTaskDelay(250);
+        eth.rx_handler();
+        vTaskDelay(1); // every ms
     }
 }
 
-void task2_task(__attribute__((unused)) void* pvParameters) {
+void http_task(__attribute__((unused)) void* pvParameters) {
     Gpio::Out::init();
     while (1) {
-        Gpio::Out::setBlue();
-        vTaskDelay(500);
-        Gpio::Out::resetBlue();
-        vTaskDelay(500);
+        //__disable_irq();
+        Gpio::Out::toggleBlue();
+        // http.httpHandler();
+        //__enable_irq();
+        vTaskDelay(1);
+    }
+}
+extern sys_mutex_t lock_tcpip_core;
+void udp_task([[maybe_unused]] void* pvParameters) {
+    Gpio::Out::init();
+    uint32_t mutex = 1;
+    lock_tcpip_core.mut = &mutex;
+    int sock, new_sd;
+    struct sockaddr_in address, remote;
+    int size;
+
+    int RECV_BUF_SIZE = 2048;
+    char recv_buf[RECV_BUF_SIZE];
+    int n, nwrote;
+    sock = lwip_socket(AF_INET, SOCK_DGRAM, 0);
+    if (sock < 0) { return; }
+    address.sin_family = AF_INET;
+    address.sin_port = htons(55555);
+    address.sin_addr.s_addr = INADDR_ANY;
+    while (1) {
+        n = read(sock, recv_buf, RECV_BUF_SIZE);
+        if (n < 0) {
+            // error
+        } else if (n > 0) {
+            Gpio::Out::toggleBlue();
+            // read complete
+            recv_buf[n] = ' ';
+            recv_buf[n] = 'o';
+            recv_buf[n] = 'k';
+            write(sock, recv_buf, n + 3);
+        }
+        vTaskDelay(1); // every ms
     }
 }
 
 int main(void) {
 
     /* create two task */
-    xTaskCreate((TaskFunction_t)task2_task, (const char*)"task2",
-                (uint16_t)TASK2_STK_SIZE, (void*)NULL,
-                (UBaseType_t)TASK2_TASK_PRIO,
-                (TaskHandle_t*)&Task2Task_Handler);
+    xTaskCreate((TaskFunction_t)receive_task, (const char*)"task2",
+                (uint16_t)TASK_RECEIVE_STK_SIZE, (void*)NULL,
+                (UBaseType_t)TASK_RECEIVE_TASK_PRIO,
+                (TaskHandle_t*)&TaskReceive_Handler);
 
-    xTaskCreate((TaskFunction_t)task1_task, (const char*)"task1",
-                (uint16_t)TASK1_STK_SIZE, (void*)NULL,
-                (UBaseType_t)TASK1_TASK_PRIO,
-                (TaskHandle_t*)&Task1Task_Handler);
+    // xTaskCreate((TaskFunction_t)http_task, (const char*)"task1",
+    //            (uint16_t)TASK_HTTP_STK_SIZE, (void*)NULL,
+    //            (UBaseType_t)TASK_RECEIVE_TASK_PRIO,
+    //            (TaskHandle_t*)&TaskHttp_Handler);
+
+    xTaskCreate((TaskFunction_t)udp_task, (const char*)"udp_task",
+                (uint16_t)TASK_HTTP_STK_SIZE, (void*)NULL,
+                (UBaseType_t)TASK_RECEIVE_TASK_PRIO,
+                (TaskHandle_t*)&TaskUdp_Handler);
+
     vTaskStartScheduler();
 
     // flash.reset();
@@ -105,9 +143,6 @@ int main(void) {
     Gpio::Out::init();
 
     while (1) {
-        eth.rx_handler();
-        // TCP handler
-        http.httpHandler();
 
         if (IsTimeout) {
             IsTimeout = false;

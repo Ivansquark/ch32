@@ -16,8 +16,10 @@ namespace Out {
 void init();
 inline void setRed() { GPIOA->BSHR |= GPIO_BSHR_BS15; }
 inline void resetRed() { GPIOA->BSHR |= GPIO_BSHR_BR15; }
+inline void toggleRed() { GPIOA->OUTDR ^= GPIO_OUTDR_ODR15; }
 inline void setBlue() { GPIOB->BSHR |= GPIO_BSHR_BS4; }
 inline void resetBlue() { GPIOB->BSHR |= GPIO_BSHR_BR4; }
+inline void toggleBlue() { GPIOB->OUTDR ^= GPIO_OUTDR_ODR4; }
 
 } // namespace Out
 

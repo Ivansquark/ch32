@@ -25,20 +25,20 @@ Eth::Eth(uint8_t ip0, uint8_t ip1, uint8_t ip2, uint8_t ip3) {
 }
 
 void Eth::init() {
-    SysTim::init();
     __enable_irq();
     init_lwip();
 }
 
 void Eth::rx_handler() {
-    if (ETH->DMASR & ETH_DMA_IT_R) {
-        ETH_DMAClearITPendingBit(ETH_DMA_IT_R);
-        void* p;
-        p = Eth::ETH_RxPkt_ChainMode();
-        if (p != NULL) { list_add(ch307_mac_rec, p); /* add to rec list. */ }
-    }
+    // if (ETH->DMASR & ETH_DMA_IT_R) {
+    //    ETH_DMAClearITPendingBit(ETH_DMA_IT_R);
+    //    void* p;
+    //    p = Eth::ETH_RxPkt_ChainMode();
+    //    if (p != NULL) { list_add(ch307_mac_rec, p); /* add to rec list. */ }
+    //}
     if (list_head(ch307_mac_rec) != NULL) {
         /* received a packet */
+        Gpio::Out::toggleRed();
         ethernetif_input(&WCH_NetIf);
     }
     sys_check_timeouts();
@@ -59,9 +59,7 @@ void Eth::init_phy() {
     RCC_PLL3Config(RCC_PLL3Mul_15);
     RCC_MCOConfig(RCC_MCO_PLL3CLK);
     RCC_PLL3Cmd(ENABLE);
-    if (RESET == RCC_GetFlagStatus(RCC_FLAG_PLL3RDY)) {
-        SysTim::delay_10us(100);
-    }
+    if (RESET == RCC_GetFlagStatus(RCC_FLAG_PLL3RDY)) { delay(1000); }
     RCC_APB2PeriphClockCmd(RCC_APB2Periph_AFIO, ENABLE);
 
     /* Ethernet LED Configuration */
@@ -113,7 +111,7 @@ void Eth::init_phy() {
     if (ETH->DMABMR & ETH_DMABMR_SR) {
         timeout--;
         if (timeout == 0) {}
-        SysTim::delay_10us(100);
+        delay(1000);
     }
 
     /* ETHERNET Configuration
@@ -175,7 +173,7 @@ void Eth::init_phy() {
     ETH_WritePHYRegister(PHY_ADDRESS, PHY_BCR, PHY_Reset);
 
     // delay
-    SysTim::delay_10us(1000); // 10 ms
+    delay(10000);
 
     timeout = 10000;
     RegValue = 0;
@@ -185,7 +183,7 @@ void Eth::init_phy() {
         if (timeout <= 0) {
             while (1) {}
         }
-        SysTim::delay_10us(100); // 1 ms
+        delay(1000);
     }
 
     timeout = 10000;
@@ -197,7 +195,7 @@ void Eth::init_phy() {
             // not linked
             while (1) {}
         }
-        SysTim::delay_10us(100); // 1 ms
+        delay(1000);
     }
 
     timeout = 10000;
@@ -209,7 +207,7 @@ void Eth::init_phy() {
             // autonegotiation fault
             while (1) {}
         }
-        SysTim::delay_10us(100); // 1 ms
+        delay(1000);
     }
 
     RegValue = ETH_ReadPHYRegister(PHY_ADDRESS, 0x10);
@@ -225,7 +223,7 @@ void Eth::init_phy() {
     } else {
     }
 
-    SysTim::delay_10us(1000);
+    delay(10000);
     LED_LINKSET(0);
 
     //------------------------ MAC  -----------------------
@@ -304,9 +302,9 @@ void Eth::init_phy() {
         ETH_InitStructure->ETH_DMAArbitration | ETH_DMABMR_USP);
     mem_free(ETH_InitStructure);
     /* Enable the Ethernet Rx Interrupt */
-    //ETH_DMAITConfig(ETH_DMA_IT_NIS | ETH_DMA_IT_R | ETH_DMA_IT_T, ENABLE);
+    ETH_DMAITConfig(ETH_DMA_IT_NIS | ETH_DMA_IT_R | ETH_DMA_IT_T, ENABLE);
 
-    //NVIC_EnableIRQ(ETH_IRQn);
+    NVIC_EnableIRQ(ETH_IRQn);
     ETH_DMATxDescChainInit(DMATxDscrTab, &Tx_Buff[0][0], ETH_TXBUFNB);
     ETH_DMARxDescChainInit(DMARxDscrTab, &Rx_Buff[0][0], ETH_RXBUFNB);
     ETH_Start();
@@ -505,21 +503,19 @@ void Eth::net_led_tmr(void) {
     }
 }
 
-u32_t sys_now(void) { return SysTim::getCounter(); }
-
 uint32_t CH30x_RNG_GENERATE() {
     while (1) {
         if (RNG_GetFlagStatus(RNG_FLAG_DRDY) == SET) { break; }
         if (RNG_GetFlagStatus(RNG_FLAG_CECS) == SET) {
             RNG_ClearFlag(RNG_FLAG_CECS);
-            SysTim::delay_10us(10);
+            Eth::pThis->delay(100);
         }
         if (RNG_GetFlagStatus(RNG_FLAG_SECS) == SET) {
             RNG_ClearFlag(RNG_FLAG_SECS);
             RNG_Cmd(DISABLE);
-            SysTim::delay_10us(10);
+            Eth::pThis->delay(100);
             RNG_Cmd(ENABLE);
-            SysTim::delay_10us(10);
+            Eth::pThis->delay(100);
         }
     }
     return RNG_GetRandomNumber();
@@ -540,4 +536,7 @@ void ETH_IRQHandler(void) {
     if (ETH->DMASR & ETH_DMA_IT_T) { ETH_DMAClearITPendingBit(ETH_DMA_IT_T); }
 
     ETH_DMAClearITPendingBit(ETH_DMA_IT_NIS);
+}
+void Eth::delay(volatile uint32_t us) {
+    for (volatile uint32_t i = 0; i < us * 72; i++) {}
 }

@@ -6,7 +6,7 @@ void _start();
 int main();
 
 void NMI_Handler() __attribute__((weak, alias("Default_Handler")));
-void HardFault_Handler() __attribute__((weak, alias("Default_Handler")));
+void HardFault_Handler();
 void Ecall_M_Mode_Handler() __attribute__((weak, alias("Default_Handler")));
 void Ecall_U_Mode_Handler() __attribute__((weak, alias("Default_Handler")));
 void Break_Point_Handler() __attribute__((weak, alias("Default_Handler")));
@@ -324,4 +324,10 @@ void __attribute__((naked, noreturn)) Reset_Handler() {
 void Default_Handler() {
     while (1) {}
 }
+
+__attribute__((interrupt))
+void HardFault_Handler(void) {
+    while (1) {}
+}
+
 }

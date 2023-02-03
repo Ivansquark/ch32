@@ -57,8 +57,8 @@
  * @{
  */
 
-#ifndef _LIST_H_
-#define _LIST_H_
+#ifndef _LWIP_LIST_H_
+#define _LWIP_LIST_H_
 
 #include <stdbool.h>
 
@@ -159,7 +159,7 @@ bool list_contains(list_t list, void *item);
 }
 #endif
 
-#endif /* LIST_H_ */
+#endif /* LWIP_LIST_H_ */
 
 /** @} */
 /** @} */

@@ -46,7 +46,7 @@ class Udp {
   private:
     void init();
 
-    static void connect(void);
+    static void my_connect(void);
     static void disconnect();
 
     //--------------------------    Adresses

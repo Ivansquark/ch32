@@ -1,6 +1,6 @@
 ENTRY( _start )
-__stack_size = 0x1000;   /*4096*/
-_Min_Heap_Size = 0x800; /*2048*/
+__stack_size = 0x800;   /*2048*/
+_Min_Heap_Size = 0x100; /*256*/
 PROVIDE( _stack_size = __stack_size );
 
 MEMORY
@@ -121,6 +121,7 @@ SECTIONS
         PROVIDE(_susrstack = . ); /*stack overflow when below 0x20000000*/
         . = . + __stack_size;
         PROVIDE( _eusrstack = .); /*stack start 0x20000800*/
+        PROVIDE(__freertos_irq_stack_top = .); /*FreeRTOS stack IRQ*/
     } >RAM
     
     .data :

@@ -69,9 +69,11 @@ $(BLD)main.elf:	$(BLD)core_riscv.o $(BLD)startup.o
 $(BLD)main.elf: $(BLD)ch32v30x_i2c.o $(BLD)ch32v30x_spi.o $(BLD)ch32v30x_rcc.o
 $(BLD)main.elf: $(BLD)ch32v30x_gpio.o $(BLD)ch32v30x_eth.o $(BLD)ch32v30x_rng.o
 $(BLD)main.elf: $(BLD)ch32v30x_misc.o $(BLD)ch32v30x_sdio.o $(BLD)ch32v30x_dma.o
-$(BLD)main.elf: $(BLD)memb.o	$(BLD)list.o
+$(BLD)main.elf: $(BLD)memb.o	$(BLD)lwip_list.o
 $(BLD)main.elf: $(lwipBLD)ip4.o $(lwipBLD)ip4_frag.o $(lwipBLD)ip4_addr.o
 $(BLD)main.elf: $(lwipBLD)icmp.o $(lwipBLD)etharp.o
+$(BLD)main.elf: $(lwipBLD)sockets.o $(lwipBLD)err.o $(lwipBLD)tcpip.o 
+#$(BLD)main.elf: $(lwipBLD)api_msg.o $(lwipBLD)api_lib.o 
 $(BLD)main.elf: $(lwipBLD)def.o $(lwipBLD)init.o $(lwipBLD)ip.o
 $(BLD)main.elf: $(lwipBLD)mem.o $(lwipBLD)memp.o $(lwipBLD)netif.o
 $(BLD)main.elf: $(lwipBLD)pbuf.o $(lwipBLD)timeouts.o $(lwipBLD)udp.o
@@ -79,11 +81,15 @@ $(BLD)main.elf: $(lwipBLD)inet_chksum.o
 $(BLD)main.elf: $(lwipBLD)tcp_out.o $(lwipBLD)tcp_in.o $(lwipBLD)tcp.o
 $(BLD)main.elf: $(lwipBLD)ethernet.o $(lwipBLD)ethernetif.o
 $(BLD)main.elf: $(lwipBLD)ethernet.o $(lwipBLD)ethernetif.o
-$(BLD)main.elf: $(BLD)my_udp.o $(BLD)my_tcp.o $(BLD)my_http.o
+$(BLD)main.elf: $(lwipBLD)sys_arch.o
+$(BLD)main.elf: $(BLD)eth.o $(BLD)my_udp.o $(BLD)my_tcp.o $(BLD)my_http.o
 $(BLD)main.elf: $(BLD)rcc.o $(BLD)eeprom.o $(BLD)gpio.o $(BLD)w25q.o
-$(BLD)main.elf: $(BLD)basic_timer.o $(BLD)systim.o $(BLD)eth.o
+$(BLD)main.elf: $(BLD)basic_timer.o
 $(BLD)main.elf: $(BLD)sd.o $(BLD)adc.o
 $(BLD)main.elf: $(BLD)main.o
+$(BLD)main.elf: $(BLD)portASM.o
+$(BLD)main.elf: $(BLD)tasks.o $(BLD)list.o $(BLD)port.o $(BLD)heap_4.o
+$(BLD)main.elf: $(BLD)queue.o
 	$(CPP) -o $@ -T$(LIB)Link.ld $^ -I$(LIB) $(LFLAGS)
 #    $@ — target name
 #    $< — first dependancy name
@@ -109,12 +115,12 @@ $(BLD)%.o: $(LIB)%.cpp
 #$(BLD)startup_ch32v30x_D8.o: $(LIB)startup_ch32v30x_D8.S
 #	$(CC) -c $(LIB)startup_ch32v30x_D8.S -o $(BLD)startup_ch32v30x_D8.o 	
 #_________________________ LWIP functions  ___________________________________	
-$(lwipBLD)%.o: $(lwipSrcCoreIP4)%.cpp
+$(lwipBLD)%.o: $(lwipSrcCoreIP4)%.c
 	$(CPP) $< -o $@ -I$(INC) -I$(perINC) -I$(LIB) -I$(lwipINCLUDE) -I$(lwip) \
 	$(CPPFLAGS)
-$(lwipBLD)%.o: $(lwipSrcCore)%.cpp
+$(lwipBLD)%.o: $(lwipSrcCore)%.c
 	$(CPP) $< -o $@ -I$(INC) -I$(perINC) -I$(LIB) -I$(lwipINCLUDE) -I$(lwip) \
-	$(CPPFLAGS)
+	-I$(freeINC) $(CPPFLAGS)
 $(lwipBLD)%.o: $(lwipSrcNetif)%.cpp
 	$(CPP) $< -o $@ -I$(INC) -I$(perINC) -I$(LIB) -I$(lwipINCLUDE) -I$(lwip) \
 	$(CPPFLAGS)
@@ -122,20 +128,25 @@ $(lwipBLD)%.o: $(lwipSrcNetif)%.cpp
 $(lwipBLD)%.o: $(lwip)%.cpp
 	$(CPP) $< -o $@ -I$(INC) -I$(perINC) -I$(LIB) -I$(lwipINCLUDE) -I$(lwip) \
 	$(CPPFLAGS)
+$(lwipBLD)%.o: $(lwip)%.c
+	$(CC) $< -o $@ -I$(INC) -I$(perINC) -I$(LIB) -I$(lwipINCLUDE) -I$(lwip) \
+	-I$(freeINC) $(CFLAGS)
+$(lwipBLD)%.o: $(lwipSrcApi)%.c
+	$(CC) $< -o $@ -I$(INC) -I$(perINC) -I$(LIB) -I$(lwipINCLUDE) -I$(lwip) \
+	-I$(freeINC) $(CFLAGS)
 #_____________________________________________________________________________
 #_________________________ FreeRTOS __________________________________________	
 #_____________________________________________________________________________
-$(BLD)%.o: $(freeSRC)%.cpp
+# ASM startup
+$(BLD)portASM.o: $(freeSRC)portASM.S
+	$(CPP) -c $(freeSRC)portASM.S -o $(BLD)portASM.o -I$(freeINC) $(CPPFLAGS)
+$(BLD)%.o: $(freeSRC)%.c
 	@ # **** mutex for parallel execution (mkdir must be locked) ****
 	@if mkdir /var/lock/.myscript.exclusivelock; \
-	then if [ ! -d "$(BLD)" ]; then mkdir $(BLD); fi; \
+	then if [ ! -d "$(BLD)" ]; then mkdir $(BLD) $(lwipBLD); fi; \
 	rmdir /var/lock/.myscript.exclusivelock; \
 	fi
 	$(CC) $< -o $@ -I$(INC) -I$(LIB) -I$(perINC) -I$(freeINC) $(CFLAGS)
-# ASM startup
-$(BLD)portASM.o: $(freeRtosSRC)portASM.S
-	$(CC) -c $(freeSRC)portASM.S -o $(BLD)portASM.o -I$(freeINC)
-
 #_____________________________________________________________________________
 #_________________________ Basic functions ___________________________________	
 #_____________________________________________________________________________
