@@ -190,6 +190,7 @@ a lot of data that needs to be copied, this should be set high. */
 
 #define LWIP_TCPIP_CORE_LOCKING         1 //TODO Initialize mutex
 
+#define MEM_LIBC_MALLOC                 1 //try mem management through freertos
 
 //#define LWIP_ALTCP                      1
 //#define LWIP_ALTCP_TLS                  1

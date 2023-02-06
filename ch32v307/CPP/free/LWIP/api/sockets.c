@@ -1977,10 +1977,10 @@ lwip_select(int maxfdp1, fd_set *readset, fd_set *writeset, fd_set *exceptset,
 #endif
   SYS_ARCH_DECL_PROTECT(lev);
 
-  LWIP_DEBUGF(SOCKETS_DEBUG, ("lwip_select(%d, %p, %p, %p, tvsec=%"S32_F" tvusec=%"S32_F")\n",
-                              maxfdp1, (void *)readset, (void *) writeset, (void *) exceptset,
-                              timeout ? (s32_t)timeout->tv_sec : (s32_t) - 1,
-                              timeout ? (s32_t)timeout->tv_usec : (s32_t) - 1));
+  //LWIP_DEBUGF(SOCKETS_DEBUG, ("lwip_select(%d, %p, %p, %p, tvsec=%"S32_F" tvusec=%"S32_F")\n",
+  //                            maxfdp1, (void *)readset, (void *) writeset, (void *) exceptset,
+  //                            timeout ? (s32_t)timeout->tv_sec : (s32_t) - 1,
+  //                            timeout ? (s32_t)timeout->tv_usec : (s32_t) - 1));
 
   if ((maxfdp1 < 0) || (maxfdp1 > LWIP_SELECT_MAXNFDS)) {
     set_errno(EINVAL);
@@ -3573,8 +3573,8 @@ lwip_setsockopt_impl(int s, int level, int optname, const void *optval, socklen_
           break;
         case TCP_KEEPALIVE:
           sock->conn->pcb.tcp->keep_idle = (u32_t)(*(const int *)optval);
-          LWIP_DEBUGF(SOCKETS_DEBUG, ("lwip_setsockopt(%d, IPPROTO_TCP, TCP_KEEPALIVE) -> %"U32_F"\n",
-                                      s, sock->conn->pcb.tcp->keep_idle));
+          //LWIP_DEBUGF(SOCKETS_DEBUG, ("lwip_setsockopt(%d, IPPROTO_TCP, TCP_KEEPALIVE) -> %"U32_F"\n",
+          //                            s, sock->conn->pcb.tcp->keep_idle));
           break;
 
 #if LWIP_TCP_KEEPALIVE

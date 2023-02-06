@@ -143,6 +143,8 @@ to exclude the API function. */
 #define INCLUDE_xTaskGetHandle				1
 #define INCLUDE_xSemaphoreGetMutexHolder	1
 
+//#define configCHECKFORSTACK_OVERFLOW        1
+
 
 /* Normal assert() semantics without relying on the provision of an assert.h
 header file. */
