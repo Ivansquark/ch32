@@ -15,25 +15,28 @@
 #include "FreeRTOS.h"
 #include "queue.h"
 #include "task.h"
-
-uint32_t SystemCoreClock = 144000000;
-
+enum ParseState : uint8_t
+{
+    NOT,
+    GET_HTML,
+    GET_ICO,
+    GET_CSS,
+    GET_JS,
+    GET_CONTENT,
+    GET_LED_ON,
+    GET_LED_OFF
+};
+// objects in static memory (.data section)
 Rcc rcc(8);
-
 Adc adc1;
 Eeprom eeprom;
 W25q flash;
 // Eth eth(192, 168, 0, 100);
 Eth eth(192, 168, 1, 100);
-// Udp udp;
 // Http http;
 // Sd sd;
+
 void timeout();
-bool IsTimeout;
-
-constexpr uint16_t SIZE = 256 * 12;
-uint8_t tempArr[SIZE];
-
 void delay(volatile uint32_t val);
 
 /* Global define */
@@ -45,9 +48,12 @@ void delay(volatile uint32_t val);
 char recv_buf[RECV_BUF_SIZE] = {0};
 
 /* Global Variable */
+uint32_t SystemCoreClock = 144000000;
+extern sys_mutex_t lock_tcpip_core;
 TaskHandle_t TaskHttp_Handler;
 TaskHandle_t TaskReceive_Handler;
 TaskHandle_t TaskUdp_Handler;
+TaskHandle_t TaskTcp_Handler;
 xQueueHandle queue1;
 char* queue_buf;
 
@@ -58,199 +64,248 @@ void receive_task([[maybe_unused]] void* pvParameters) {
         vTaskDelay(1); // every ms
     }
 }
+void http_task(void* pvParameters);
 
-void http_task(__attribute__((unused)) void* pvParameters) {
-    Gpio::Out::init();
+void tcp_task([[maybe_unused]] void* pvParameters) {
+    int sock;
+    struct sockaddr_in address, dest_addr;
+    int size = sizeof(dest_addr);
+    sock = socket(AF_INET, SOCK_STREAM, 0);
+    if (sock < 0) {
+        vTaskDelete(NULL); // Should delete this connection handler
+        return;
+    }
+    address.sin_family = AF_INET;
+    address.sin_addr.s_addr = inet_addr("192.168.1.100");
+    address.sin_port = htons(80);
+    int err = bind(sock, (struct sockaddr*)&address, sizeof(address));
+    if (err != ERR_OK) {
+        vTaskDelete(NULL); // Should delete this connection handler
+        return;
+    }
+    err = listen(sock, 4);
+    if (err != ERR_OK) {
+        vTaskDelete(NULL); // Should delete this connection handler
+        return;
+    }
     while (1) {
-        //__disable_irq();
-        Gpio::Out::toggleBlue();
-        // http.httpHandler();
-        //__enable_irq();
-        vTaskDelay(1);
+        // connected socket
+        int con_sock =
+            accept(sock, (struct sockaddr*)&dest_addr, (socklen_t*)&size);
+        if (con_sock < 0) {
+            close(con_sock);
+            //vTaskDelete(NULL); // Should delete this connection handler
+        } else if (con_sock > 0) {
+            xTaskCreate((TaskFunction_t)http_task, (const char*)"http_task",
+                        (uint16_t)TASK_HTTP_STK_SIZE, (void*)&con_sock,
+                        (UBaseType_t)tskIDLE_PRIORITY, NULL);
+            //(TaskHandle_t*)&TaskHttp_Handler);
+        } else {
+            // con_sock == 0
+            //close(con_sock);
+        }
+        vTaskDelay(1); // every ms
     }
 }
-extern sys_mutex_t lock_tcpip_core;
-void udp_task([[maybe_unused]] void* pvParameters) {
-    lwip_socket_thread_init();
-    sys_mutex_new(&lock_tcpip_core);
-    // uint32_t mutex = 1;
-    // lock_tcpip_core.mut = &mutex;
-    int sock, new_sd;
-    struct sockaddr_in address, dest_addr;
-    int size;
 
-    int n, nwrote;
-    sock = lwip_socket(AF_INET, SOCK_DGRAM, 0);
+void udp_task([[maybe_unused]] void* pvParameters) {
+    //----------- echo server -------------------------------------------------
+    int sock;
+    struct sockaddr_in address, dest_addr;
+    int size = sizeof(dest_addr);
+    sock = socket(AF_INET, SOCK_DGRAM, 0);
     if (sock < 0) { return; }
     address.sin_family = AF_INET;
     address.sin_port = htons(55555);
     address.sin_addr.s_addr = INADDR_ANY;
     int err = bind(sock, (struct sockaddr*)&address, sizeof(address));
+    if (err != ERR_OK) return;
     while (1) {
-        // n = read(sock, recv_buf, RECV_BUF_SIZE);
-        n = recvfrom(sock, (void*)recv_buf, 256, 0, (struct sockaddr*)&address,
-                     (socklen_t*)&size);
-        // lwip_recvfrom(int s, void *mem, size_t len, int flags,
-        //      struct sockaddr *from, socklen_t *fromlen)
+        int n = recvfrom(sock, (void*)recv_buf, RECV_BUF_SIZE, 0,
+                         (struct sockaddr*)&dest_addr, (socklen_t*)&size);
         if (n < 0) {
-            vTaskDelete(NULL); // Should delete this connection handler
             // error
+            vTaskDelete(NULL); // Should delete this connection handler
+            return;
         } else if (n > 0) {
             Gpio::Out::toggleBlue();
             // read complete
-            recv_buf[n] = ' ';
+            recv_buf[n - 1] = ' ';
             recv_buf[n] = 'o';
-            recv_buf[n] = 'k';
-            write(sock, recv_buf, n + 3);
+            recv_buf[n + 1] = 'k';
+            recv_buf[n + 2] = '\r';
+            recv_buf[n + 3] = '\n';
+            sendto(sock, recv_buf, n + 4, 0, (struct sockaddr*)&dest_addr,
+                   size);
         }
         vTaskDelay(1); // every ms
     }
 }
 
 int main(void) {
-    /* create two task */
-    xTaskCreate((TaskFunction_t)receive_task, (const char*)"task2",
+    // initialize mutex for proper socket work
+    sys_mutex_new(&lock_tcpip_core);
+
+    xTaskCreate((TaskFunction_t)receive_task, (const char*)"receive_task",
                 (uint16_t)TASK_RECEIVE_STK_SIZE, (void*)NULL,
                 (UBaseType_t)TASK_RECEIVE_TASK_PRIO,
                 (TaskHandle_t*)&TaskReceive_Handler);
 
-    // xTaskCreate((TaskFunction_t)http_task, (const char*)"task1",
-    //            (uint16_t)TASK_HTTP_STK_SIZE, (void*)NULL,
-    //            (UBaseType_t)TASK_RECEIVE_TASK_PRIO,
-    //            (TaskHandle_t*)&TaskHttp_Handler);
-
     xTaskCreate((TaskFunction_t)udp_task, (const char*)"udp_task",
                 (uint16_t)TASK_HTTP_STK_SIZE, (void*)NULL,
-                (UBaseType_t)TASK_RECEIVE_TASK_PRIO,
+                (UBaseType_t)TASK_HTTP_TASK_PRIO,
                 (TaskHandle_t*)&TaskUdp_Handler);
+
+    xTaskCreate((TaskFunction_t)tcp_task, (const char*)"tcp_task",
+                (uint16_t)TASK_HTTP_STK_SIZE, (void*)NULL,
+                (UBaseType_t)TASK_HTTP_TASK_PRIO,
+                (TaskHandle_t*)&TaskTcp_Handler);
 
     /* add queues, ... */
     queue1 = xQueueCreate(10, sizeof(uint32_t));
 
     vTaskStartScheduler();
-
-    // flash.reset();
-    // delay(1000000);
-    // flash.WAKEUP();
-    // delay(10000);
-    // uint16_t id = 0;
-    // do {
-    //    id = 0;
-    //    //id = flash.readSR();
-    //    id = flash.readID();
-    //}
-    // while (id != flash.W25Q32);
-    // const char* str = "Hello wq25 flash";
-    // uint8_t tempArr[20] = {0};
-    // flash.write((uint8_t*)str, 0, 15);
-    // flash.erase_Sector(0);
-    // flash.write(tempArr, 0, sizeof(tempArr));
-    // flash.read(tempArr, 0x0, sizeof(tempArr));
-    // SysTim::init(144000000); // 1 s
     __enable_irq();
     BasicTimer6::Instance().setCallback(timeout);
     BasicTimer6::Instance().start(500);
-    IsTimeout = false;
-    bool timeoutSate = false;
     Gpio::Out::init();
 
-    while (1) {
-
-        // if (IsTimeout) {
-        //    IsTimeout = false;
-        //    if (!timeoutSate) {
-        //        timeoutSate = true;
-        //        Gpio::Out::setRed();
-        //        // Gpio::Out::resetBlue();
-        //    } else {
-        //        timeoutSate = false;
-        //        Gpio::Out::resetRed();
-        //        // Gpio::Out::setBlue();
-        //    }
-        //}
-        // if (udp.SendFlag) {
-        //    static uint8_t add;
-        //    add += 1;
-        //    static uint16_t lineCounter;
-
-        //    for (uint32_t i = 0; i < sizeof(tempArr); i++) {
-        //        tempArr[i] = i + add;
-        //    }
-        //    Udp::Header head;
-        //    head.PackFlag = 0xFFFF;
-        //    head.pixel.dataLen = 0x100;
-        //    head.pixel.dataNum = 0x0;
-        //    head.line.dataLen = 0x000;
-        //    head.line.dataNum = 0x0;
-
-        //    uint16_t MAX_SIZE = 0x5ba;
-        //    uint8_t count = sizeof(tempArr) / MAX_SIZE; // packet nums
-        //    uint16_t l = 0;
-        //    head.pixel.dataNum = count;
-        //    for (int i = 0; i < count + 1; i++) {
-        //        if (lineCounter >= 0xFFF) {
-        //            lineCounter = 0;
-        //        } else {
-        //            lineCounter++;
-        //        }
-        //        l = sizeof(tempArr) - (MAX_SIZE * i);
-        //        if (l >= MAX_SIZE) {
-        //            head.pixel.dataLen = MAX_SIZE;
-        //            head.pixel.dataNum = count;
-        //            head.line.dataLen = lineCounter;
-        //            head.line.dataNum = i;
-        //            uint8_t temp = *(uint8_t*)&head.pixel;
-        //            *(uint8_t*)&head.pixel = *((uint8_t*)(&head.pixel) + 1);
-        //            *((uint8_t*)(&head.pixel) + 1) = temp;
-        //            temp = *(uint8_t*)&head.line;
-        //            *(uint8_t*)&head.line = *((uint8_t*)(&head.line) + 1);
-        //            *((uint8_t*)(&head.line) + 1) = temp;
-        //            memcpy(Udp::pThis->udp_msg_send, &head,
-        //                   sizeof(Udp::Header));
-        //            memcpy((uint8_t*)Udp::pThis->udp_msg_send +
-        //                       sizeof(Udp::Header),
-        //                   (uint8_t*)tempArr + i * (MAX_SIZE), MAX_SIZE);
-        //            uint16_t len = sizeof(Udp::Header) + MAX_SIZE;
-        //            udp.sendToPC(udp.udp_msg_send, len);
-        //        } else {
-        //            // last packet
-        //            head.pixel.dataLen = l;
-        //            head.pixel.dataNum = count;
-        //            head.line.dataLen = lineCounter;
-        //            head.line.dataNum = i;
-        //            uint8_t temp = *(uint8_t*)&head.pixel;
-        //            *(uint8_t*)&head.pixel = *((uint8_t*)(&head.pixel) + 1);
-        //            *((uint8_t*)(&head.pixel) + 1) = temp;
-        //            temp = *(uint8_t*)&head.line;
-        //            *(uint8_t*)&head.line = *((uint8_t*)(&head.line) + 1);
-        //            *((uint8_t*)(&head.line) + 1) = temp;
-        //            memcpy(Udp::pThis->udp_msg_send, &head,
-        //                   sizeof(Udp::Header));
-        //            memcpy((uint8_t*)Udp::pThis->udp_msg_send +
-        //                       sizeof(Udp::Header),
-        //                   (uint8_t*)tempArr + i * (MAX_SIZE), l);
-        //            uint16_t len = sizeof(Udp::Header) + l;
-        //            udp.sendToPC(udp.udp_msg_send, len);
-        //        }
-        //    }
-        //}
-        // if (SysTim::getIsTimeout()) {
-        //    SysTim::setIsTimeout(false);
-        //    if (!timeoutSate) {
-        //        timeoutSate = true;
-        //        Gpio::Out::setRed();
-        //        Gpio::Out::resetBlue();
-        //    } else {
-        //        timeoutSate = false;
-        //        Gpio::Out::resetRed();
-        //        Gpio::Out::setBlue();
-        //    }
-        //}
-    }
+    while (1) {}
 }
 
-void timeout() { IsTimeout = true; }
+void timeout() {
+    // callback function from hardware timer
+}
 
 void delay(volatile uint32_t val) {
     while (val--) {}
+}
+ParseState parse(const uint8_t* data, uint16_t len);
+void http_task(void* pvParameters) {
+    int con_sock = *(int*)pvParameters;
+    while (1) {
+        int len = lwip_recv(con_sock, recv_buf, RECV_BUF_SIZE, 0);
+        if (len > 0) {
+            switch (parse((const uint8_t*)recv_buf, 7)) {
+            case NOT:
+                break;
+            case GET_HTML: {
+                uint16_t sizeHeadIndexHtml = W25q::pThis->SizeHeadIndexHtml;
+                uint16_t sizeIndexHtml = W25q::pThis->SizeIndexHtml;
+                uint8_t tempArr[sizeHeadIndexHtml + sizeIndexHtml];
+                memcpy(tempArr, W25q::pThis->headIndexHtml, sizeHeadIndexHtml);
+                memcpy(tempArr + sizeHeadIndexHtml, W25q::pThis->indexHtml,
+                       sizeIndexHtml);
+                write(con_sock, tempArr, sizeof(tempArr));
+            } break;
+            case GET_ICO: {
+                uint16_t sizeHeadIco = W25q::pThis->SizeHeadIco;
+                uint16_t sizeIco = W25q::pThis->SizeIco;
+
+                uint8_t tempArr[sizeHeadIco + sizeIco];
+                memcpy(tempArr, W25q::pThis->headIco, sizeHeadIco);
+                memcpy(tempArr + sizeHeadIco, W25q::pThis->ico, sizeIco);
+                write(con_sock, tempArr, sizeof(tempArr));
+            } break;
+            case GET_CSS: {
+                uint16_t sizeHeadCss = W25q::pThis->SizeHeadCss;
+                uint16_t sizeCss = W25q::pThis->SizeCss;
+                uint8_t tempArr[sizeHeadCss + sizeCss];
+                memcpy(tempArr, W25q::pThis->headCss, sizeHeadCss);
+                memcpy(tempArr + sizeHeadCss, W25q::pThis->css, sizeCss);
+                write(con_sock, tempArr, sizeof(tempArr));
+            } break;
+            case GET_JS: {
+                uint16_t sizeHeadJs = W25q::pThis->SizeHeadJs;
+                uint16_t sizeJs = W25q::pThis->SizeJs;
+                uint8_t tempArr[sizeHeadJs + sizeJs];
+                memcpy(tempArr, W25q::pThis->headJs, sizeHeadJs);
+                memcpy(tempArr + sizeHeadJs, W25q::pThis->js, sizeJs);
+                write(con_sock, tempArr, sizeof(tempArr));
+            } break;
+            case GET_CONTENT: {
+                // send answer
+                uint16_t sizeHeadContent = W25q::pThis->SizeHeadContentStream;
+                uint16_t sizeContent = 2;
+                uint8_t tempArr[sizeHeadContent + sizeContent];
+                memcpy(tempArr, W25q::pThis->headContentStream,
+                       sizeHeadContent);
+                int debugVal = Adc::pThis->getAdc();
+                memcpy(tempArr + sizeHeadContent, &debugVal, sizeContent);
+                write(con_sock, tempArr, sizeof(tempArr));
+            } break;
+            case GET_LED_ON: {
+                Gpio::Out::setBlue();
+                uint16_t sizeHeadContent = W25q::pThis->SizeHeadContentStream;
+                uint16_t sizeContent = 1;
+                uint8_t tempArr[sizeHeadContent + sizeContent];
+                memcpy(tempArr, W25q::pThis->headContentStream,
+                       sizeHeadContent);
+                tempArr[sizeHeadContent - 1 - 4] = '1';
+                bool state = true;
+                memcpy(tempArr + sizeHeadContent, &state, sizeContent);
+                write(con_sock, tempArr, sizeof(tempArr));
+            } break;
+            case GET_LED_OFF: {
+                Gpio::Out::resetBlue();
+                uint16_t sizeHeadContent = W25q::pThis->SizeHeadContentStream;
+                uint16_t sizeContent = 1;
+                uint8_t tempArr[sizeHeadContent + sizeContent];
+                memcpy(tempArr, W25q::pThis->headContentStream,
+                       sizeHeadContent);
+                tempArr[sizeHeadContent - 1 - 4] = '1';
+                bool state = false;
+                memcpy(tempArr + sizeHeadContent, &state, sizeContent);
+                write(con_sock, tempArr, sizeof(tempArr));
+            } break;
+            }
+            // close connection
+            close(con_sock);
+            vTaskDelete(NULL);
+
+            //recv_buf[len - 1] = ' ';
+            //recv_buf[len] = 'o';
+            //recv_buf[len + 1] = 'k';
+            //recv_buf[len + 2] = '\r';
+            //recv_buf[len + 3] = '\n';
+            //write(con_sock, recv_buf, len + 4);
+        } else if (len < 0) {
+            // close connection
+            close(con_sock);
+            vTaskDelete(NULL);
+        }
+        Gpio::Out::toggleBlue();
+        vTaskDelay(1);
+    }
+}
+
+ParseState parse(const uint8_t* data, uint16_t len) {
+    if (!len) { return ParseState::NOT; }
+    if (data[0] == 'G' && data[1] == 'E' && data[2] == 'T') {
+        if (data[4] == '/' && data[5] == 0x20) {
+            // GET /
+            return ParseState::GET_HTML;
+        } else if (data[4] == '/' && data[5] == 'f') {
+            // GET /facicon.ico
+            return ParseState::GET_ICO;
+        } else if (data[4] == '/' && data[5] == 's' && data[6] == 't') {
+            // GET /style.css
+            return ParseState::GET_CSS;
+        } else if (data[4] == '/' && data[5] == 's' && data[6] == 'c') {
+            // GET /script.js
+            return ParseState::GET_JS;
+        } else if (data[4] == '/' && data[5] == 'c' && data[6] == 'o') {
+            // GET /content.bin
+            return ParseState::GET_CONTENT;
+        } else if (data[4] == '/' && data[5] == 'o' && data[6] == 'n') {
+            // GET /on
+            return ParseState::GET_LED_ON;
+        } else if (data[4] == '/' && data[5] == 'o' && data[6] == 'f') {
+            // GET /off
+            return ParseState::GET_LED_OFF;
+        }
+    } else {
+        return ParseState::NOT;
+    }
+    return ParseState::NOT;
 }
