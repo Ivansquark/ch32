@@ -1,11 +1,22 @@
+#include "ch32v30x.h"
+
+#define FLASH_KEY1 ((uint32_t)0x45670123)
+#define FLASH_KEY2 ((uint32_t)0xCDEF89AB)
+#define FLASH_START 0x08000000
+#define FLASH_BOOT_FLAGS_ADDR 0x08000800
+#define FLASH_IP_ADDR 0x08000900
+#define FLASH_BANK1_FIRMWARE ((volatile uint32_t)0x08000A00)
+#define FLASH_BANK2_FIRMWARE 0x08020000
+#define PAGE_SIZE 0x100
+#define BOOT_FLAG 0x01
+
 extern "C" {
 
 __attribute__((naked, noreturn)) __attribute__((section(".init_boot"))) void
 _start_boot();
 __attribute__((naked, noreturn)) __attribute__((section(".init_boot"))) void
 ResetBoot_Handler();
-// void Default_Handler();
-__attribute__((section(".init_boot"))) int main_boot();
+__attribute__((section(".init_boot"))) void main_boot();
 
 // set first instruction: jump to Reset_Handler (naked - no push in stack)
 void _start_boot() { asm("j	ResetBoot_Handler"); }
@@ -111,6 +122,7 @@ void ResetBoot_Handler() {
     __asm volatile("la t0, main_boot");
     __asm volatile("csrw mepc, t0"); // set exeption prog counter
     __asm volatile("mret");
+    // main_boot();
 
     // main();
     // while (1) {}
@@ -123,4 +135,81 @@ void ResetBoot_Handler() {
 // void HardFault_Handler(void) {
 //    while (1) {}
 //}
+
+void main_boot(void) {
+    // uint8_t ramPage[PAGE_SIZE] = {0};
+    // unlock
+    FLASH->KEYR = FLASH_KEY1;
+    FLASH->KEYR = FLASH_KEY2;
+    FLASH->MODEKEYR = FLASH_KEY1;
+    FLASH->MODEKEYR = FLASH_KEY2;
+    uint32_t bootFlag = (*(uint32_t*)(FLASH_BOOT_FLAGS_ADDR));
+
+    // uint8_t buf[256] = {0};
+    // flash.writeBootFlagAndSectorNum(3);
+    // flash.programPage(flash.FLASH_BANK2_FIRMWARE, buf, 256);
+    // flash.writeBootFlag();
+    // flash.readBootFlag();
+    // flash.clearBootFlag();
+    // flash.readBootFlag();
+    if (bootFlag == BOOT_FLAG) {
+        // start flash new firmware
+        // flash.WritePagesFromBank2ToBank1();
+        for (volatile int i = 0; i < 500; i++) {
+            while (FLASH->STATR & FLASH_STATR_BSY) {}
+            // reset bit end off operation
+            if (FLASH->STATR & FLASH_STATR_EOP) {
+                FLASH->STATR = FLASH_STATR_EOP;
+            }
+            // choose page address
+            FLASH->ADDR |= FLASH_BOOT_FLAGS_ADDR;
+            // single page program chosen
+            FLASH->CTLR |= FLASH_CTLR_PAGE_PG;
+            //!< 1 byte writing>
+            for (volatile int i = 0; i < PAGE_SIZE / 4; i++) {
+                *((uint32_t*)(FLASH_BANK1_FIRMWARE) + i) =
+                    *((uint32_t*)(FLASH_BANK2_FIRMWARE) + i);
+                while (FLASH->STATR & FLASH_STATR_WR_BSY) {}
+            }
+            FLASH->CTLR |= FLASH_CTLR_PG_STRT;
+            while (FLASH->STATR & FLASH_STATR_BSY) {}
+            // finish programming
+            FLASH->CTLR &= ~(FLASH_CTLR_PAGE_PG);
+        }
+        // erase page boot flag
+        // no flash memory operation is ongoing (BSY -busy)
+        while (FLASH->STATR & FLASH_STATR_BSY) {}
+        // reset bit end off operation
+        if (FLASH->STATR & FLASH_STATR_EOP) { FLASH->STATR = FLASH_STATR_EOP; }
+        // single page erase chosen
+        FLASH->CTLR |= FLASH_CTLR_PAGE_ER;
+        // choose page address
+        FLASH->ADDR |= FLASH_BOOT_FLAGS_ADDR;
+        // triggers an ER/PR operation when set.
+        FLASH->CTLR |= FLASH_CTLR_STRT;
+        while (FLASH->STATR & FLASH_STATR_BSY) {}
+        // while not end of operation FLASH->SR = FLASH_SR_EOP;   // reset bit
+        FLASH->CTLR &= ~FLASH_CTLR_PAGE_ER;
+        // lock
+        FLASH->CTLR |= FLASH_CTLR_LOCK;
+        //
+        //___________________ Software RESET __________________________________
+        NVIC->CFGR = NVIC_KEY3 | (1 << 7);
+    } else {
+        // goto firmware
+        //! ___	here proceed transition to new programm _______________________
+        //volatile uint32_t mainAppAddr = FLASH_BANK1_FIRMWARE;
+        //uint32_t mainAppStack = *((uint32_t*)(long)mainAppAddr);
+        //void (*mainApplication)() = (void (*)())(long)(mainAppAddr);
+        //mainApplication(); // go to start main programm
+        //
+        __asm volatile("li t0, 0xA00");
+        __asm volatile("csrw mepc, t0"); // set exeption prog counter
+        __asm volatile("mret");
+        /*!< in linker main programm need to set PROGRAMM START ADDRESS to
+         * MAIN_PROGRAMM_ADDRESS (0x08020000 - sector 1)>*/
+    }
+    while (1) {}
 }
+
+} // extern "C"

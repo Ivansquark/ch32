@@ -1,9 +1,9 @@
 extern "C" {
 
 __attribute__((naked, noreturn)) __attribute__((section(".init"))) void
-Reset_Handler();
+_start();
+void Reset_Handler();
 void Default_Handler();
-void _start();
 int main();
 
 void NMI_Handler() __attribute__((weak, alias("Default_Handler")));
@@ -107,8 +107,7 @@ void DMA2_Channel11_IRQHandler()
     __attribute__((weak, alias("Default_Handler")));
 
 // set first instruction: jump to Reset_Handler (naked - no push in stack)
-void __attribute__((naked, noreturn)) __attribute__((section(".init")))
-_start() {
+void _start() {
     asm("j	Reset_Handler");
 }
 

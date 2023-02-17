@@ -22,8 +22,8 @@ perINC = Peripheral/inc/
 perSRC = Peripheral/src/
 #///////////////////////////////////
 #OPTIMIZATION = fast
-#OPTIMIZATION = s
-OPTIMIZATION = 0
+OPTIMIZATION = s
+#OPTIMIZATION = 0
 
 
 CFLAGS = -c -Wall -Wextra -g -O$(OPTIMIZATION) \
@@ -60,7 +60,7 @@ $(BLD)main.elf:	$(BLD)core_riscv.o $(BLD)startup.o $(BLD)startup_boot.o
 $(BLD)main.elf: $(BLD)flash.o
 $(BLD)main.elf: $(BLD)gpio.o
 $(BLD)main.elf: $(BLD)rcc.o $(BLD)systim.o
-$(BLD)main.elf: $(BLD)main.o $(BLD)main_boot.o
+$(BLD)main.elf: $(BLD)main.o
 	$(CPP) -o $@ -T$(LIB)Link_boot.ld -T$(LIB)Link.ld $^ -I$(LIB) $(LFLAGS)
 #    $@ — target name
 #    $< — first dependancy name
