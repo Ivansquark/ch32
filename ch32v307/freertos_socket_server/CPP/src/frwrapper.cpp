@@ -18,4 +18,5 @@ void FR_OS::init(uint16_t stackSize, UBaseType_t priority, void* pvParameters) {
 
 void FR_OS::Run(void* obj) {
     static_cast<FR_OS*>(obj)->runTask(static_cast<FR_OS*>(obj)->pvParameters);
+
 }
