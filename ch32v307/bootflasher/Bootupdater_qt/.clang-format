@@ -1,0 +1,16 @@
+# https://clang.llvm.org/docs/ClangFormatStyleOptions.html
+# To disable for a line use `// clang-format off`
+BasedOnStyle: LLVM # https://google.github.io/styleguide/cppguide.html
+Language: Cpp
+DerivePointerAlignment: false
+PointerAlignment: Left
+IndentPPDirectives: BeforeHash
+IndentWidth: 4
+ColumnLimit: 80
+AllowShortEnumsOnASingleLine: false
+SortIncludes:    true
+SpaceAfterCStyleCast: false
+SpaceAfterTemplateKeyword: true
+MaxEmptyLinesToKeep: 1
+NamespaceIndentation: None
+UseTab:          Never
