@@ -1,0 +1,32 @@
+#! /bin/sh
+function_to_fork1() {
+    sleep 0.5
+    echo "+---------------------------------------------------+"
+    echo "|                  ***   GDB  ***                   |"
+    echo "+---------------------------------------------------+"
+    gdb-multiarch
+}
+
+# ... execution continues in parent process ..
+
+function_to_fork2() {
+    echo "+---------------------------------------------------+"
+    echo "|              ***  OPENOCD   ***                   |"
+    echo "+---------------------------------------------------+"
+    "C:/MounRiver/MRS_Community/toolchain/OpenOCD/bin/openocd" "-c" "gdb_port 3333" \
+    "-s" "C:/MounRiver/MRS_Community/toolchain/OpenOCD/scripts" "-f" "./lib/wch-riscv.cfg" 
+}
+
+function_to_fork2 &
+#pidApp1=$!
+#echo $pidApp1
+function_to_fork1 
+#kill -9 $pidApp1
+sleep 1
+killall -9 openocd
+sleep 0.1
+echo "+---------------------------------------------------+"
+echo "|         ***  OPENOCD  KILLED ***                  |"
+echo "+---------------------------------------------------+"
+killall -9 openocd
+#killall -9 gdb_script

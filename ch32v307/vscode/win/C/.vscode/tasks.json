@@ -1,0 +1,42 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "clean",
+            "type": "shell",
+            "group": "build",
+            "command": "make clean",
+        },
+        {
+            "label": "build",
+            "type": "shell",
+            "command": "make",
+            "group": "build",
+            "problemMatcher": "$gcc"
+        },        
+        {
+            "label": "load",
+            "type": "shell",
+            "group": "build",           
+            "command": "make load"
+        },
+        {
+            "label": "erase",
+            "type": "shell",
+            "group": "build",           
+            "command": "make erase"
+        },
+        {
+            "label": "openocd",
+            "type": "shell",
+            "group": "none",
+            "isBackground": true,        
+            "command": [
+                "C:/MounRiver/MRS_Community/toolchain/OpenOCD/bin/openocd ",
+                "-c \"gdb_port 3333\" -s C:/MounRiver/MRS_Community/toolchain/OpenOCD/scripts -f ./lib/wch-riscv.cfg"
+            ]
+        }
+    ]
+}

@@ -1,0 +1,24 @@
+{
+    "configurations": 
+    [
+        {
+            "name": "gd_c_cpp_properties",
+            "compilerPath": "C:/MounRiver/MRS_Community/toolchain/RISC-V Embedded GCC/bin/riscv-none-embed-gcc",
+            "includePath": 
+            [
+                "${workspaceRoot}/inc/",
+                "${workspaceRoot}/lib/",
+                "${workspaceRoot}/FreeRTOS/include",
+                "${workspaceRoot}/Peripheral/inc"
+            ],
+            "defines":
+            [
+                "CH32V307xx"
+            ],
+            "cStandard": "c11",
+            "cppStandard": "c++17",
+            "intelliSenseMode": "gcc-x64"
+        }
+    ],
+    "version": 4
+}

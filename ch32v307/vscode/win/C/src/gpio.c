@@ -1,0 +1,16 @@
+#include "gpio.h"
+
+void gpio_init() {
+    RCC->APB2PCENR |= RCC_IOPAEN;
+    // floating input mode
+    GPIOA->CFGLR |= GPIO_CFGLR_MODE0;
+    GPIOA->CFGLR |= GPIO_CFGLR_CNF0_0;
+    GPIOA->CFGLR &= ~GPIO_CFGLR_CNF0_1;
+
+    RCC->APB2PCENR |= RCC_IOPAEN;
+    GPIOA->CFGHR |= GPIO_CFGHR_MODE15;
+    GPIOA->CFGHR &= ~GPIO_CFGHR_CNF15;
+    RCC->APB2PCENR |= RCC_IOPBEN;
+    GPIOB->CFGLR |= GPIO_CFGLR_MODE4;
+    GPIOB->CFGLR &= ~GPIO_CFGLR_CNF4;
+}

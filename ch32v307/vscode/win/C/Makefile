@@ -6,7 +6,10 @@
 # openocd --version === Open On-Chip Debugger 0.11.0 (2021-10-07-10:32)
 .PHONY: all clean load erase reset load_gdb
 #_________________________ GCC compilator commands ____________________________
-GCC_PATH = /opt/ch32_riscv_gcc/bin/riscv-none-embed
+#GCC_PATH = /opt/ch32_riscv_gcc/bin/riscv-none-embed
+GCC_PATH = 'C:/MounRiver/MRS_Community/toolchain/RISC-V Embedded GCC/bin/riscv-none-embed'
+OpenOCD_PATH = 'C:/MounRiver/MRS_Community/toolchain/OpenOCD'
+
 CC = $(GCC_PATH)-gcc
 CPP = $(GCC_PATH)-g++
 OBJC = $(GCC_PATH)-objcopy
@@ -41,7 +44,7 @@ LFLAGS = -nostartfiles \
 #-u_printf_float 
 #для FPU
 	
-all:	$(BLD)main.bin $(BLD)main.lst $(BLD)main.elf
+all: $(BLD)main.bin $(BLD)main.lst $(BLD)main.elf
 
 #-------------------------------------- HEX -----------------------------------
 $(BLD)main.bin: $(BLD)main.elf
@@ -80,9 +83,9 @@ $(BLD)main.elf: $(BLD)main.o
 #_____________________________________________________________________________
 $(BLD)%.o: $(LIB)%.c
 	@ # **** mutex for parallel execution (mkdir must be locked) ****
-	@if mkdir /var/lock/.myscript.exclusivelock; \
+	@if mkdir ./.myscript.exclusivelock; \
 	then if [ ! -d "$(BLD)" ]; then mkdir $(BLD); fi; \
-	rmdir /var/lock/.myscript.exclusivelock; \
+	rmdir ./.myscript.exclusivelock; \
 	fi
 	$(CC) $< -o $@ -I$(INC) -I$(LIB) $(CFLAGS)	
 # ASM startup
@@ -93,9 +96,9 @@ $(BLD)%.o: $(LIB)%.c
 #_____________________________________________________________________________
 $(BLD)%.o: $(freeRtosSRC)%.c
 	@ # **** mutex for parallel execution (mkdir must be locked) ****
-	@if mkdir /var/lock/.myscript.exclusivelock; \
+	@if mkdir ./.myscript.exclusivelock; \
 	then if [ ! -d "$(BLD)" ]; then mkdir $(BLD); fi; \
-	rmdir /var/lock/.myscript.exclusivelock; \
+	rmdir ./.myscript.exclusivelock; \
 	fi
 	$(CC) $< -o $@ -I$(INC) -I$(LIB) -I$(perINC) -I$(freeRtosINC) $(CFLAGS)
 # ASM startup
@@ -106,9 +109,9 @@ $(BLD)portASM.o: $(freeRtosSRC)portASM.S
 #_____________________________________________________________________________
 $(BLD)%.o: $(SRC)%.c
 	@ # **** mutex for parallel execution (mkdir must be locked) ****
-	@if mkdir /var/lock/.myscript.exclusivelock; \
+	@if mkdir ./.myscript.exclusivelock; \
 	then if [ ! -d "$(BLD)" ]; then mkdir $(BLD); fi; \
-	rmdir /var/lock/.myscript.exclusivelock; \
+	rmdir ./.myscript.exclusivelock; \
 	fi
 	$(CC) $< -o $@ -I$(INC) -I$(LIB) -I$(perINC) -I$(freeRtosINC) $(CFLAGS)
 
@@ -119,27 +122,26 @@ clean:
 	rm -rf build 
 	
 load:	$(BLD)main.bin
-	/opt/openocd/bin/openocd -s /usr/local/share/openocd/scripts \
+	$(OpenOCD_PATH)/bin/openocd -s $(OpenOCD_PATH)/scripts \
 	-f lib/wch-riscv.cfg -c init -c halt \
 	-c "flash erase_sector wch_riscv 0 last" \
-	-c wlink_reset_resume \
-	-c init -c halt -c "program $(BLD)main.bin verify" \
-	-c exit
-# must be boot0 to map flash from 0 to 0x08000000
+	-c "wlink_reset_resume" \
+	-c init -c halt -c "program $(BLD)main.bin verify exit"
+	# must be boot0 to map flash from 0 to 0x08000000
 
 erase:
-	/opt/openocd/bin/openocd -s /opt/openocd/share/openocd/scripts \
+	$(OpenOCD_PATH)/bin/openocd -s $(OpenOCD_PATH)/scripts \
 	   -f lib/wch-riscv.cfg -c init -c halt \
 	   -c "flash erase_sector wch_riscv 0 last" -c exit
 reset:
-	/opt/openocd/bin/openocd -s /opt/openocd/share/openocd/scripts \
+	$(OpenOCD_PATH)/bin/openocd -s $(OpenOCD_PATH)/scripts \
 	-f lib/wch-riscv.cfg -c init -c halt -c wlink_reset_resume -c exit
 
-load_gdb:
-	/opt/openocd/bin/openocd -s /opt/openocd/share/openocd/scripts \
-	   -f lib/wch-riscv.cfg -c init -c halt \
-	   -c "flash erase_sector wch_riscv 0 last" -c exit
-	/opt/openocd/bin/openocd -s /opt/openocd/share/openocd/scripts \
-	-f lib/wch-riscv.cfg &
-	gdb-multiarch build/main.elf load q y
-	killall -9 openocd
+# load_gdb:
+# 	$(OpenOCD_PATH)/bin/openocd -s $(OpenOCD_PATH)/scripts \
+# 	   -f lib/wch-riscv.cfg -c init -c halt \
+# 	   -c "flash erase_sector wch_riscv 0 last" -c exit
+# 	$(OpenOCD_PATH)/bin/openocd -s $(OpenOCD_PATH)/scripts \
+# 	-f lib/wch-riscv.cfg &
+#gdb-multiarch build/main.elf load q y
+#killall -9 openocd

@@ -122,10 +122,9 @@ load:	$(BLD)main.bin
 	/opt/openocd/bin/openocd -s /usr/local/share/openocd/scripts \
 	-f lib/wch-riscv.cfg -c init -c halt \
 	-c "flash erase_sector wch_riscv 0 last" \
-	-c wlink_reset_resume \
-	-c init -c halt -c "program $(BLD)main.bin verify" \
-	-c exit
-# must be boot0 to map flash from 0 to 0x08000000
+	-c "wlink_reset_resume" \
+	-c init -c halt -c "program $(BLD)main.bin verify exit"
+	# must be boot0 to map flash from 0 to 0x08000000
 
 erase:
 	/opt/openocd/bin/openocd -s /opt/openocd/share/openocd/scripts \
