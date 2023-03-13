@@ -1,6 +1,7 @@
 #include "tcp_os.h"
 
 TcpOS::TcpOS(const char* recv_buf) : FR_OS(4096) {
+    FR_OS::init_FR_OS();
     this->recv_buf = (char*)recv_buf;
 }
 

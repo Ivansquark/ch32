@@ -17,6 +17,8 @@ uint16_t Eth::currentTxBuffLen = 0;
 
 Eth::Eth(uint8_t ip0, uint8_t ip1, uint8_t ip2, uint8_t ip3, uint16_t stackSize)
     : FR_OS(stackSize) {
+
+    FR_OS::init_FR_OS();
     pThis = this;
     IP_ADDRESS[0] = ip0;
     IP_ADDRESS[1] = ip1;

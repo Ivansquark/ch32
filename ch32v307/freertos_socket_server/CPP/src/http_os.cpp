@@ -3,6 +3,8 @@
 HttpOS::HttpOS(const char* recv_buf, uint16_t stackSize, BaseType_t priority,
                void* pvParameters)
     : FR_OS(stackSize, priority, pvParameters) {
+
+        FR_OS::init_FR_OS();
     this->recv_buf = (char*)recv_buf;
 }
 

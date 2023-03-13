@@ -1,6 +1,7 @@
 #include "udp_os.h"
 
 UdpOS::UdpOS(uint8_t* recv_buf) : FR_OS() {
+    init_FR_OS(); // to set xTaskCreate
     this->recv_buf = recv_buf;
 }
 
