@@ -19,13 +19,9 @@ class FR_OS {
     TaskHandle_t handler = nullptr;
     FR_OS* obj = nullptr;
     void* pvParameters = nullptr;
-    static void Run(void * obj);
-    
-    //void (FR_OS::*fptr)(void*);
-    //template <typename M>
-    //inline void* GetMethodPointer(M ptr) {
-    //    return *reinterpret_cast<void**>(&ptr);
-    //}
+    static void Run(void* obj);
+
+    //void* addr(FR_OS* pC);
 };
 
 #endif // FRWRAPPER_H
