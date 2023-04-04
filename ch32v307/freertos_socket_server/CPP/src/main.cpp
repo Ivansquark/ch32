@@ -23,7 +23,7 @@ uint32_t SystemCoreClock = 144000000;
 xQueueHandle queue1;
 char* queue_buf;
 //------------- objects in static memory (.data section) ----------------------
-Rcc rcc(8);
+Rcc rcc(24);
 Adc adc1;
 // Eeprom eeprom;
 W25q flash;

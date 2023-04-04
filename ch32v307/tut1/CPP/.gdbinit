@@ -4,5 +4,5 @@ file build/main.elf
 source lib/gdb-svd.py
 svd lib/CH32V307xx.svd
 monitor reset halt
-load
+#load
 #break _start

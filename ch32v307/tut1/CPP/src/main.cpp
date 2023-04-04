@@ -14,10 +14,10 @@
 #include "systim.h"
 #include "w25q.h"
 
-Rcc rcc(8);
+Rcc rcc(24);
 
 Adc adc1;
-Eeprom eeprom;
+//Eeprom eeprom;
 // W25q flash;
 //Eth eth(192, 168, 0, 100);
 Eth eth(192, 168, 1, 100);
