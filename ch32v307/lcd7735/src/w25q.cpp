@@ -81,16 +81,16 @@ void W25q::read(u8* pBuffer, u32 ReadAddr, u16 size) {
     uint16_t i = 0;
     setCS();
     readWriteByte(W25X_ReadData);
-    delay(2);
+    delay(1);
     readWriteByte((u8)((ReadAddr) >> 16));
-    delay(2);
+    delay(1);
     readWriteByte((u8)((ReadAddr) >> 8));
-    delay(2);
+    delay(1);
     readWriteByte((u8)ReadAddr);
-    delay(2);
+    delay(1);
     for (i = 0; i < size; i++) {
         pBuffer[i] = readWriteByte(0XFF);
-        delay(2);
+        delay(1);
     }
     resetCS();
 }
