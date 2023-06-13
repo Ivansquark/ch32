@@ -4585,6 +4585,7 @@ typedef struct
 #define  RCC_BKPEN                       ((uint32_t)0x08000000)        /* Backup interface clock enable */
 #define  RCC_PWREN                       ((uint32_t)0x10000000)        /* Power interface clock enable */
 
+#define RCC_DACEN                       ((uint32_t)0x20000000)
 
 #define  RCC_USBEN                       ((uint32_t)0x00800000)        /* USB Device clock enable */
 

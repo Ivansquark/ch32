@@ -57,7 +57,7 @@ $(BLD)main.elf:	$(BLD)core_riscv.o $(BLD)startup.o
 $(BLD)main.elf:	$(BLD)tasks.o $(BLD)list.o $(BLD)port.o $(BLD)heap_4.o #$(BLD)timers.o
 $(BLD)main.elf: $(BLD)portASM.o				
 $(BLD)main.elf: $(BLD)ch32v30x_spi.o
-$(BLD)main.elf: $(BLD)rcc.o $(BLD)gpio.o $(BLD)spi.o
+$(BLD)main.elf: $(BLD)dac.o $(BLD)rcc.o $(BLD)gpio.o $(BLD)spi.o
 $(BLD)main.elf: $(BLD)main.o				
 	$(CC) -o $@ -T$(LIB)Link.ld $^ -I$(LIB) $(LFLAGS)
 #    $@ — target name

@@ -1,4 +1,5 @@
 #include "main.h"
+#include "dac.h"
 #include "gpio.h"
 #include "rcc.h"
 #include "spi.h"
@@ -21,21 +22,45 @@ void task1_task(void* pvParameters)
 {
     UNUSED(pvParameters);
     while (1) {
-        setRed();
-        vTaskDelay(250);
-        resetRed();
-        vTaskDelay(250);
+        // setRed();
+        GPIOA->OUTDR |= (GPIO_OUTDR_ODR4 | GPIO_OUTDR_ODR5);
+        GPIOA->OUTDR |= (GPIO_OUTDR_ODR9 | GPIO_OUTDR_ODR10 | GPIO_OUTDR_ODR11 |
+                         GPIO_OUTDR_ODR12);
+        GPIOB->OUTDR |= (GPIO_OUTDR_ODR12 | GPIO_OUTDR_ODR13 |
+                         GPIO_OUTDR_ODR14 | GPIO_OUTDR_ODR15);
+        GPIOD->OUTDR |=
+            (GPIO_OUTDR_ODR8 | GPIO_OUTDR_ODR9 | GPIO_OUTDR_ODR10 |
+             GPIO_OUTDR_ODR11 | GPIO_OUTDR_ODR12 | GPIO_OUTDR_ODR13 |
+             GPIO_OUTDR_ODR14 | GPIO_OUTDR_ODR15);
+        vTaskDelay(1000);
+
+        // resetRed();
+        GPIOA->OUTDR &= ~(GPIO_OUTDR_ODR4 | GPIO_OUTDR_ODR5);
+        GPIOA->OUTDR &= ~(GPIO_OUTDR_ODR9 | GPIO_OUTDR_ODR10 |
+                          GPIO_OUTDR_ODR11 | GPIO_OUTDR_ODR12);
+        GPIOB->OUTDR &= ~(GPIO_OUTDR_ODR12 | GPIO_OUTDR_ODR13 |
+                          GPIO_OUTDR_ODR14 | GPIO_OUTDR_ODR15);
+        GPIOD->OUTDR &=
+            ~(GPIO_OUTDR_ODR8 | GPIO_OUTDR_ODR9 | GPIO_OUTDR_ODR10 |
+              GPIO_OUTDR_ODR11 | GPIO_OUTDR_ODR12 | GPIO_OUTDR_ODR13 |
+              GPIO_OUTDR_ODR14 | GPIO_OUTDR_ODR15);
+        vTaskDelay(1000);
     }
 }
 
 void task2_task(__attribute__((unused)) void* pvParameters)
 {
     // UNUSED(pvParameters);
+    //dac_init();
+    //uint16_t x = 0;
     while (1) {
-        setBlue();
-        vTaskDelay(500);
-        resetBlue();
-        vTaskDelay(500);
+        //if (x < 0xFFF) {
+            //dac1_set(x++);
+            //dac2_set(x++);
+        //} else {
+            //x = 0;
+        //}
+        vTaskDelay(5);
     }
 }
 
@@ -45,6 +70,9 @@ int main(void)
 {
     Rcc_init(8);
     gpio_init();
+    dac_init();
+    dac1_set(0x7ff);
+    dac2_set(0x7ff);
     // spi2_init();
     // while(1) {
     //    spi2_readWriteByte(0xAA);
