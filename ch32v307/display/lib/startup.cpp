@@ -4,6 +4,7 @@ void Reset_Handler();
 void Default_Handler();
 void _start();
 int main();
+void _exit();
 
 void NMI_Handler() __attribute__((weak, alias("Default_Handler")));
 void HardFault_Handler();

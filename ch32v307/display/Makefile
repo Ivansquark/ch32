@@ -25,8 +25,8 @@ freeINC = FreeRTOS/include/
 freeSRC = FreeRTOS/
 #///////////////////////////////////
 #OPTIMIZATION = fast
-OPTIMIZATION = s
-#OPTIMIZATION = 0
+#OPTIMIZATION = s
+OPTIMIZATION = 0
 
 
 CFLAGS = -c -Wall -Wextra -g -O$(OPTIMIZATION) \
@@ -61,14 +61,13 @@ $(BLD)main.elf:	$(BLD)core_riscv.o $(BLD)startup.o
 $(BLD)main.elf: $(BLD)ch32v30x_i2c.o $(BLD)ch32v30x_spi.o $(BLD)ch32v30x_rcc.o
 $(BLD)main.elf: $(BLD)ch32v30x_gpio.o $(BLD)ch32v30x_eth.o $(BLD)ch32v30x_rng.o
 $(BLD)main.elf: $(BLD)ch32v30x_misc.o $(BLD)ch32v30x_sdio.o $(BLD)ch32v30x_dma.o
-$(BLD)main.elf: $(BLD)rcc.o $(BLD)gpio.o 
-$(BLD)main.elf: $(BLD)basic_timer.o
-$(BLD)main.elf: $(BLD)adc.o
+$(BLD)main.elf: $(BLD)rcc.o $(BLD)gpio.o
+$(BLD)main.elf: $(BLD)basic_timer.o $(BLD)lcdpar.o
+$(BLD)main.elf: $(BLD)irq.o $(BLD)buttons.o
 $(BLD)main.elf: $(BLD)main.o
-$(BLD)main.elf: $(BLD)portASM.o
 $(BLD)main.elf: $(BLD)frwrapper.o
 $(BLD)main.elf: $(BLD)tasks.o $(BLD)list.o $(BLD)port.o $(BLD)heap_4.o
-$(BLD)main.elf: $(BLD)queue.o
+$(BLD)main.elf: $(BLD)queue.o $(BLD)portASM.o
 	$(CPP) -o $@ -T$(LIB)Link.ld $^ -I$(LIB) $(LFLAGS)
 #    $@ — target name
 #    $< — first dependancy name
@@ -86,7 +85,7 @@ $(BLD)main.elf: $(BLD)queue.o
 $(BLD)%.o: $(LIB)%.cpp
 	@ # **** mutex for parallel execution (mkdir must be locked) ****
 	@if mkdir /var/lock/.myscript.exclusivelock; \
-	then if [ ! -d "$(BLD)" ]; then mkdir $(BLD) $(lwipBLD) $(ffsBLD); fi; \
+	then if [ ! -d "$(BLD)" ]; then mkdir $(BLD); fi; \
 	rmdir /var/lock/.myscript.exclusivelock; \
 	fi
 	$(CPP) $< -o $@ -I$(INC) -I$(LIB) $(CPPFLAGS)	
@@ -102,7 +101,7 @@ $(BLD)portASM.o: $(freeSRC)portASM.S
 $(BLD)%.o: $(freeSRC)%.c
 	@ # **** mutex for parallel execution (mkdir must be locked) ****
 	@if mkdir /var/lock/.myscript.exclusivelock; \
-	then if [ ! -d "$(BLD)" ]; then mkdir $(BLD) $(lwipBLD); fi; \
+	then if [ ! -d "$(BLD)" ]; then mkdir $(BLD); fi; \
 	rmdir /var/lock/.myscript.exclusivelock; \
 	fi
 	$(CC) $< -o $@ -I$(INC) -I$(LIB) -I$(perINC) -I$(freeINC) $(CFLAGS)
@@ -112,15 +111,14 @@ $(BLD)%.o: $(freeSRC)%.c
 $(BLD)%.o: $(SRC)%.cpp
 	@ # **** mutex for parallel execution (mkdir must be locked) ****
 	@if mkdir /var/lock/.myscript.exclusivelock; \
-	then if [ ! -d "$(BLD)" ]; then mkdir $(BLD) $(lwipBLD) $(ffsBLD); fi; \
+	then if [ ! -d "$(BLD)" ]; then mkdir $(BLD); fi; \
 	rmdir /var/lock/.myscript.exclusivelock; \
 	fi
-	$(CPP) $< -o $@ -I$(INC) -I$(LIB) -I$(perINC) -I$(lwipINCLUDE) -I$(lwip) \
-	-I$(freeINC) -I$(ffsINC) $(CPPFLAGS)
+	$(CPP) $< -o $@ -I$(INC) -I$(LIB) -I$(perINC) -I$(freeINC) $(CPPFLAGS)
 $(BLD)%.o: $(perSRC)%.cpp
 	@ # **** mutex for parallel execution (mkdir must be locked) ****
 	@if mkdir /var/lock/.myscript.exclusivelock; \
-	then if [ ! -d "$(BLD)" ]; then mkdir $(BLD) $(lwipBLD) $(ffsBLD); fi; \
+	then if [ ! -d "$(BLD)" ]; then mkdir $(BLD); fi; \
 	rmdir /var/lock/.myscript.exclusivelock; \
 	fi
 	$(CPP) $< -o $@ -I$(INC) -I$(LIB) -I$(perINC)  -I$(freeINC) $(CPPFLAGS)

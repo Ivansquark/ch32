@@ -7,19 +7,217 @@ Buttons::Buttons(uint16_t stackSize) : FR_OS(stackSize) {
 }
 
 void Buttons::runTask(void* pvParameters) {
+    while (1) {
+
+        // TODO but handler()
+        vTaskDelay(10);
+    }
+}
+
+bool Buttons::getButtonState(Button butNum) {
+    bool state = false;
+    switch (butNum) {
+    case B0:
+        state = isB0;
+        break;
+    case B1:
+        state = isB1;
+        break;
+    case B2:
+        state = isB2;
+        break;
+    case B3:
+        state = isB3;
+        break;
+    case B4:
+        state = isB4;
+        break;
+    case B5:
+        state = isB5;
+        break;
+    case B6:
+        state = isB6;
+        break;
+    case B7:
+        state = isB7;
+        break;
+    case B8:
+        state = isB8;
+        break;
+    case B9:
+        state = isB9;
+        break;
+    case B10:
+        state = isB10;
+        break;
+    case B11:
+        state = isB11;
+        break;
+    case B12:
+        state = isB12;
+        break;
+    case B13:
+        state = isB13;
+        break;
+    case B14:
+        state = isB14;
+        break;
+    case B15:
+        state = isB15;
+        break;
+    case Enter:
+        state = isEnter;
+        break;
+    default:
+        break;
+    }
+    return state;
+}
+
+void Buttons::interruptHandler() {
+    // once in ms
+    // TODO: check buttons 4 times strobes
+    switch (currentWhichBut) {
+    case B_0:
+        if (getB0_in()) {
+            isB3 = true;
+        } else {
+            isB3 = false;
+        }
+        if (getB1_in()) {
+            isB7 = true;
+        } else {
+            isB7 = false;
+        }
+        if (getB2_in()) {
+            isB11 = true;
+        } else {
+            isB11 = false;
+        }
+        if (getB3_in()) {
+            isB15 = true;
+        } else {
+            isB15 = false;
+        }
+        resetB3_out();
+        setB0_out();
+        currentWhichBut = WhichBut::B_1;
+        break;
+    case B_1:
+        if (getB0_in()) {
+            isB0 = true;
+        } else {
+            isB0 = false;
+        }
+        if (getB1_in()) {
+            isB4 = true;
+        } else {
+            isB4 = false;
+        }
+        if (getB2_in()) {
+            isB8 = true;
+        } else {
+            isB8 = false;
+        }
+        if (getB3_in()) {
+            isB12 = true;
+        } else {
+            isB12 = false;
+        }
+        resetB0_out();
+        setB1_out();
+        currentWhichBut = WhichBut::B_2;
+        break;
+    case B_2:
+        if (getB0_in()) {
+            isB1 = true;
+        } else {
+            isB1 = false;
+        }
+        if (getB1_in()) {
+            isB5 = true;
+        } else {
+            isB5 = false;
+        }
+        if (getB2_in()) {
+            isB9 = true;
+        } else {
+            isB9 = false;
+        }
+        if (getB3_in()) {
+            isB13 = true;
+        } else {
+            isB13 = false;
+        }
+        resetB1_out();
+        setB2_out();
+        currentWhichBut = WhichBut::B_3;
+        break;
+    case B_3:
+        if (getB0_in()) {
+            isB2 = true;
+        } else {
+            isB2 = false;
+        }
+        if (getB1_in()) {
+            isB6 = true;
+        } else {
+            isB6 = false;
+        }
+        if (getB2_in()) {
+            isB10 = true;
+        } else {
+            isB10 = false;
+        }
+        if (getB3_in()) {
+            isB14 = true;
+        } else {
+            isB14 = false;
+        }
+        resetB2_out();
+        setB3_out();
+        currentWhichBut = WhichBut::B_0;
+        break;
+    default:
+        break;
+    }
+    if (getEnter()) {
+        if (counterEnter > MAX_BUTTON_COUNTER) {
+            counterEnter = 0;
+            isEnter = true;
+        } else {
+            counterEnter++;
+        }
+    } else {
+        counterEnter = 0;
+        isEnter = false;
+    }
     if (ADC1->STATR & ADC_JEOC) {
         ADC1->CTLR2 &= ~ADC_JSWSTART;
-        V = getV();
-        H = getH();
+        moving_average_H(getH());
+        moving_average_V(getV());
         ADC1->CTLR2 |= ADC_JSWSTART;
     }
-    //TODO but handler()
 }
+
+void Buttons::setB0_out() { GPIOE->BSHR |= GPIO_BSHR_BR8; }
+void Buttons::setB1_out() { GPIOE->BSHR |= GPIO_BSHR_BR9; }
+void Buttons::setB2_out() { GPIOE->BSHR |= GPIO_BSHR_BR10; }
+void Buttons::setB3_out() { GPIOE->BSHR |= GPIO_BSHR_BR11; }
+void Buttons::resetB0_out() { GPIOE->BSHR |= GPIO_BSHR_BS8; }
+void Buttons::resetB1_out() { GPIOE->BSHR |= GPIO_BSHR_BS9; }
+void Buttons::resetB2_out() { GPIOE->BSHR |= GPIO_BSHR_BS10; }
+void Buttons::resetB3_out() { GPIOE->BSHR |= GPIO_BSHR_BS11; }
+bool Buttons::getB0_in() { return !(GPIOE->INDR & GPIO_INDR_IDR12); }
+bool Buttons::getB1_in() { return !(GPIOE->INDR & GPIO_INDR_IDR12); }
+bool Buttons::getB2_in() { return !(GPIOE->INDR & GPIO_INDR_IDR12); }
+bool Buttons::getB3_in() { return !(GPIOE->INDR & GPIO_INDR_IDR12); }
+bool Buttons::getEnter() { return !(GPIOB->INDR & GPIO_INDR_IDR2); }
 
 uint16_t Buttons::getV() { return (ADC1->IDATAR1 & 0xFFFC); }
 uint16_t Buttons::getH() { return (ADC1->IDATAR2 & 0xFFFC); }
 
-void but_init() {
+void Buttons::but_init() {
     // Buttons Out B_0-B_3 => PE8-PE11 od 0:1:1:1
     RCC->APB2PCENR |= RCC_IOPEEN;
     GPIOE->CFGHR |= GPIO_CFGHR_MODE8 | GPIO_CFGHR_MODE9 | GPIO_CFGHR_MODE10 |
@@ -47,7 +245,7 @@ void but_init() {
     GPIOC->CFGLR |= GPIO_CFGLR_CNF4_0;
 }
 
-void joy_init() {
+void Buttons::joy_init() {
     //// init ADC1
     //
     // PC0,PC1 - analog input mode : 0:0:0:0
@@ -83,4 +281,28 @@ void joy_init() {
     // Calibrattion_Val = ADC1->RDATAR;
     // Calibrattion_Val = Get_CalibrationValue(ADC1);
     ADC1->CTLR2 |= ADC_JSWSTART;
+}
+
+uint16_t Buttons::moving_average_V(uint16_t val) {
+    MovAverSum_V -= arr_V[Index_mov_aver_V];
+    MovAverSum_V += val;
+    arr_V[Index_mov_aver_V] = val;
+    Index_mov_aver_V++;
+    if (Index_mov_aver_V == MovAverLength) { Index_mov_aver_V = 0; }
+    uint8_t tempGrade = MovAverGrade();
+    // (if MovAverLength=32) common case:log2(MovAverLength)
+    averageV = MovAverSum_V >> tempGrade;
+    return averageV;
+}
+
+uint16_t Buttons::moving_average_H(uint16_t val) {
+    MovAverSum_H -= arr_H[Index_mov_aver_H];
+    MovAverSum_H += val;
+    arr_H[Index_mov_aver_H] = val;
+    Index_mov_aver_H++;
+    if (Index_mov_aver_H == MovAverLength) { Index_mov_aver_H = 0; }
+    uint8_t tempGrade = MovAverGrade();
+    // (if MovAverLength=32) common case:log2(MovAverLength)
+    averageH = MovAverSum_H >> tempGrade;
+    return averageH;
 }
