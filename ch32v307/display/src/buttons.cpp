@@ -6,7 +6,7 @@ Buttons::Buttons(uint16_t stackSize) : FR_OS(stackSize) {
     joy_init();
 }
 
-void Buttons::runTask(void* pvParameters) {
+void Buttons::runTask([[maybe_unused]] void* pvParameters) {
     while (1) {
 
         // TODO but handler()

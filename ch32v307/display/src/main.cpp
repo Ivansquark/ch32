@@ -2,6 +2,7 @@
 
 #include "basic_timer.h"
 #include "buttons.h"
+#include "lcdpar.h"
 #include "gpio.h"
 #include "rcc.h"
 
@@ -18,6 +19,7 @@ xQueueHandle queue1;
 char* queue_buf;
 //------------- objects in static memory (.data section) ----------------------
 Rcc rcc(8);
+LcdParIni parDisp;
 // ---------------- OS classes ------------------------------------------------
 Buttons but;
 //-----------------------------------------------------------------------------

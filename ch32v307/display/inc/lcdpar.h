@@ -15,21 +15,21 @@ class LcdParInterface {
   public:
     void fillScreen(uint16_t color);
     //----------- reset C10 -----------------------
-    const void reset_on() { GPIOC->BSHR |= GPIO_BSHR_BR10; }  // low
-    const void reset_off() { GPIOC->BSHR |= GPIO_BSHR_BS10; } // high
+    inline void reset_on() { GPIOC->BSHR |= GPIO_BSHR_BR10; }  // low
+    inline void reset_off() { GPIOC->BSHR |= GPIO_BSHR_BS10; } // high
     //----------  DC B13 (RS) --------------------------------
-    const void dc_data() { GPIOB->BSHR |= GPIO_BSHR_BS13; }    // High
-    const void dc_command() { GPIOB->BSHR |= GPIO_BSHR_BR13; } // Low
+    inline void dc_data() { GPIOB->BSHR |= GPIO_BSHR_BS13; }    // High
+    inline void dc_command() { GPIOB->BSHR |= GPIO_BSHR_BR13; } // Low
     //----------  WR B14 -----------------------------------
-    inline const void wr_on() { GPIOB->BSHR |= GPIO_BSHR_BR14; }   // low
-    inline const void wr_idle() { GPIOB->BSHR |= GPIO_BSHR_BS14; } // high
+    inline void wr_on() { GPIOB->BSHR |= GPIO_BSHR_BR14; }   // low
+    inline void wr_idle() { GPIOB->BSHR |= GPIO_BSHR_BS14; } // high
     //----------  RD B15 -----------------------------------
-    const void rd_on() { GPIOB->BSHR |= GPIO_BSHR_BR14; }   // low
-    const void rd_idle() { GPIOB->BSHR |= GPIO_BSHR_BS14; } // high
+    inline void rd_on() { GPIOB->BSHR |= GPIO_BSHR_BR14; }   // low
+    inline void rd_idle() { GPIOB->BSHR |= GPIO_BSHR_BS14; } // high
     //----------  CS B12 -----------------------------------
-    const void cs_on() { GPIOB->BSHR |= GPIO_BSHR_BR12; }   // low
-    const void cs_idle() { GPIOB->BSHR |= GPIO_BSHR_BS12; } // high
-    inline const void wr_strobe() {
+    inline void cs_on() { GPIOB->BSHR |= GPIO_BSHR_BR12; }   // low
+    inline void cs_idle() { GPIOB->BSHR |= GPIO_BSHR_BS12; } // high
+    inline void wr_strobe() {
         wr_on();
         wr_idle();
     }
