@@ -1,69 +1,79 @@
 #include "lcdpar.h"
 
 void LcdParInterface::fillScreen(uint16_t color) {
-    setRow(0, 240);
     setColumn(0, 320);
+    setRow(0, 240);
     send_command(0x2C);
-    for (volatile uint32_t i = 0; i < 76800; i++) {
+    for (volatile uint32_t i = 0; i < 320*240; i++) {
         // send_word(color);
         send_word(color);
-        wr_strobe();
+    }
+}
+void LcdParInterface::fillHalfScreenHigh(uint16_t* color) {
+    setColumn(0, 320);
+    setRow(0, 120);
+    send_command(0x2C);
+    for (volatile uint32_t i = 0; i < HALF_DISPLAY_MEMORY; i++) {
+        // send_word(color);
+        send_word(*(color+i));
+    }
+}
+void LcdParInterface::fillHalfScreenLow(uint16_t* color) {
+    setColumn(0, 320);
+    setRow(120, 240);
+    send_command(0x2C);
+    for (volatile uint32_t i = 0; i < HALF_DISPLAY_MEMORY; i++) {
+        // send_word(color);
+        send_word(*(color+i));
     }
 }
 void LcdParInterface::reset() {
     cs_idle();
-    wr_idle();
+    wr_on();
     rd_idle();
     reset_on();
-    delay(2 * 7200000 / 1000);
+    delay(100 * 72000);
     reset_off();
     cs_on();
-    send_command(0x01); // software reset
-    delay(20);
-    wr_strobe();
-    cs_idle();
-    delay(7200000);
-}
-void LcdParInterface::write(uint8_t byte) {
-    send_data(byte);
-    wr_strobe();
+    delay(100 * 72000);
 }
 void LcdParInterface::send_command(uint8_t com) {
     dc_command();
-    // rd_idle();
-    cs_on();
-    sendByte(com);
-    wr_strobe();
-    cs_idle();
+    send_data(com);
     dc_data();
-    cs_on();
 }
 
-void LcdParInterface::send_data(uint8_t data) {
+void LcdParInterface::send_data(uint16_t data) {
+    wr_off();
     GPIOD->OUTDR = data;
-    wr_strobe();
+    wr_on();
 }
 void LcdParInterface::sendByte(uint8_t byte) {
-    uint32_t mask = 0xffff0000;
-    GPIOD->BSHR |= mask | byte;
+    wr_off();
+    GPIOD->BSHR = byte;
+    wr_on();
 }
 void LcdParInterface::send_word(uint16_t data) {
 #if (WORD_SIZE == BIT8)
     sendByte(data >> 8);
     sendByte(data & 0x00FF);
-#elif (WORD_SIZE == BIT_16)
+#elif (WORD_SIZE == BIT16)
     send_data(data);
 #endif
 }
 void LcdParInterface::setColumn(uint16_t StartCol, uint16_t EndCol) {
     send_command(0x2A); // Column Command address
-    send_word(StartCol);
-    send_word(EndCol);
+    send_data(StartCol >> 8);
+    send_data(StartCol);
+    send_data(EndCol >> 8);
+    send_data(EndCol);
 }
 void LcdParInterface::setRow(uint16_t StartRow, uint16_t EndRow) {
     send_command(0x2B); // Column Command address
-    send_word(StartRow);
-    send_word(EndRow);
+    send_data(StartRow >> 8);
+    send_data(StartRow);
+    send_data(EndRow >> 8);
+    send_data(EndRow);
 }
 void LcdParInterface::setXY(int poX, int poY) {
     setColumn(poX, poX);
@@ -73,12 +83,14 @@ void LcdParInterface::setXY(int poX, int poY) {
 void LcdParInterface::setPixel(int poX, int poY, int color) {
     setXY(poX, poY);
     send_word(color);
-    send_word(color);
+    //send_word(color);
 }
 
+//-----------------------------------------------------------------------------
+//
 LcdParIni::LcdParIni() {
     lcd_ini();
-    fillScreen(0x0000);
+    fillScreen(GREEN);
 }
 
 void LcdParIni::lcd_ini() {
@@ -88,19 +100,52 @@ void LcdParIni::lcd_ini() {
                     GPIO_CFGHR_MODE15;
     GPIOB->CFGHR &= ~(GPIO_CFGHR_CNF12 | GPIO_CFGHR_CNF13 | GPIO_CFGHR_CNF14 |
                       GPIO_CFGHR_CNF15);
-    // RST-C10 PEN-B13 T_CS p/p
+    // RST-C10 PEN-C11 T_CS-C12 p/p
     RCC->APB2PCENR |= RCC_IOPCEN;
-    GPIOC->CFGHR |= GPIO_CFGHR_MODE12 | GPIO_CFGHR_MODE13 | GPIO_CFGHR_MODE14 |
-                    GPIO_CFGHR_MODE15;
-    GPIOC->CFGHR &= ~(GPIO_CFGHR_CNF12 | GPIO_CFGHR_CNF13 | GPIO_CFGHR_CNF14 |
-                      GPIO_CFGHR_CNF15);
+    GPIOC->CFGHR |= GPIO_CFGHR_MODE10 | GPIO_CFGHR_MODE11 | GPIO_CFGHR_MODE12;
+    GPIOC->CFGHR &= ~(GPIO_CFGHR_CNF10 | GPIO_CFGHR_CNF11 | GPIO_CFGHR_CNF12);
     // D0-D15 p/p 0:0:1:1
     RCC->APB2PCENR |= RCC_IOPDEN;
-    GPIOD->CFGLR = 0x03030303;
-    GPIOD->CFGHR = 0x03030303;
+    GPIOD->CFGLR = 0x33333333;
+    GPIOD->CFGHR = 0x33333333;
     GPIOD->OUTDR = 0;
-    tft_ini();
+    //tft_ini();
+    tft_ini1();
 }
+
+void LcdParIni::tft_ini1() {
+    rd_idle();
+    reset();
+    //---------------------------------------------------
+
+    // Pixel Format Set
+    send_command(0x3A);
+    send_data(0x55); // 16bit
+                     
+    send_command(0x2a); // column set
+    send_data(0x00);
+    send_data(0x00);
+    send_data(0x00);
+    send_data(0xEF);
+    send_command(0x2b); // page address set
+    send_data(0x00);
+    send_data(0x00);
+    send_data(0x01);
+    send_data(0x3F);
+                     
+    // sleep mode off
+    send_command(0x11);
+    delay(100 * 72000); // 100 ms
+    // Display ON
+    send_command(0x29); // display on
+    // Memory Acsess Control - rotation
+    //// 1-полубайт ориентация (через 2) - 2-ой цветовая схема (0 или 8)
+    send_command(0x36);
+    //send_data(0xf8); 
+    send_data(TFT9341_ROTATION);
+    delay(100 * 72000); // 100 ms
+}
+
 void LcdParIni::tft_ini() {
     rd_idle();
     reset();
@@ -155,9 +200,9 @@ void LcdParIni::tft_ini() {
     send_command(0x37);
     send_data(0x00);
     // Memory Acsess Control - rotation
+    //// 1-полубайт ориентация (через 2) - 2-ой цветовая схема (0 или 8)
     send_command(0x36);
-    send_data(0xf8); // 1-полубайт ориентация (через 2) - 2-ой цветовая схема (0
-                     // или 8)
+    send_data(0xf8); 
     // Pixel Format Set
     send_command(0x3A);
     send_data(0x55); // 16bit
@@ -170,8 +215,8 @@ void LcdParIni::tft_ini() {
     send_data(0x82);
     send_data(0x27);
     // Enable 3G (пока не знаю что это за режим)
-    send_command(0xF2);
-    send_data(0x00); //не включаем
+    // send_command(0xF2);
+    // send_data(0x00); //не включаем
     // Gamma set
     send_command(0x26);
     send_data(0x01); // Gamma Curve (G2.2) (Кривая цветовой гаммы)
@@ -209,26 +254,38 @@ void LcdParIni::tft_ini() {
     send_data(0x31);
     send_data(0x36);
     send_data(0x0F);
+
     send_command(0x2B); // page set
     send_data(0x00);
     send_data(0x00);
     send_data(0x00);
     send_data(0xEF);
+
     send_command(0x2A); // column set
     send_data(0x00);
     send_data(0x00);
     send_data(0x01);
     send_data(0x3F);
+
     send_command(0x34); // tearing effect off
+
     send_command(0xB7); // entry mode set
     send_data(0x07);
+
     send_command(0x11); //Выйдем из спящего режима
-    delay(72000);       // 100 ms
+    delay(2 * 72000);   // 100 ms
     // Display ON
     send_command(0x29); // display on
     // send_data(TFT9341_ROTATION);
-    delay(72000); // 100 ms
+    delay(2 * 72000); // 100 ms
     send_command(0x13);
+}
+
+void Figure::drawRect(uint16_t x1, uint16_t x2, uint16_t y1, uint16_t y2,
+                      uint16_t color) {
+    for (int i = y1; i < y2; i++) {
+        for (int j = x1; j < x2; j++) { setPixel(j, i, color); }
+    }
 }
 
 uint32_t Font_interface::char_to_int(char* str, uint8_t size) {
@@ -292,7 +349,8 @@ void Font_30x40::drawSymbol(uint16_t x, uint16_t y, const uint16_t* symbol) {
     send_command(0x2C);
     for (int i = 0; i < 1200; i++) { send_word(*(symbol + i)); }
 }
-//void Font_30x40::drawString(uint16_t x, uint16_t y, bool red, const char* str) {
+// void Font_30x40::drawString(uint16_t x, uint16_t y, bool red, const char*
+// str) {
 //    if (red) {
 //        for (uint32_t i = 0; i < strlen(str); i++) {
 //            if (str[i] == '0') {
@@ -375,15 +433,15 @@ void Font_30x40::drawSymbol(uint16_t x, uint16_t y, const uint16_t* symbol) {
 //}
 void Font_30x40::drawTemperature() {
     floatToChar(temperature);
-    //if (temperature < 10) { drawString(70, 40, true, "    "); }
-    //drawString(70, 40, true, arrFloat);
-    //drawSymbol(240, 40, image_data_temp_0x43_R);
+    // if (temperature < 10) { drawString(70, 40, true, "    "); }
+    // drawString(70, 40, true, arrFloat);
+    // drawSymbol(240, 40, image_data_temp_0x43_R);
 }
 void Font_30x40::drawHumidity() {
     floatToChar(humidity);
-    //if (humidity < 10) { drawString(70, 140, false, "    "); }
-    //drawString(70, 140, false, arrFloat);
-    //drawSymbol(240, 140, image_data_temp_0x25_B);
+    // if (humidity < 10) { drawString(70, 140, false, "    "); }
+    // drawString(70, 140, false, arrFloat);
+    // drawSymbol(240, 140, image_data_temp_0x25_B);
 }
 void Font_30x40::setTemperature(const float& temp) { temperature = temp; }
 const float& Font_30x40::getTemperature() { return temperature; }
