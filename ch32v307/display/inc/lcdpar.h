@@ -19,7 +19,8 @@ class LcdParInterface {
     static constexpr uint8_t TFT9341_MADCTL_RGB = 0x00;
     static constexpr uint8_t TFT9341_MADCTL_BGR = 0x08;
     static constexpr uint8_t TFT9341_MADCTL_MH = 0x04;
-    static constexpr uint8_t TFT9341_ROTATION = (TFT9341_MADCTL_MV);
+    static constexpr uint8_t TFT9341_ROTATION =
+        (TFT9341_MADCTL_MV | TFT9341_MADCTL_BGR);
 
     static constexpr uint16_t HALF_DISPLAY_MEMORY = 320 * 120;
     enum Colors : uint16_t
@@ -90,6 +91,7 @@ class LcdParInterface {
 class LcdParIni : public LcdParInterface {
   public:
     LcdParIni();
+
   private:
     void lcd_ini();
     void tft_ini();

@@ -322,6 +322,7 @@ void __attribute__((naked, noreturn)) Reset_Handler() {
     // main();
     while (1) {}
 }
+__attribute__((interrupt))
 void Default_Handler() {
     while (1) {}
 }

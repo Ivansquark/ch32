@@ -1,10 +1,7 @@
 #include "basic_timer.h"
 
-// void (*BasicTimer6::fPtr)(void) = nullptr;
-
 BasicTimer6::BasicTimer6() { init(); }
 
-void BasicTimer6::setCallback(void (*f)()) { fPtr = f; }
 void BasicTimer6::init() {
     // TIM CLK=144MHz
     RCC->APB1PCENR |= RCC_TIM6EN;
@@ -17,20 +14,10 @@ void BasicTimer6::init() {
 }
 
 extern "C" void TIM6_IRQHandler() {
-    uint32_t x = 0;
-    x++;
     if (TIM6->INTFR & TIM_UIF) {
         // TIM6->INTFR &= ~TIM_UIF;
         TIM6->INTFR = 0x0000;
-        // NVIC_ClearPendingIRQ(TIM6_IRQn);
-        if (BasicTimer6::Instance().counter >=
-            BasicTimer6::Instance().counterMax) {
-            if (BasicTimer6::Instance().fPtr != nullptr) {
-                BasicTimer6::Instance().fPtr();
-            }
-            BasicTimer6::Instance().counter = 0;
-        } else {
-            BasicTimer6::Instance().counter++;
-        }
+        InterruptManager::call(TIM6_IRQn);
+        //NVIC_ClearPendingIRQ(TIM6_IRQn);
     }
 }

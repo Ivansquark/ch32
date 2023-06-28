@@ -1,31 +1,33 @@
 #ifndef BUTTONS_H
 #define BUTTONS_H
 
-#include "main.h"
-#include "frwrapper.h"
 #include "ch32v30x_adc.h"
+#include "frwrapper.h"
 #include "irq.h"
+#include "main.h"
 #include "math.h"
 
-class Buttons : FR_OS , Interruptable {
-    public:
-        Buttons(uint16_t stackSize = 16);
+class Buttons : public Interruptable {
+  public:
+    Buttons();
 
-        void runTask(void* pvParameters) override;
-        void interruptHandler() override;
+    void interruptHandler() override;
 
-        enum WhichBut : uint8_t {
-            B_0,
-            B_1,
-            B_2,
-            B_3
-        };
-        WhichBut currentWhichBut = WhichBut::B_0;
+    enum WhichBut : uint8_t
+    {
+        B_0,
+        B_1,
+        B_2,
+        B_3
+    };
+    WhichBut currentWhichBut = WhichBut::B_0;
 
     uint16_t averageV = 0;
     uint16_t averageH = 0;
 
-    enum Button : uint8_t {
+    enum Button : uint8_t
+    {
+        NONE,
         B0,
         B1,
         B2,
@@ -42,53 +44,72 @@ class Buttons : FR_OS , Interruptable {
         B13,
         B14,
         B15,
-        B16,
         Enter
     };
+    Button currentBut = NONE;
+
+    bool B0_once = false;
+    bool B1_once = false;
+    bool B2_once = false;
+    bool B3_once = false;
+    bool B4_once = false;
+    bool B5_once = false;
+    bool B6_once = false;
+    bool B7_once = false;
+    bool B8_once = false;
+    bool B9_once = false;
+    bool B10_once = false;
+    bool B11_once = false;
+    bool B12_once = false;
+    bool B13_once = false;
+    bool B14_once = false;
+    bool B15_once = false;
+    bool Enter_once = false;
 
     bool getButtonState(Button butNum);
+    bool isAnyButtonPressed();
 
-    private:
-        uint16_t V = 0;
-        uint16_t H = 0;
-        void but_init();
-        void joy_init();
-        inline uint16_t getV();
-        inline uint16_t getH();
+  private:
+    uint16_t V = 0;
+    uint16_t H = 0;
+    void but_init();
+    void joy_init();
+    inline uint16_t getV();
+    inline uint16_t getH();
 
-        bool isB0 = false;
-        bool isB1 = false;
-        bool isB2 = false;
-        bool isB3 = false;
-        bool isB4 = false;
-        bool isB5 = false;
-        bool isB6 = false;
-        bool isB7 = false;
-        bool isB8 = false;
-        bool isB9 = false;
-        bool isB10 = false;
-        bool isB11 = false;
-        bool isB12 = false;
-        bool isB13 = false;
-        bool isB14 = false;
-        bool isB15 = false;
-        bool isEnter = false;
+    bool isB0 = false;
+    bool isB1 = false;
+    bool isB2 = false;
+    bool isB3 = false;
+    bool isB4 = false;
+    bool isB5 = false;
+    bool isB6 = false;
+    bool isB7 = false;
+    bool isB8 = false;
+    bool isB9 = false;
+    bool isB10 = false;
+    bool isB11 = false;
+    bool isB12 = false;
+    bool isB13 = false;
+    bool isB14 = false;
+    bool isB15 = false;
+    bool isEnter = false;
 
-        inline void setB0_out();
-        inline void setB1_out();
-        inline void setB2_out();
-        inline void setB3_out();
-        inline void resetB0_out();
-        inline void resetB1_out();
-        inline void resetB2_out();
-        inline void resetB3_out();
-        inline bool getB0_in();
-        inline bool getB1_in();
-        inline bool getB2_in();
-        inline bool getB3_in();
-        inline bool getEnter();
-        uint8_t counterEnter = 0;
-        static constexpr uint8_t MAX_BUTTON_COUNTER = 10;
+    inline void setB0_out();
+    inline void setB1_out();
+    inline void setB2_out();
+    inline void setB3_out();
+    inline void resetB0_out();
+    inline void resetB1_out();
+    inline void resetB2_out();
+    inline void resetB3_out();
+    inline bool getB0_in();
+    inline bool getB1_in();
+    inline bool getB2_in();
+    inline bool getB3_in();
+    inline bool getEnter();
+    uint8_t counterEnter = 0;
+    static constexpr uint8_t MAX_BUTTON_COUNTER = 10;
 
     static constexpr uint8_t MovAverLength = 128;
     static constexpr uint8_t MovAverGrade() { return log2(MovAverLength); }
@@ -109,4 +130,4 @@ class Buttons : FR_OS , Interruptable {
     uint16_t moving_average_H(uint16_t val);
 };
 
-#endif //BUTTONS_H
+#endif // BUTTONS_H

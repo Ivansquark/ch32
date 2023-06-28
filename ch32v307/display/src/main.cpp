@@ -28,23 +28,221 @@ Buttons but;
 void setRamSize(uint32_t size);
 
 int main(void) {
-    //setRamSize(0x20000);
     /* add queues, ... */
     queue1 = xQueueCreate(10, sizeof(uint32_t));
+    //--------  Interrupt region ----------------------------------------------
+    InterruptManagerForObjects<TIM6_IRQn> timer_ms;
+    timer_ms.addClass(&but);
+    timer_ms.setVector(); // subscribe all classes to TIM3_IRQ
+    BasicTimer6::Instance().start();
+    __enable_irq();
+
+    // setRamSize(0x20000);
 
     // fig.drawRect(50, 100, 100, 130, Figure::RED);
-    fig.fillScreen(Figure::BLACK);
     uint16_t j = 0;
     for (int i = 0; i < Figure::HALF_DISPLAY_MEMORY; i++) {
         fig.buff[i] = Figure::BLACK;
     }
+    fig.fillScreen(Figure::BLACK);
     while (1) {
-    for (int i = 0; i < Figure::HALF_DISPLAY_MEMORY; i++) {
-        fig.buff[i] = Figure::BLACK + i + j;
-    }
-        fig.fillHalfScreenHigh(fig.buff);
-        fig.fillHalfScreenLow(fig.buff);
-        j += 1;
+        if (but.isAnyButtonPressed()) {
+            if (but.currentBut == Buttons::B1) {
+                if (!but.B1_once) {
+                    but.B1_once = true;
+                    fig.drawRect(5, 55, 5, 55, Figure::BLUE);
+                }
+            } else {
+                if (but.B1_once) {
+                    but.B1_once = false;
+                    fig.drawRect(5, 55, 5, 55, Figure::BLACK);
+                }
+            }
+            if (but.currentBut == Buttons::B2) {
+                if (!but.B2_once) {
+                    but.B2_once = true;
+                    fig.drawRect(60, 110, 5, 55, Figure::BLUE);
+                }
+            } else {
+                if (but.B2_once) {
+                    but.B2_once = false;
+                    fig.drawRect(60, 110, 5, 55, Figure::BLACK);
+                }
+            }
+            if (but.currentBut == Buttons::B3) {
+                if (!but.B3_once) {
+                    but.B3_once = true;
+                    fig.drawRect(115, 165, 5, 55, Figure::BLUE);
+                }
+            } else {
+                if (but.B3_once) {
+                    but.B3_once = false;
+                    fig.drawRect(115, 165, 5, 55, Figure::BLACK);
+                }
+            }
+            if (but.currentBut == Buttons::B4) {
+                if (!but.B4_once) {
+                    but.B4_once = true;
+                    fig.drawRect(5, 55, 60, 110, Figure::BLUE);
+                }
+            } else {
+                if (but.B4_once) {
+                    but.B4_once = false;
+                    fig.drawRect(5, 55, 60, 110, Figure::BLACK);
+                }
+            }
+            if (but.currentBut == Buttons::B5) {
+                if (!but.B5_once) {
+                    but.B5_once = true;
+                    fig.drawRect(60, 110, 60, 110, Figure::BLUE);
+                }
+            } else {
+                if (but.B5_once) {
+                    but.B5_once = false;
+                    fig.drawRect(60, 110, 60, 110, Figure::BLACK);
+                }
+            }
+            if (but.currentBut == Buttons::B6) {
+                if (!but.B6_once) {
+                    but.B6_once = true;
+                    fig.drawRect(115, 165, 60, 110, Figure::BLUE);
+                }
+            } else {
+                if (but.B6_once) {
+                    but.B6_once = false;
+                    fig.drawRect(115, 165, 60, 110, Figure::BLACK);
+                }
+            }
+            if (but.currentBut == Buttons::B7) {
+                if (!but.B7_once) {
+                    but.B7_once = true;
+                    fig.drawRect(5, 55, 115, 165, Figure::BLUE);
+                }
+            } else {
+                if (but.B7_once) {
+                    but.B7_once = false;
+                    fig.drawRect(5, 55, 115, 165, Figure::BLACK);
+                }
+            }
+            if (but.currentBut == Buttons::B8) {
+                if (!but.B8_once) {
+                    but.B8_once = true;
+                    fig.drawRect(60, 110, 115, 165, Figure::BLUE);
+                }
+            } else {
+                if (but.B8_once) {
+                    but.B8_once = false;
+                    fig.drawRect(60, 110, 115, 165, Figure::BLACK);
+                }
+            }
+            if (but.currentBut == Buttons::B9) {
+                if (!but.B9_once) {
+                    but.B9_once = true;
+                    fig.drawRect(115, 165, 115, 165, Figure::BLUE);
+                }
+            } else {
+                if (but.B9_once) {
+                    but.B9_once = false;
+                    fig.drawRect(115, 165, 115, 165, Figure::BLACK);
+                }
+            }
+            if (but.currentBut == Buttons::B10) {
+                if (!but.B10_once) {
+                    but.B10_once = true;
+                    fig.drawRect(5, 55, 170, 220, Figure::BLUE);
+                }
+            } else {
+                if (but.B10_once) {
+                    but.B10_once = false;
+                    fig.drawRect(5, 55, 170, 220, Figure::BLACK);
+                }
+            }
+            if (but.currentBut == Buttons::B0) {
+                if (!but.B0_once) {
+                    but.B0_once = true;
+                    fig.drawRect(60, 110, 170, 220, Figure::BLUE);
+                }
+            } else {
+                if (but.B0_once) {
+                    but.B0_once = false;
+                    fig.drawRect(60, 110, 170, 220, Figure::BLACK);
+                }
+            }
+            if (but.currentBut == Buttons::B11) {
+                if (!but.B11_once) {
+                    but.B11_once = true;
+                    fig.drawRect(115, 165, 170, 220, Figure::BLUE);
+                }
+            } else {
+                if (but.B11_once) {
+                    but.B11_once = false;
+                    fig.drawRect(115, 165, 170, 220, Figure::BLACK);
+                }
+            }
+            if (but.currentBut == Buttons::B12) {
+                if (!but.B12_once) {
+                    but.B12_once = true;
+                    fig.drawRect(230, 270, 50, 90, Figure::BLUE);
+                }
+            } else {
+                if (but.B12_once) {
+                    but.B12_once = false;
+                    fig.drawRect(230, 270, 50, 90, Figure::BLACK);
+                }
+            }
+            if (but.currentBut == Buttons::B13) {
+                if (!but.B13_once) {
+                    but.B13_once = true;
+                    fig.drawRect(180, 220, 100, 140, Figure::BLUE);
+                }
+            } else {
+                if (but.B13_once) {
+                    but.B13_once = false;
+                    fig.drawRect(180, 220, 100, 140, Figure::BLACK);
+                }
+            }
+            if (but.currentBut == Buttons::Enter) {
+                if (!but.Enter_once) {
+                    but.Enter_once = true;
+                    fig.drawRect(230, 270, 100, 140, Figure::BLUE);
+                }
+            } else {
+                if (but.Enter_once) {
+                    but.Enter_once = false;
+                    fig.drawRect(230, 270, 100, 140, Figure::BLACK);
+                }
+            }
+            if (but.currentBut == Buttons::B14) {
+                if (!but.B14_once) {
+                    but.B14_once = true;
+                    fig.drawRect(280, 320, 100, 140, Figure::BLUE);
+                }
+            } else {
+                if (but.B14_once) {
+                    but.B14_once = false;
+                    fig.drawRect(280, 320, 100, 140, Figure::BLACK);
+                }
+            }
+            if (but.currentBut == Buttons::B15) {
+                if (!but.B15_once) {
+                    but.B15_once = true;
+                    fig.drawRect(230, 270, 150, 190, Figure::BLUE);
+                }
+            } else {
+                if (but.B15_once) {
+                    but.B15_once = false;
+                    fig.drawRect(230, 270, 150, 190, Figure::BLACK);
+                }
+            }
+        } else {
+            fig.fillScreen(Figure::BLACK);
+        }
+        // for (int i = 0; i < Figure::HALF_DISPLAY_MEMORY; i++) {
+        //     fig.buff[i] = Figure::BLACK + i + j;
+        // }
+        // fig.fillHalfScreenHigh(fig.buff);
+        // fig.fillHalfScreenLow(fig.buff);
+        // j += 1;
     }
     FR_OS::startOS();
     //__enable_irq();
@@ -55,8 +253,8 @@ int main(void) {
 }
 
 void setRamSize(uint32_t size) {
-#define FLASH_KEY1                 ((uint32_t)0x45670123)
-#define FLASH_KEY2                 ((uint32_t)0xCDEF89AB)
+#define FLASH_KEY1 ((uint32_t)0x45670123)
+#define FLASH_KEY2 ((uint32_t)0xCDEF89AB)
     //----- OPTION BYTE PROGRAMMING FOR CHANGE RAM SIZE -----------------------
     FLASH->KEYR = FLASH_KEY1;
     FLASH->KEYR = FLASH_KEY2;

@@ -1,17 +1,51 @@
 #include "buttons.h"
 
-Buttons::Buttons(uint16_t stackSize) : FR_OS(stackSize) {
-    FR_OS::init_FR_OS();
+Buttons::Buttons() {
     but_init();
     joy_init();
 }
 
-void Buttons::runTask([[maybe_unused]] void* pvParameters) {
-    while (1) {
-
-        // TODO but handler()
-        vTaskDelay(10);
+bool Buttons::isAnyButtonPressed() {
+    bool state = false;
+    if (isB0) {
+        state = true;
+    } else if (isB1) {
+        state = true;
+    } else if (isB2) {
+        state = true;
+    } else if (isB3) {
+        state = true;
+    } else if (isB4) {
+        state = true;
+    } else if (isB5) {
+        state = true;
+    } else if (isB6) {
+        state = true;
+    } else if (isB7) {
+        state = true;
+    } else if (isB8) {
+        state = true;
+    } else if (isB9) {
+        state = true;
+    } else if (isB10) {
+        state = true;
+    } else if (isB11) {
+        state = true;
+    } else if (isB12) {
+        state = true;
+    } else if (isB13) {
+        state = true;
+    } else if (isB14) {
+        state = true;
+    } else if (isB15) {
+        state = true;
+    } else if (isEnter) {
+        state = true;
     }
+    if(!state) {
+        currentBut = NONE;
+    }
+    return state;
 }
 
 bool Buttons::getButtonState(Button butNum) {
@@ -81,100 +115,131 @@ void Buttons::interruptHandler() {
     case B_0:
         if (getB0_in()) {
             isB3 = true;
+            currentBut = B3;
         } else {
             isB3 = false;
         }
         if (getB1_in()) {
             isB7 = true;
+            currentBut = B7;
         } else {
             isB7 = false;
         }
         if (getB2_in()) {
             isB11 = true;
+            currentBut = B11;
         } else {
             isB11 = false;
         }
         if (getB3_in()) {
             isB15 = true;
+            currentBut = B15;
         } else {
             isB15 = false;
         }
+        resetB0_out();
+        resetB1_out();
+        resetB2_out();
         resetB3_out();
         setB0_out();
+        // for(volatile int i = 0; i< 10000; i++) {}
         currentWhichBut = WhichBut::B_1;
         break;
     case B_1:
         if (getB0_in()) {
             isB0 = true;
+            currentBut = B0;
         } else {
             isB0 = false;
         }
         if (getB1_in()) {
             isB4 = true;
+            currentBut = B4;
         } else {
             isB4 = false;
         }
         if (getB2_in()) {
             isB8 = true;
+            currentBut = B8;
         } else {
             isB8 = false;
         }
         if (getB3_in()) {
             isB12 = true;
+            currentBut = B12;
         } else {
             isB12 = false;
         }
         resetB0_out();
+        resetB1_out();
+        resetB2_out();
+        resetB3_out();
         setB1_out();
+        // for(volatile int i = 0; i< 10000; i++) {}
         currentWhichBut = WhichBut::B_2;
         break;
     case B_2:
         if (getB0_in()) {
             isB1 = true;
+            currentBut = B1;
         } else {
             isB1 = false;
         }
         if (getB1_in()) {
             isB5 = true;
+            currentBut = B5;
         } else {
             isB5 = false;
         }
         if (getB2_in()) {
             isB9 = true;
+            currentBut = B9;
         } else {
             isB9 = false;
         }
         if (getB3_in()) {
             isB13 = true;
+            currentBut = B13;
         } else {
             isB13 = false;
         }
+        resetB0_out();
         resetB1_out();
+        resetB2_out();
+        resetB3_out();
         setB2_out();
+        // for(volatile int i = 0; i< 10000; i++) {}
         currentWhichBut = WhichBut::B_3;
         break;
     case B_3:
         if (getB0_in()) {
             isB2 = true;
+            currentBut = B2;
         } else {
             isB2 = false;
         }
         if (getB1_in()) {
             isB6 = true;
+            currentBut = B6;
         } else {
             isB6 = false;
         }
         if (getB2_in()) {
             isB10 = true;
+            currentBut = B10;
         } else {
             isB10 = false;
         }
         if (getB3_in()) {
             isB14 = true;
+            currentBut = B14;
         } else {
             isB14 = false;
         }
+        resetB0_out();
+        resetB1_out();
         resetB2_out();
+        resetB3_out();
         setB3_out();
         currentWhichBut = WhichBut::B_0;
         break;
@@ -209,9 +274,9 @@ void Buttons::resetB1_out() { GPIOE->BSHR |= GPIO_BSHR_BS9; }
 void Buttons::resetB2_out() { GPIOE->BSHR |= GPIO_BSHR_BS10; }
 void Buttons::resetB3_out() { GPIOE->BSHR |= GPIO_BSHR_BS11; }
 bool Buttons::getB0_in() { return !(GPIOE->INDR & GPIO_INDR_IDR12); }
-bool Buttons::getB1_in() { return !(GPIOE->INDR & GPIO_INDR_IDR12); }
-bool Buttons::getB2_in() { return !(GPIOE->INDR & GPIO_INDR_IDR12); }
-bool Buttons::getB3_in() { return !(GPIOE->INDR & GPIO_INDR_IDR12); }
+bool Buttons::getB1_in() { return !(GPIOE->INDR & GPIO_INDR_IDR13); }
+bool Buttons::getB2_in() { return !(GPIOE->INDR & GPIO_INDR_IDR14); }
+bool Buttons::getB3_in() { return !(GPIOE->INDR & GPIO_INDR_IDR15); }
 bool Buttons::getEnter() { return !(GPIOB->INDR & GPIO_INDR_IDR2); }
 
 uint16_t Buttons::getV() { return (ADC1->IDATAR1 & 0xFFFC); }

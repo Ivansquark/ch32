@@ -24,9 +24,9 @@ perSRC = Peripheral/src/
 freeINC = FreeRTOS/include/
 freeSRC = FreeRTOS/
 #///////////////////////////////////
-OPTIMIZATION = fast
+#OPTIMIZATION = fast
 #OPTIMIZATION = s
-#OPTIMIZATION = 0
+OPTIMIZATION = 0
 
 
 CFLAGS = -c -Wall -Wextra -g -O$(OPTIMIZATION) \
