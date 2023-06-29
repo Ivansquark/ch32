@@ -42,9 +42,7 @@ bool Buttons::isAnyButtonPressed() {
     } else if (isEnter) {
         state = true;
     }
-    if(!state) {
-        currentBut = NONE;
-    }
+    if (!state) { currentBut = NONE; }
     return state;
 }
 
@@ -114,27 +112,51 @@ void Buttons::interruptHandler() {
     switch (currentWhichBut) {
     case B_0:
         if (getB0_in()) {
-            isB3 = true;
-            currentBut = B3;
+            if (!stack.isButInStack(B3)) {
+                isB3 = true;
+                currentBut = B3;
+                stack.push(B3);
+            }
         } else {
+            if(currentBut == B3) {
+                stack.pop();
+            }
             isB3 = false;
         }
         if (getB1_in()) {
-            isB7 = true;
-            currentBut = B7;
+            if (!stack.isButInStack(B7)) {
+                isB7 = true;
+                currentBut = B7;
+                stack.push(B7);
+            }
         } else {
+            if(currentBut == B7) {
+                stack.pop();
+            }
             isB7 = false;
         }
         if (getB2_in()) {
-            isB11 = true;
-            currentBut = B11;
+            if (!stack.isButInStack(B11)) {
+                isB11 = true;
+                currentBut = B11;
+                stack.push(B11);
+            }
         } else {
+            if(currentBut == B11) {
+                stack.pop();
+            }
             isB11 = false;
         }
         if (getB3_in()) {
-            isB15 = true;
-            currentBut = B15;
+            if (!stack.isButInStack(B15)) {
+                isB15 = true;
+                currentBut = B15;
+                stack.push(B15);
+            }
         } else {
+            if(currentBut == B15) {
+                stack.pop();
+            }
             isB15 = false;
         }
         resetB0_out();
@@ -147,27 +169,51 @@ void Buttons::interruptHandler() {
         break;
     case B_1:
         if (getB0_in()) {
-            isB0 = true;
-            currentBut = B0;
+            if (!stack.isButInStack(B0)) {
+                isB0 = true;
+                currentBut = B0;
+                stack.push(B0);
+            }
         } else {
+            if(currentBut == B0) {
+                stack.pop();
+            }
             isB0 = false;
         }
         if (getB1_in()) {
-            isB4 = true;
-            currentBut = B4;
+            if (!stack.isButInStack(B4)) {
+                isB4 = true;
+                currentBut = B4;
+                stack.push(B4);
+            }
         } else {
+            if(currentBut == B4) {
+                stack.pop();
+            }
             isB4 = false;
         }
         if (getB2_in()) {
-            isB8 = true;
-            currentBut = B8;
+            if (!stack.isButInStack(B8)) {
+                isB8 = true;
+                currentBut = B8;
+                stack.push(B8);
+            }
         } else {
+            if(currentBut == B8) {
+                stack.pop();
+            }
             isB8 = false;
         }
         if (getB3_in()) {
-            isB12 = true;
-            currentBut = B12;
+            if (!stack.isButInStack(B12)) {
+                isB12 = true;
+                currentBut = B12;
+                stack.push(B12);
+            }
         } else {
+            if(currentBut == B12) {
+                stack.pop();
+            }
             isB12 = false;
         }
         resetB0_out();
@@ -175,32 +221,55 @@ void Buttons::interruptHandler() {
         resetB2_out();
         resetB3_out();
         setB1_out();
-        // for(volatile int i = 0; i< 10000; i++) {}
         currentWhichBut = WhichBut::B_2;
         break;
     case B_2:
         if (getB0_in()) {
-            isB1 = true;
-            currentBut = B1;
+            if (!stack.isButInStack(B1)) {
+                isB1 = true;
+                currentBut = B1;
+                stack.push(B1);
+            }
         } else {
+            if(currentBut == B1) {
+                stack.pop();
+            }
             isB1 = false;
         }
         if (getB1_in()) {
-            isB5 = true;
-            currentBut = B5;
+            if (!stack.isButInStack(B5)) {
+                isB5 = true;
+                currentBut = B5;
+                stack.push(B5);
+            }
         } else {
+            if(currentBut == B5) {
+                stack.pop();
+            }
             isB5 = false;
         }
         if (getB2_in()) {
-            isB9 = true;
-            currentBut = B9;
+            if (!stack.isButInStack(B9)) {
+                isB9 = true;
+                currentBut = B9;
+                stack.push(B9);
+            }
         } else {
+            if(currentBut == B9) {
+                stack.pop();
+            }
             isB9 = false;
         }
         if (getB3_in()) {
-            isB13 = true;
-            currentBut = B13;
+            if (!stack.isButInStack(B13)) {
+                isB13 = true;
+                currentBut = B13;
+                stack.push(B13);
+            }
         } else {
+            if(currentBut == B13) {
+                stack.pop();
+            }
             isB13 = false;
         }
         resetB0_out();
@@ -208,32 +277,55 @@ void Buttons::interruptHandler() {
         resetB2_out();
         resetB3_out();
         setB2_out();
-        // for(volatile int i = 0; i< 10000; i++) {}
         currentWhichBut = WhichBut::B_3;
         break;
     case B_3:
         if (getB0_in()) {
-            isB2 = true;
-            currentBut = B2;
+            if (!stack.isButInStack(B2)) {
+                isB2 = true;
+                currentBut = B2;
+                stack.push(B2);
+            }
         } else {
+            if(currentBut == B2) {
+                stack.pop();
+            }
             isB2 = false;
         }
         if (getB1_in()) {
-            isB6 = true;
-            currentBut = B6;
+            if (!stack.isButInStack(B6)) {
+                isB6 = true;
+                currentBut = B6;
+                stack.push(B6);
+            }
         } else {
+            if(currentBut == B6) {
+                stack.pop();
+            }
             isB6 = false;
         }
         if (getB2_in()) {
-            isB10 = true;
-            currentBut = B10;
+            if (!stack.isButInStack(B10)) {
+                isB10 = true;
+                currentBut = B10;
+                stack.push(B10);
+            }
         } else {
+            if(currentBut == B10) {
+                stack.pop();
+            }
             isB10 = false;
         }
         if (getB3_in()) {
-            isB14 = true;
-            currentBut = B14;
+            if (!stack.isButInStack(B14)) {
+                isB14 = true;
+                currentBut = B14;
+                stack.push(B14);
+            }
         } else {
+            if(currentBut == B14) {
+                stack.pop();
+            }
             isB14 = false;
         }
         resetB0_out();
@@ -245,6 +337,10 @@ void Buttons::interruptHandler() {
         break;
     default:
         break;
+    }
+    if (!isAnyButtonPressed()) {
+        stack.clear();
+        currentBut = NONE;
     }
     if (getEnter()) {
         if (counterEnter > MAX_BUTTON_COUNTER) {

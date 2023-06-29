@@ -48,6 +48,36 @@ class Buttons : public Interruptable {
     };
     Button currentBut = NONE;
 
+    // -- Stack to check last pressed but if several pressed ------------------
+    struct Stack {
+        Button arr[16] = {Buttons::NONE};
+        Button* sp = arr;
+        Button* sp0 = arr;
+        uint8_t size() { return (sp - sp0); }
+
+        bool isButInStack(Button but) {
+            bool state = false;
+            for (int i = 0; i < size(); i++) {
+                if (arr[i] == but) { state = true; }
+            }
+            return state;
+        }
+
+        void push(Button but) {
+            if (size() > 16) return;
+            arr[sp - sp0] = but;
+            sp++;
+        }
+        void pop() {
+            if (size() > 0) sp--;
+        }
+        void clear() {
+            sp = sp0;
+            arr[0] = NONE;
+        }
+    };
+    Stack stack;
+
     bool B0_once = false;
     bool B1_once = false;
     bool B2_once = false;
