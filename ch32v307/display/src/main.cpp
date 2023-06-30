@@ -54,10 +54,6 @@ int main(void) {
     // fig.fillHalfScreenLow(fig.buff);
     // j += 1;
     FR_OS::startOS();
-    //__enable_irq();
-    // BasicTimer6::Instance().setCallback(timeout);
-    // BasicTimer6::Instance().start(500);
-    // Gpio::Out::init();
     while (1) {}
 }
 
