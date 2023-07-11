@@ -85,10 +85,9 @@ class Eth : FR_OS {
 
     void rx_handler();
 
-    static uint8_t RxBuff[2048];
-    static uint8_t TxBuff[2048];
-    static uint16_t currentRxBuffLen;
-    static uint16_t currentTxBuffLen;
+
+    static uint32_t* rxBufPtr;
+    static uint16_t rxBufLen;
 
     uint8_t IP_ADDRESS[4];
 

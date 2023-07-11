@@ -1,28 +1,26 @@
-#include "lwip/opt.h"
+#include "ethernetif.h"
+#include "ch32v30x_eth.h"
+#include "lwip/ethip6.h"
 #include "lwip/mem.h"
 #include "lwip/memp.h"
+#include "lwip/opt.h"
 #include "lwip/timeouts.h"
-#include "netif/ethernet.h"
 #include "netif/etharp.h"
-#include "lwip/ethip6.h"
-#include "ethernetif.h"
+#include "netif/ethernet.h"
 #include <string.h>
-#include "ch32v30x_eth.h"
 //#include "lwip_task.h"
 
 /* Network interface name */
 #define IFNAME0 'c'
 #define IFNAME1 'h'
 
-struct ethernetif
-{
-    struct eth_addr *ethaddr;
+struct ethernetif {
+    struct eth_addr* ethaddr;
     /* Add whatever per-interface state that is needed here. */
 };
 
-static void low_level_init(struct netif *netif)
-{
-    uint8_t *mac = (uint8_t *)(0x1FFFF7E8 + 5);
+static void low_level_init(struct netif* netif) {
+    uint8_t* mac = (uint8_t*)(0x1FFFF7E8 + 5);
 
 #if LWIP_ARP || LWIP_ETHERNET
 
@@ -30,48 +28,42 @@ static void low_level_init(struct netif *netif)
     netif->hwaddr_len = ETH_HWADDR_LEN;
 
     /* set MAC hardware address */
-    netif->hwaddr[0] =  *mac;
+    netif->hwaddr[0] = *mac;
     mac--;
-    netif->hwaddr[1] =  *mac;
+    netif->hwaddr[1] = *mac;
     mac--;
-    netif->hwaddr[2] =  *mac;
+    netif->hwaddr[2] = *mac;
     mac--;
-    netif->hwaddr[3] =  *mac;
+    netif->hwaddr[3] = *mac;
     mac--;
-    netif->hwaddr[4] =  *mac;
+    netif->hwaddr[4] = *mac;
     mac--;
-    netif->hwaddr[5] =  *mac;
+    netif->hwaddr[5] = *mac;
 
     /* maximum transfer unit */
     netif->mtu = NETIF_MTU;
 
-#if LWIP_ARP
+    #if LWIP_ARP
     netif->flags |= NETIF_FLAG_BROADCAST | NETIF_FLAG_ETHARP;
-#else
+    #else
     netif->flags |= NETIF_FLAG_BROADCAST;
-#endif /* LWIP_ARP */
+    #endif /* LWIP_ARP */
 
 #endif /* LWIP_ARP || LWIP_ETHERNET */
     netif->flags |= NETIF_FLAG_LINK_UP | NETIF_FLAG_UP;
 }
 
-
-static err_t
-low_level_output(struct netif *netif, struct pbuf *p)
-{
-    if(!netif) {
-        return ERR_IF;
-    }
-    struct pbuf *q;
+static err_t low_level_output(struct netif* netif, struct pbuf* p) {
+    if (!netif) { return ERR_IF; }
+    struct pbuf* q;
     u32_t len = 0;
-    uint8_t *buffer = (uint8_t *)ETH_GetCurrentTxBufferAddress();
+    uint8_t* buffer = (uint8_t*)ETH_GetCurrentTxBufferAddress();
 
 #if ETH_PAD_SIZE
     pbuf_remove_header(p, ETH_PAD_SIZE); /* drop the padding word */
 #endif
 
-    for (q = p; q != NULL; q = q->next)
-    {
+    for (q = p; q != NULL; q = q->next) {
         /* Send the data from the pbuf to the interface, one pbuf at a
            time. The size of the data in each pbuf is kept in the ->len
            variable. */
@@ -79,12 +71,9 @@ low_level_output(struct netif *netif, struct pbuf *p)
         len = len + q->len;
     }
 
-    if (! Eth::ETH_TxPkt_ChainMode(len))
-    {
+    if (!Eth::ETH_TxPkt_ChainMode(len)) {
         printf("Send failed.\n");
-    }
-    else
-    {
+    } else {
         net_data_led_require = 1;
     }
     /* increase ifoutdiscards or ifouterrors on error */
@@ -96,31 +85,28 @@ low_level_output(struct netif *netif, struct pbuf *p)
     return ERR_OK;
 }
 
-
-static struct pbuf *
-low_level_input(struct netif *netif)
-{
-    if(!netif) {
-        return NULL;
-    }
+static struct pbuf* low_level_input(struct netif* netif) {
+    if (!netif) { return NULL; }
     struct pbuf *p, *q;
     u32_t len;
     u16_t read_index, once_size;
-    FrameTypeDef *rec_data;
+    //FrameTypeDef* rec_data;
     /* Obtain the size of the packet and put it into the "len"
        variable. */
-    NVIC_DisableIRQ(ETH_IRQn);
-    rec_data = (FrameTypeDef*)list_pop(ch307_mac_rec);
-    NVIC_EnableIRQ(ETH_IRQn);
-    if (rec_data == NULL)
-    {
-        return NULL;
-    }
-    if (rec_data->length != 0)
-    {
+    // NVIC_DisableIRQ(ETH_IRQn);
+    // rec_data = (FrameTypeDef*)list_pop(ch307_mac_rec);
+    // NVIC_EnableIRQ(ETH_IRQn);
+    // if (rec_data == NULL)
+    //{
+    //    return NULL;
+    //}
+    if (Eth::rxBufPtr == nullptr) { return NULL; }
+    // if (rec_data->length != 0)
+    if (Eth::rxBufLen != 0) {
         net_data_led_require = 1; /* require for led. */
 
-        len = rec_data->length;
+        // len = rec_data->length;
+        len = Eth::rxBufLen;
 
 #if ETH_PAD_SIZE
         len += ETH_PAD_SIZE; /* allow room for Ethernet padding */
@@ -129,64 +115,67 @@ low_level_input(struct netif *netif)
         /* We allocate a pbuf chain of pbufs from the pool. */
         p = pbuf_alloc(PBUF_RAW, len, PBUF_POOL);
 
-        if (p != NULL)
-        {
+        if (p != NULL) {
 
 #if ETH_PAD_SIZE
             pbuf_remove_header(p, ETH_PAD_SIZE); /* drop the padding word */
 #endif
-            read_index  = 0;
+            read_index = 0;
             /* We iterate over the pbuf chain until we have read the entire
              * packet into the pbuf. */
-            for (q = p; q != NULL; q = q->next)
-            {
+            for (q = p; q != NULL; q = q->next) {
                 /* Read enough bytes to fill this pbuf in the chain. The
                  * available data in the pbuf is given by the q->len
                  * variable.
-                 * This does not necessarily have to be a memcpy, you can also preallocate
-                 * pbufs for a DMA-enabled MAC and after receiving truncate it to the
-                 * actually received size. In this case, ensure the tot_len member of the
-                 * pbuf is the sum of the chained pbuf len members.
+                 * This does not necessarily have to be a memcpy, you can also
+                 * preallocate pbufs for a DMA-enabled MAC and after receiving
+                 * truncate it to the actually received size. In this case,
+                 * ensure the tot_len member of the pbuf is the sum of the
+                 * chained pbuf len members.
                  */
-                if (len >= q->len)
-                {
+                if (len >= q->len) {
                     once_size = q->len;
-                }
-                else
-                {
+                } else {
                     once_size = len;
                 }
                 len = len - once_size;
-                memcpy(q->payload, (void *)(rec_data->buffer + read_index), once_size);
+                // memcpy(q->payload, (void *)(rec_data->buffer + read_index),
+                // once_size);
+                memcpy(q->payload, (void*)(Eth::rxBufPtr + read_index),
+                       once_size);
                 read_index = read_index + once_size;
             }
-            //acknowledge that packet has been read();
+            // acknowledge that packet has been read();
 
+        } else {
+            // drop packet
         }
-        else
-        {
-            //drop packet
-        }
-    }
-    else
-    {
+    } else {
         p = NULL;
     }
 
-    NVIC_DisableIRQ(ETH_IRQn);
-    //DMARxDescToGet->Status |= ETH_DMARxDesc_OWN;
-    rec_data->descriptor->Status |= ETH_DMARxDesc_OWN;
-    memb_free(&ch307_mac_rec_frame_mem, rec_data);
-    NVIC_EnableIRQ(ETH_IRQn);
+    // NVIC_DisableIRQ(ETH_IRQn);
+    // DMARxDescToGet->Status |= ETH_DMARxDesc_OWN;
+    // rec_data->descriptor->Status |= ETH_DMARxDesc_OWN;
+
+    DMARxDescToGet->Status = ETH_DMARxDesc_OWN;
+    /* Update the ETHERNET DMA global Rx descriptor with next Rx decriptor */
+    /* Chained Mode */
+    /* Selects the next DMA Rx descriptor list for next buffer to read */
+    DMARxDescToGet = reinterpret_cast<ETH_DMADESCTypeDef*>(
+        DMARxDescToGet->Buffer2NextDescAddr);
+    Eth::rxBufPtr = nullptr;
+    Eth::rxBufLen = 0;
+
+    // memb_free(&ch307_mac_rec_frame_mem, rec_data);
+    // NVIC_EnableIRQ(ETH_IRQn);
 
     return p;
 }
 
-
-void ethernetif_input(struct netif *netif)
-{
+void ethernetif_input(struct netif* netif) {
     err_t err;
-    struct pbuf *p;
+    struct pbuf* p;
 
 TRY_GET_NEXT_FRAGMENT:
     /* move received packet into a new pbuf */
@@ -198,42 +187,33 @@ TRY_GET_NEXT_FRAGMENT:
     /* entry point to the LwIP stack */
     err = netif->input(p, netif);
 
-    if (err != ERR_OK)
-    {
+    if (err != ERR_OK) {
         LWIP_DEBUGF(NETIF_DEBUG, ("ethernetif_input: IP input error\n"));
         pbuf_free(p);
         p = NULL;
-    }
-    else
-    {
+    } else {
         goto TRY_GET_NEXT_FRAGMENT;
     }
 }
 
-
 #if !LWIP_ARP
 
-static err_t low_level_output_arp_off(struct netif *netif, struct pbuf *q, const ip4_addr_t *ipaddr)
-{
+static err_t low_level_output_arp_off(struct netif* netif, struct pbuf* q,
+                                      const ip4_addr_t* ipaddr) {
     err_t errval;
     errval = ERR_OK;
 
     return errval;
-
 }
 #endif /* LWIP_ARP */
 
-
-err_t
-ethernetif_init(struct netif *netif)
-{
-    struct ethernetif *ethernetif;
+err_t ethernetif_init(struct netif* netif) {
+    struct ethernetif* ethernetif;
 
     LWIP_ASSERT("netif != NULL", (netif != NULL));
 
     ethernetif = (struct ethernetif*)mem_malloc(sizeof(struct ethernetif));
-    if (ethernetif == NULL)
-    {
+    if (ethernetif == NULL) {
         LWIP_DEBUGF(NETIF_DEBUG, ("ethernetif_init: out of memory\n"));
         return ERR_MEM;
     }
@@ -266,11 +246,10 @@ ethernetif_init(struct netif *netif)
 
     netif->linkoutput = low_level_output;
 
-    ethernetif->ethaddr = (struct eth_addr *) & (netif->hwaddr[0]);
+    ethernetif->ethaddr = (struct eth_addr*)&(netif->hwaddr[0]);
 
     /* initialize the hardware */
     low_level_init(netif);
 
     return ERR_OK;
 }
-

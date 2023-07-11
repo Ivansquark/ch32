@@ -62,9 +62,11 @@ $(BLD)main.elf: $(BLD)ch32v30x_i2c.o $(BLD)ch32v30x_spi.o $(BLD)ch32v30x_rcc.o
 $(BLD)main.elf: $(BLD)ch32v30x_gpio.o $(BLD)ch32v30x_eth.o $(BLD)ch32v30x_rng.o
 $(BLD)main.elf: $(BLD)ch32v30x_misc.o $(BLD)ch32v30x_sdio.o $(BLD)ch32v30x_dma.o
 $(BLD)main.elf: $(BLD)rcc.o $(BLD)gpio.o
+$(BLD)main.elf: $(BLD)ch32v30x_usbhs_device.o $(BLD)usb_desc.o
 $(BLD)main.elf: $(BLD)basic_timer.o $(BLD)lcdpar.o
 $(BLD)main.elf: $(BLD)irq.o $(BLD)buttons.o
 $(BLD)main.elf: $(BLD)main.o
+#------------------------------------------------------------------------------
 $(BLD)main.elf: $(BLD)frwrapper.o
 $(BLD)main.elf: $(BLD)tasks.o $(BLD)list.o $(BLD)port.o $(BLD)heap_4.o
 $(BLD)main.elf: $(BLD)queue.o $(BLD)portASM.o

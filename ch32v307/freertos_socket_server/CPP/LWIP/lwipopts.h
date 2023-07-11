@@ -50,7 +50,7 @@ a lot of data that needs to be copied, this should be set high. */
 #define MEMP_NUM_TCP_SEG        TCP_SND_QUEUELEN
 /* MEMP_NUM_SYS_TIMEOUT: the number of simulateously active
    timeouts. */
-#define MEMP_NUM_SYS_TIMEOUT    8
+#define MEMP_NUM_SYS_TIMEOUT    6
 
 
 /* ---------- Pbuf options ---------- */

@@ -106,7 +106,7 @@ void HttpOS::runTask([[maybe_unused]] void* pvParameters) {
             vTaskDelete(NULL);
         }
         Gpio::Out::toggleBlue();
-        vTaskDelay(1);
+        vTaskDelay(5);
     }
 }
 

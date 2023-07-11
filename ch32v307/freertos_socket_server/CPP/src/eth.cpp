@@ -10,10 +10,9 @@ __attribute__((aligned(4))) ETH_DMADESCTypeDef DMATxDscrTab[ETH_TXBUFNB];
 __attribute__((aligned(4))) uint8_t Rx_Buff[ETH_RXBUFNB][ETH_MAX_PACKET_SIZE];
 __attribute__((aligned(4))) uint8_t Tx_Buff[ETH_TXBUFNB][ETH_MAX_PACKET_SIZE];
 
-uint8_t Eth::RxBuff[2048] = {0};
-uint8_t Eth::TxBuff[2048] = {0};
-uint16_t Eth::currentRxBuffLen = 0;
-uint16_t Eth::currentTxBuffLen = 0;
+
+uint32_t* Eth::rxBufPtr = nullptr;
+uint16_t Eth::rxBufLen = 0;
 
 Eth::Eth(uint8_t ip0, uint8_t ip1, uint8_t ip2, uint8_t ip3, uint16_t stackSize)
     : FR_OS(stackSize) {
@@ -35,7 +34,7 @@ void Eth::runTask([[maybe_unused]] void* pvParameters) {
     Gpio::Out::init();
     while (1) {
         rx_handler();
-        vTaskDelay(1); // every ms
+        vTaskDelay(1); // every 100 us
     }
 }
 void Eth::rx_handler() {
@@ -45,8 +44,15 @@ void Eth::rx_handler() {
     //    p = Eth::ETH_RxPkt_ChainMode();
     //    if (p != NULL) { list_add(ch307_mac_rec, p); /* add to rec list. */ }
     //}
-    if (list_head(ch307_mac_rec) != NULL) {
+    //if (list_head(ch307_mac_rec) != NULL) {
         /* received a packet */
+    //    Gpio::Out::toggleRed();
+    //    ethernetif_input(&WCH_NetIf);
+    //}
+//-----------------------------------------------------------------------------    
+    void* p = nullptr;
+    p = Eth::ETH_RxPkt_ChainMode();
+    if (p != nullptr) {
         Gpio::Out::toggleRed();
         ethernetif_input(&WCH_NetIf);
     }
@@ -311,9 +317,9 @@ void Eth::init_phy() {
         ETH_InitStructure->ETH_DMAArbitration | ETH_DMABMR_USP);
     mem_free(ETH_InitStructure);
     /* Enable the Ethernet Rx Interrupt */
-    ETH_DMAITConfig(ETH_DMA_IT_NIS | ETH_DMA_IT_R | ETH_DMA_IT_T, ENABLE);
+    // ETH_DMAITConfig(ETH_DMA_IT_NIS | ETH_DMA_IT_R | ETH_DMA_IT_T, ENABLE);
 
-    NVIC_EnableIRQ(ETH_IRQn);
+    // NVIC_EnableIRQ(ETH_IRQn);
     ETH_DMATxDescChainInit(DMATxDscrTab, &Tx_Buff[0][0], ETH_TXBUFNB);
     ETH_DMARxDescChainInit(DMARxDscrTab, &Rx_Buff[0][0], ETH_RXBUFNB);
     ETH_Start();
@@ -403,8 +409,10 @@ void Eth::init_lwip() {
 
 void* Eth::ETH_RxPkt_ChainMode(void) {
     uint32_t framelength = 0;
-    FrameTypeDef* rec_frame;
-    rec_frame = (FrameTypeDef*)memb_alloc(&ch307_mac_rec_frame_mem);
+    rxBufPtr =  nullptr;
+    rxBufLen = 0;
+    //FrameTypeDef* rec_frame;
+    //rec_frame = (FrameTypeDef*)memb_alloc(&ch307_mac_rec_frame_mem);
     /* Check if the descriptor is owned by the ETHERNET DMA (when set) or CPU
      * (when reset) */
     if ((DMARxDescToGet->Status & ETH_DMARxDesc_OWN) != (u32)RESET) {
@@ -414,15 +422,16 @@ void* Eth::ETH_RxPkt_ChainMode(void) {
             /* Resume DMA reception */
             ETH->DMARPDR = 0;
         }
-        if (rec_frame != NULL) {
-            rec_frame->length = ETH_ERROR;
-            memb_free(&ch307_mac_rec_frame_mem, rec_frame);
-        }
+        //if (rec_frame != NULL) {
+        //    rec_frame->length = ETH_ERROR;
+        //    memb_free(&ch307_mac_rec_frame_mem, rec_frame);
+        //}
         /* Return error: OWN bit set */
-        return NULL;
+        //return NULL;
+        return nullptr;
     }
 
-    if (rec_frame == NULL) { return NULL; }
+    //if (rec_frame == NULL) { return NULL; }
 
     if (((DMARxDescToGet->Status & ETH_DMARxDesc_ES) == (u32)RESET) &&
         ((DMARxDescToGet->Status & ETH_DMARxDesc_LS) != (u32)RESET) &&
@@ -433,22 +442,29 @@ void* Eth::ETH_RxPkt_ChainMode(void) {
                        ETH_DMARxDesc_FrameLengthShift) -
                       4;
         /* Get the addrees of the actual buffer */
-        rec_frame->buffer = DMARxDescToGet->Buffer1Addr;
+        //rec_frame->buffer = DMARxDescToGet->Buffer1Addr;
+        rxBufPtr =  (uint32_t*)DMARxDescToGet->Buffer1Addr;
+
     } else {
         /* Return ERROR */
         framelength = ETH_ERROR;
+        //return NULL;
+        return nullptr;
     }
     // DMARxDescToGet->Status |= ETH_DMARxDesc_OWN; //lwip low level input
-    rec_frame->length = framelength;
-    rec_frame->descriptor = DMARxDescToGet;
+    //rec_frame->length = framelength;
+    //rec_frame->descriptor = DMARxDescToGet;
+
+    rxBufLen = framelength;
 
     /* Update the ETHERNET DMA global Rx descriptor with next Rx decriptor */
     /* Chained Mode */
     /* Selects the next DMA Rx descriptor list for next buffer to read */
-    DMARxDescToGet = reinterpret_cast<ETH_DMADESCTypeDef*>(
-        DMARxDescToGet->Buffer2NextDescAddr);
+    //DMARxDescToGet = reinterpret_cast<ETH_DMADESCTypeDef*>(
+    //    DMARxDescToGet->Buffer2NextDescAddr);
 
-    return rec_frame;
+    //return rec_frame;
+    return rxBufPtr;
 }
 
 uint32_t Eth::ETH_TxPkt_ChainMode(u16 FrameLength) {

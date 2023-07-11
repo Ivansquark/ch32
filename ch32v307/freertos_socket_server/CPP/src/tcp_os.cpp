@@ -1,6 +1,6 @@
 #include "tcp_os.h"
 
-TcpOS::TcpOS(const char* recv_buf) : FR_OS(4096) {
+TcpOS::TcpOS(const char* recv_buf) : FR_OS(1024) {
     FR_OS::init_FR_OS();
     this->recv_buf = (char*)recv_buf;
 }
@@ -43,8 +43,8 @@ void TcpOS::runTask([[maybe_unused]] void* pvParameters) {
             //(TaskHandle_t*)&TaskHttp_Handler);
         } else {
             // con_sock == 0
-            // close(con_sock);
+            close(con_sock);
         }
-        vTaskDelay(1); // every ms
+        vTaskDelay(20); // every ms
     }
 }

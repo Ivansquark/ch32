@@ -35,6 +35,6 @@ void UdpOS::runTask([[maybe_unused]] void* pvParameters) {
             sendto(sock, recv_buf, n + 4, 0, (struct sockaddr*)&dest_addr,
                    size);
         }
-        vTaskDelay(1); // every ms
+        vTaskDelay(10); // every ms
     }
 }

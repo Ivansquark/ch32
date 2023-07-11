@@ -5,6 +5,7 @@
 #include "gpio.h"
 #include "lcdpar.h"
 #include "rcc.h"
+#include "ch32v30x_usbhs_device.h"
 
 #include "frwrapper.h"
 /* Global define */
@@ -24,6 +25,10 @@ Figure fig;
 // ---------------- OS classes ------------------------------------------------
 Buttons but;
 //-----------------------------------------------------------------------------
+extern uint8_t Tx_flag;
+extern uint8_t Rx_flag;
+extern uint16_t Rx_len;
+extern uint8_t Rx_buf[];
 
 void setRamSize(uint32_t size);
 void checkButtonsDisp();
@@ -43,7 +48,7 @@ int main(void) {
     // fig.drawRect(50, 100, 100, 130, Figure::RED);
     uint16_t j = 0;
     for (int i = 0; i < Figure::HALF_DISPLAY_MEMORY; i++) {
-        fig.buff[i] = Figure::BLACK;
+        //fig.buff[i] = Figure::BLACK;
     }
     fig.fillScreen(Figure::BLACK);
     checkButtonsDisp();
@@ -53,6 +58,20 @@ int main(void) {
     // fig.fillHalfScreenHigh(fig.buff);
     // fig.fillHalfScreenLow(fig.buff);
     // j += 1;
+    //
+    /* USB20 device init */
+    USBHS_RCC_Init( );
+    USBHS_Device_Init( ENABLE );
+
+    while(1) {
+        if(Rx_flag) {
+            if(Rx_buf[0] == 0x30) {
+                Tx_flag = 1;
+            }
+        }
+    }
+    //
+    //
     FR_OS::startOS();
     while (1) {}
 }
@@ -282,7 +301,7 @@ void checkButtonsDisp() {
             if (but.currentBut == Buttons::B14) {
                 if (!but.B14_once) {
                     but.B14_once = true;
-                    fig.drawRect(280, 320, 100, 140, Figure::BLUE);
+                    fig.drawRect(280, 320,100, 140, Figure::BLUE);
                 }
             } else {
                 if (but.B14_once) {
