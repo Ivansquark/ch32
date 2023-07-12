@@ -2,10 +2,10 @@
 
 #include "basic_timer.h"
 #include "buttons.h"
+#include "ch32v30x_usbhs_device.h"
 #include "gpio.h"
 #include "lcdpar.h"
 #include "rcc.h"
-#include "ch32v30x_usbhs_device.h"
 
 #include "frwrapper.h"
 /* Global define */
@@ -21,7 +21,7 @@ char* queue_buf;
 //------------- objects in static memory (.data section) ----------------------
 Rcc rcc(8);
 // LcdParIni parDisp;
-Figure fig;
+//Figure fig;
 // ---------------- OS classes ------------------------------------------------
 Buttons but;
 //-----------------------------------------------------------------------------
@@ -42,16 +42,19 @@ int main(void) {
     timer_ms.setVector(); // subscribe all classes to TIM3_IRQ
     BasicTimer6::Instance().start();
     __enable_irq();
+    /* USB20 device init */
+    USBHS_RCC_Init();
+    USBHS_Device_Init(ENABLE);
 
     // setRamSize(0x20000);
 
     // fig.drawRect(50, 100, 100, 130, Figure::RED);
     uint16_t j = 0;
     for (int i = 0; i < Figure::HALF_DISPLAY_MEMORY; i++) {
-        //fig.buff[i] = Figure::BLACK;
+        // fig.buff[i] = Figure::BLACK;
     }
-    fig.fillScreen(Figure::BLACK);
-    checkButtonsDisp();
+    //fig.fillScreen(Figure::BLACK);
+    //checkButtonsDisp();
     // for (int i = 0; i < Figure::HALF_DISPLAY_MEMORY; i++) {
     //     fig.buff[i] = Figure::BLACK + i + j;
     // }
@@ -59,15 +62,18 @@ int main(void) {
     // fig.fillHalfScreenLow(fig.buff);
     // j += 1;
     //
-    /* USB20 device init */
-    USBHS_RCC_Init( );
-    USBHS_Device_Init( ENABLE );
 
-    while(1) {
-        if(Rx_flag) {
-            if(Rx_buf[0] == 0x30) {
-                Tx_flag = 1;
-            }
+    while (1) {
+        if (Rx_flag) {
+            Rx_flag = 0;
+            if (Rx_buf[0] == 0x30) { Tx_flag = 1; }
+        }
+        if (Tx_flag) {
+            Tx_flag = 0;
+            uint8_t testBuf[] = {'o', 'p', 'a'};
+            USBHS_Endp_DataUp(DEF_UEP2, testBuf, sizeof(testBuf),
+                              DEF_UEP_CPY_LOAD);
+            Tx_flag = 0;
         }
     }
     //
@@ -129,7 +135,7 @@ void setRamSize(uint32_t size) {
     FLASH->CTLR &= ~FLASH_CTLR_OPTPG;
     // FLASH->CTLR |= FLASH_CTLR_LOCK;
 }
-
+/*
 void checkButtonsDisp() {
     while (1) {
         if (but.isAnyButtonPressed()) {
@@ -301,7 +307,7 @@ void checkButtonsDisp() {
             if (but.currentBut == Buttons::B14) {
                 if (!but.B14_once) {
                     but.B14_once = true;
-                    fig.drawRect(280, 320,100, 140, Figure::BLUE);
+                    fig.drawRect(280, 320, 100, 140, Figure::BLUE);
                 }
             } else {
                 if (but.B14_once) {
@@ -341,3 +347,5 @@ void checkButtonsDisp() {
         }
     }
 }
+
+*/

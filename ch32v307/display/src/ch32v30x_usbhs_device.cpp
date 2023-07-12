@@ -126,6 +126,12 @@ void USBHS_Device_Endp_Init(void) {
  */
 void USBHS_Device_Init(FunctionalState sta) {
     if (sta) {
+        //gpio init 
+        RCC->APB2PCENR |= RCC_IOPBEN;
+        GPIOB->CFGLR &= ~(GPIO_CFGLR_CNF6 | GPIO_CFGLR_CNF7);
+        GPIOB->CFGLR |= GPIO_CFGLR_CNF6_1 | GPIO_CFGLR_CNF7_1;
+        GPIOB->CFGLR |= GPIO_CFGLR_MODE6 | GPIO_CFGLR_MODE7;
+
         USBHSD->CONTROL = USBHS_UC_CLR_ALL | USBHS_UC_RESET_SIE;
         // Delay_Us(10);
         for (volatile int i = 0; i < 10 * 144; i++) {}
@@ -238,7 +244,6 @@ uint8_t USBHS_Endp_DataUp(uint8_t endp, uint8_t* pbuf, uint16_t len,
 void USBHS_IRQHandler(void) {
     uint8_t intflag, intst, errflag;
     uint16_t len, i;
-    uint32_t baudrate;
 
     intflag = USBHSD->INT_FG;
     intst = USBHSD->INT_ST;
@@ -291,11 +296,6 @@ void USBHS_IRQHandler(void) {
                 USBHS_Endp_Busy[DEF_UEP2] &= ~DEF_UEP_BUSY;
                 // TODO: cdc in data  (start dma transfer)
                 // Uart.USB_Up_IngFlag = 0x00;
-                Rx_flag = 1;
-                // TODO get len
-                Rx_len = USBHSD->RX_LEN;
-                //memcpy(USBHS_EP0_Buf, pUSBHS_Descr, len);
-                memcpy(Rx_buf, (const void*)USBHSD->UEP2_RX_DMA, len);
                 break;
 
             /* end-point 3 data in interrupt */
@@ -392,18 +392,15 @@ void USBHS_IRQHandler(void) {
                 USBHSD->UEP2_RX_CTRL ^= USBHS_UEP_R_TOG_DATA1;
                 // TODO out data if(Tx_flag)...
                 /* Record related information & Switch DMA Address*/
-                // Uart.Tx_PackLen[Uart.Tx_LoadNum] = USBHSD->RX_LEN;
-                // Uart.Tx_LoadNum++;
+                // TODO get len
+                Rx_len = USBHSD->RX_LEN;
+                memcpy(Rx_buf, (const void*)USBHSD->UEP2_RX_DMA, Rx_len);
+                Rx_flag = 1;
                 // set tx buffer to dma
                 // USBHSD->UEP2_RX_DMA = (uint32_t)(uint8_t*)&Tx_Buf;
                 // USBHS_Endp_DataUp(DEF_UEP2, &Tx_Buf, packlen,
                 // DEF_UEP_DMA_LOAD);
-                if (Tx_flag) {
-                    uint8_t testBuf[] = {'o', 'p', 'a'};
-                    USBHS_Endp_DataUp(DEF_UEP2, testBuf, sizeof(testBuf),
-                                      DEF_UEP_CPY_LOAD);
-                    Tx_flag = 0;
-                }
+                
                 // USBHSD->UEP2_RX_DMA = (uint32_t)(uint8_t*)&UART1_Tx_Buf[(
                 //    Uart.Tx_LoadNum * DEF_USB_HS_PACK_LEN)];
 
