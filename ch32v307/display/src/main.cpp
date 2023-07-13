@@ -6,6 +6,7 @@
 #include "gpio.h"
 #include "lcdpar.h"
 #include "rcc.h"
+#include "uart.h"
 
 #include "frwrapper.h"
 /* Global define */
@@ -20,6 +21,7 @@ xQueueHandle queue1;
 char* queue_buf;
 //------------- objects in static memory (.data section) ----------------------
 Rcc rcc(8);
+Uart5 uart5;
 // LcdParIni parDisp;
 //Figure fig;
 // ---------------- OS classes ------------------------------------------------
@@ -62,8 +64,15 @@ int main(void) {
     // fig.fillHalfScreenLow(fig.buff);
     // j += 1;
     //
-
+    uint32_t counter = 0;
     while (1) {
+        if(counter >= 500000) {
+            counter = 0;
+            uart5.sendStr("jopa\r\n");
+        } else {
+            counter ++;
+        }
+
         if (Rx_flag) {
             Rx_flag = 0;
             if (Rx_buf[0] == 0x30) { Tx_flag = 1; }

@@ -64,7 +64,7 @@ $(BLD)main.elf: $(BLD)ch32v30x_misc.o $(BLD)ch32v30x_sdio.o $(BLD)ch32v30x_dma.o
 $(BLD)main.elf: $(BLD)rcc.o $(BLD)gpio.o
 $(BLD)main.elf: $(BLD)ch32v30x_usbhs_device.o $(BLD)usb_desc.o
 $(BLD)main.elf: $(BLD)basic_timer.o $(BLD)lcdpar.o
-$(BLD)main.elf: $(BLD)irq.o $(BLD)buttons.o
+$(BLD)main.elf: $(BLD)irq.o $(BLD)buttons.o $(BLD)uart.o
 $(BLD)main.elf: $(BLD)main.o
 #------------------------------------------------------------------------------
 $(BLD)main.elf: $(BLD)frwrapper.o

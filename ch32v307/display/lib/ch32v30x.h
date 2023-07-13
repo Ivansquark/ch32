@@ -4047,6 +4047,8 @@ typedef struct
 #define AFIO_PCFR1_SWJ_CFG_JTAGDISABLE         ((uint32_t)0x02000000)        /* JTAG-DP Disabled and SW-DP Enabled */
 #define AFIO_PCFR1_SWJ_CFG_DISABLE             ((uint32_t)0x04000000)        /* JTAG-DP Disabled and SW-DP Disabled */
 
+#define AFIO_PCFR2_UART5_REMAP_01              ((uint32_t)0x00040000)        /* USART5_REMAP[1:0] bits 18-19 (UART5 remapping) */
+#define AFIO_PCFR2_UART5_REMAP_10              ((uint32_t)0x00080000)        /* USART5_REMAP[1:0] bits 18-19 (UART5 remapping) */
 /*****************  Bit definition for AFIO_EXTICR1 register  *****************/
 #define AFIO_EXTICR1_EXTI0                     ((uint16_t)0x000F)            /* EXTI 0 configuration */
 #define AFIO_EXTICR1_EXTI1                     ((uint16_t)0x00F0)            /* EXTI 1 configuration */
@@ -4583,6 +4585,9 @@ typedef struct
 #define  RCC_TIM7EN                      ((uint32_t)0x00000020)        /* Timer 3 clock enable */
 #define  RCC_WWDGEN                      ((uint32_t)0x00000800)        /* Window Watchdog clock enable */
 #define  RCC_USART2EN                    ((uint32_t)0x00020000)        /* USART 2 clock enable */
+#define  RCC_USART3EN                    ((uint32_t)0x00040000)        /* USART 2 clock enable */
+#define  RCC_UART4EN                    ((uint32_t)0x00080000)        /* UART 4 clock enable */
+#define  RCC_UART5EN                    ((uint32_t)0x00100000)        /* UART 5 clock enable */
 #define  RCC_I2C1EN                      ((uint32_t)0x00200000)        /* I2C 1 clock enable */
 #define  RCC_I2C2EN                      ((uint32_t)0x00400000)        /* I2C 2 clock enable */
 
