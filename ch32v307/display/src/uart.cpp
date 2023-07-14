@@ -6,6 +6,123 @@ Uart5::Uart5() {
     init();
     pThis = this;
 }
+
+void Uart5::runTask([[maybe_unused]] void* pvParameter) {
+    uint16_t adcBat = (Uart1::pThis->rxBuf[0] << 8) + Uart1::pThis->rxBuf[1];
+    uint16_t adc5V = (Uart1::pThis->rxBuf[2] << 8) + Uart1::pThis->rxBuf[3];
+    float adcBat_f = (float)adcBat * 5 / 4096;
+    float adc5V_f = (float)adc5V * 5 * 2 / 4096;
+    uint8_t adcBat_arr[5] = {0};
+    uint8_t adc5V_arr[5] = {0};
+    sprintf((char*)adcBat_arr, "%.2f", adcBat_f);
+    sprintf((char*)adc5V_arr, "%.2f", adc5V_f);
+    TxBuff[0] = 'B';
+    TxBuff[1] = '+';
+    TxBuff[2] = '=';
+    TxBuff[3] = adcBat_arr[0];
+    TxBuff[4] = adcBat_arr[1];
+    TxBuff[5] = adcBat_arr[2];
+    TxBuff[6] = adcBat_arr[3];
+    TxBuff[7] = '\t';
+
+    TxBuff[8] = '+';
+    TxBuff[9] = '5';
+    TxBuff[10] = '=';
+    TxBuff[11] = adc5V_arr[0];
+    TxBuff[12] = adc5V_arr[1];
+    TxBuff[13] = adc5V_arr[2];
+    TxBuff[14] = adc5V_arr[3];
+    TxBuff[15] = '\t';
+    uint16_t adcI = (Uart3::pThis->rxBuf[0] << 8) + Uart3::pThis->rxBuf[1];
+    uint16_t adcBuck = (Uart3::pThis->rxBuf[2] << 8) + Uart3::pThis->rxBuf[3];
+    uint16_t adcBoost = (Uart3::pThis->rxBuf[4] << 8) + Uart3::pThis->rxBuf[5];
+    float adcI_f = (float)adcI * 5 / 4096;
+    float adcBuck_f = (float)adcBuck * 2 / 4096;
+    float adcBoost_f = (float)adcBoost * 5 / 4096;
+    uint8_t adcI_arr[5] = {0};
+    uint8_t adcBuck_arr[5] = {0};
+    uint8_t adcBoost_arr[5] = {0};
+    sprintf((char*)adcI_arr, "%.2f", adcI_f);
+    sprintf((char*)adcBuck_arr, "%.2f", adcBuck_f);
+    sprintf((char*)adcBoost_arr, "%.2f", adcBoost_f);
+
+    TxBuff[16] = 'I';
+    TxBuff[17] = '=';
+    TxBuff[18] = adcI_arr[0];
+    TxBuff[19] = adcI_arr[1];
+    TxBuff[20] = adcI_arr[2];
+    TxBuff[21] = adcI_arr[3];
+    TxBuff[22] = '\t';
+
+    TxBuff[23] = 'B';
+    TxBuff[24] = 'U';
+    TxBuff[25] = '=';
+    TxBuff[26] = adcBuck_arr[0];
+    TxBuff[27] = adcBuck_arr[1];
+    TxBuff[28] = adcBuck_arr[2];
+    TxBuff[29] = adcBuck_arr[3];
+    TxBuff[30] = '\t';
+
+    TxBuff[31] = 'B';
+    TxBuff[32] = 'O';
+    TxBuff[33] = '=';
+    TxBuff[34] = adcBoost_arr[0];
+    TxBuff[35] = adcBoost_arr[1];
+    TxBuff[36] = adcBoost_arr[2];
+    TxBuff[37] = adcBoost_arr[3];
+    TxBuff[38] = '\r';
+    TxBuff[39] = '\n';
+
+    while (1) {
+        adcBat = (Uart1::pThis->rxBuf[0] << 8) + Uart1::pThis->rxBuf[1];
+        adc5V = (Uart1::pThis->rxBuf[2] << 8) + Uart1::pThis->rxBuf[3];
+        adcBat_f = (float)adcBat * 5 / 4096;
+        adc5V_f = (float)adc5V * 5 * 2 / 4096;
+        sprintf((char*)adcBat_arr, "%.2f", adcBat_f);
+        sprintf((char*)adc5V_arr, "%.2f", adc5V_f);
+        TxBuff[3] = adcBat_arr[0];
+        TxBuff[4] = adcBat_arr[1];
+        TxBuff[5] = adcBat_arr[2];
+        TxBuff[6] = adcBat_arr[3];
+
+        TxBuff[11] = adc5V_arr[0];
+        TxBuff[12] = adc5V_arr[1];
+        TxBuff[13] = adc5V_arr[2];
+        TxBuff[14] = adc5V_arr[3];
+
+        adcI = (Uart3::pThis->rxBuf[0] << 8) + Uart3::pThis->rxBuf[1];
+        adcBuck = (Uart3::pThis->rxBuf[2] << 8) + Uart3::pThis->rxBuf[3];
+        adcBoost = (Uart3::pThis->rxBuf[4] << 8) + Uart3::pThis->rxBuf[5];
+        adcI_f = (float)adcI * 5 / 4096;
+        adcBuck_f = (float)adcBuck * 2 / 4096;
+        adcBoost_f = (float)adcBoost * 5 / 4096;
+
+        TxBuff[18] = adcI_arr[0];
+        TxBuff[19] = adcI_arr[1];
+        TxBuff[20] = adcI_arr[2];
+        TxBuff[21] = adcI_arr[3];
+
+        TxBuff[26] = adcBuck_arr[0];
+        TxBuff[27] = adcBuck_arr[1];
+        TxBuff[28] = adcBuck_arr[2];
+        TxBuff[29] = adcBuck_arr[3];
+
+        TxBuff[34] = adcBoost_arr[0];
+        TxBuff[35] = adcBoost_arr[1];
+        TxBuff[36] = adcBoost_arr[2];
+        TxBuff[37] = adcBoost_arr[3];
+
+        sendBuf(TxBuff, 40);
+
+        Uart1::pThis->rxCounter = 0;
+        Uart3::pThis->rxCounter = 0;
+
+        Uart1::pThis->sendByte('>');
+        Uart3::pThis->sendByte('>');
+        vTaskDelay(100);
+    }
+}
+
 void Uart5::sendByte(uint8_t byte) {
     uint32_t timeout = 0xFFFF;
     while ((!(UART5->STATR & USART_STATR_TXE)) && timeout--) {}
@@ -30,7 +147,7 @@ void Uart5::init() {
     GPIOB->CFGLR &= ~GPIO_CFGLR_CNF5_1;
     GPIOB->CFGLR |= GPIO_CFGLR_CNF5_0;
     GPIOB->CFGLR &= ~GPIO_CFGLR_MODE5;
-    
+
     RCC->APB2PCENR |= RCC_AFIOEN;
     // 0:1 remap uart5 on b4,b5
     AFIO->PCFR2 |= AFIO_PCFR2_UART5_REMAP_01;
@@ -43,7 +160,7 @@ void Uart5::init() {
     // 9600 = 72000000/(16*USARTDIV) =>
     // USARTDIV = 72000000/(16*9600) = 468,75
     // USARTDIV = DIV_M+(DIV_F/16) = 468 + (16*0.75) = 468_M + 12_F
-    //UART5->BRR |= (468 << 4) | (12); // 9600
+    // UART5->BRR |= (468 << 4) | (12); // 9600
     // 144 MHz 9600 KB/s
     // 9600 = 144000000/(16*USARTDIV) =>
     // USARTDIV = 144000000/(16*9600) = 937,5
@@ -53,9 +170,7 @@ void Uart5::init() {
 }
 
 extern "C" __attribute__((interrupt)) void UART5_IRQHandler(void) {
-    if (UART5->STATR & USART_STATR_RXNE) {
-        UART5->STATR &= ~USART_STATR_RXNE;
-    }
+    if (UART5->STATR & USART_STATR_RXNE) { UART5->STATR &= ~USART_STATR_RXNE; }
 }
 
 Uart1* Uart1::pThis = nullptr;
@@ -97,7 +212,7 @@ void Uart1::init() {
     // 9600 = 72000000/(16*USARTDIV) =>
     // USARTDIV = 72000000/(16*9600) = 468,75
     // USARTDIV = DIV_M+(DIV_F/16) = 468 + (16*0.75) = 468_M + 12_F
-    //UART5->BRR |= (468 << 4) | (12); // 9600
+    // UART5->BRR |= (468 << 4) | (12); // 9600
     // 144 MHz 9600 KB/s
     // 9600 = 144000000/(16*USARTDIV) =>
     // USARTDIV = 144000000/(16*9600) = 937,5
@@ -151,7 +266,7 @@ void Uart3::init() {
     // 9600 = 72000000/(16*USARTDIV) =>
     // USARTDIV = 72000000/(16*9600) = 468,75
     // USARTDIV = DIV_M+(DIV_F/16) = 468 + (16*0.75) = 468_M + 12_F
-    //UART5->BRR |= (468 << 4) | (12); // 9600
+    // UART5->BRR |= (468 << 4) | (12); // 9600
     // 144 MHz 9600 KB/s
     // 9600 = 144000000/(16*USARTDIV) =>
     // USARTDIV = 144000000/(16*9600) = 937,5
