@@ -8,10 +8,10 @@ Uart5::Uart5() {
 }
 
 void Uart5::runTask([[maybe_unused]] void* pvParameter) {
-    uint16_t adcBat = (Uart1::pThis->rxBuf[0] << 8) + Uart1::pThis->rxBuf[1];
-    uint16_t adc5V = (Uart1::pThis->rxBuf[2] << 8) + Uart1::pThis->rxBuf[3];
-    float adcBat_f = (float)adcBat * 5 / 4096;
-    float adc5V_f = (float)adc5V * 5 * 2 / 4096;
+    uint16_t adcBat = (Uart1::pThis->rxBuf[0] << 2);
+    uint16_t adc5V = (Uart1::pThis->rxBuf[1] << 2);
+    float adcBat_f = (float)adcBat * 5 / 1024;
+    float adc5V_f = (float)adc5V * 5 * 2 / 1024;
     uint8_t adcBat_arr[5] = {0};
     uint8_t adc5V_arr[5] = {0};
     sprintf((char*)adcBat_arr, "%.2f", adcBat_f);
@@ -33,12 +33,12 @@ void Uart5::runTask([[maybe_unused]] void* pvParameter) {
     TxBuff[13] = adc5V_arr[2];
     TxBuff[14] = adc5V_arr[3];
     TxBuff[15] = '\t';
-    uint16_t adcI = (Uart3::pThis->rxBuf[0] << 8) + Uart3::pThis->rxBuf[1];
-    uint16_t adcBuck = (Uart3::pThis->rxBuf[2] << 8) + Uart3::pThis->rxBuf[3];
-    uint16_t adcBoost = (Uart3::pThis->rxBuf[4] << 8) + Uart3::pThis->rxBuf[5];
-    float adcI_f = (float)adcI * 5 / 4096;
-    float adcBuck_f = (float)adcBuck * 2 / 4096;
-    float adcBoost_f = (float)adcBoost * 5 / 4096;
+    uint16_t adcI = (Uart3::pThis->rxBuf[0] << 2);
+    uint16_t adcBuck = (Uart3::pThis->rxBuf[1] << 2);
+    uint16_t adcBoost = (Uart3::pThis->rxBuf[2] << 2);
+    float adcI_f = (float)adcI * 5 / 1024;
+    float adcBuck_f = (float)adcBuck * 2 / 1024;
+    float adcBoost_f = (float)adcBoost * 5 / 1024;
     uint8_t adcI_arr[5] = {0};
     uint8_t adcBuck_arr[5] = {0};
     uint8_t adcBoost_arr[5] = {0};
@@ -74,10 +74,10 @@ void Uart5::runTask([[maybe_unused]] void* pvParameter) {
     TxBuff[39] = '\n';
 
     while (1) {
-        adcBat = (Uart1::pThis->rxBuf[0] << 8) + Uart1::pThis->rxBuf[1];
-        adc5V = (Uart1::pThis->rxBuf[2] << 8) + Uart1::pThis->rxBuf[3];
-        adcBat_f = (float)adcBat * 5 / 4096;
-        adc5V_f = (float)adc5V * 5 * 2 / 4096;
+        adcBat = (Uart1::pThis->rxBuf[0] << 2);
+        adc5V = (Uart1::pThis->rxBuf[1] << 2);
+        adcBat_f = (float)adcBat * 5 / 1024;
+        adc5V_f = (float)adc5V * 5 * 2 / 1024;
         sprintf((char*)adcBat_arr, "%.2f", adcBat_f);
         sprintf((char*)adc5V_arr, "%.2f", adc5V_f);
         TxBuff[3] = adcBat_arr[0];
@@ -90,12 +90,12 @@ void Uart5::runTask([[maybe_unused]] void* pvParameter) {
         TxBuff[13] = adc5V_arr[2];
         TxBuff[14] = adc5V_arr[3];
 
-        adcI = (Uart3::pThis->rxBuf[0] << 8) + Uart3::pThis->rxBuf[1];
-        adcBuck = (Uart3::pThis->rxBuf[2] << 8) + Uart3::pThis->rxBuf[3];
-        adcBoost = (Uart3::pThis->rxBuf[4] << 8) + Uart3::pThis->rxBuf[5];
-        adcI_f = (float)adcI * 5 / 4096;
-        adcBuck_f = (float)adcBuck * 2 / 4096;
-        adcBoost_f = (float)adcBoost * 5 / 4096;
+        adcI = (Uart3::pThis->rxBuf[0] << 2);
+        adcBuck = (Uart3::pThis->rxBuf[1] << 2);
+        adcBoost = (Uart3::pThis->rxBuf[2] << 2);
+        adcI_f = (float)adcI * 5 / 1024;
+        adcBuck_f = (float)adcBuck * 2 / 1024;
+        adcBoost_f = (float)adcBoost * 5 / 1024;
 
         TxBuff[18] = adcI_arr[0];
         TxBuff[19] = adcI_arr[1];
@@ -119,7 +119,7 @@ void Uart5::runTask([[maybe_unused]] void* pvParameter) {
 
         Uart1::pThis->sendByte('>');
         Uart3::pThis->sendByte('>');
-        vTaskDelay(100);
+        vTaskDelay(200);
     }
 }
 

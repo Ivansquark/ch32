@@ -64,7 +64,8 @@ int main(void) {
     // fig.fillHalfScreenLow(fig.buff);
     // j += 1;
     //
-    uint32_t counter = 0;
+    //uint32_t counter = 0;
+    /*
     while (1) {
         if(counter >= 500000) {
             counter = 0;
@@ -85,6 +86,7 @@ int main(void) {
             Tx_flag = 0;
         }
     }
+    */
     //
     //
     FR_OS::startOS();
