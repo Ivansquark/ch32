@@ -5,9 +5,10 @@ Uart5* Uart5::pThis = nullptr;
 Uart5::Uart5() {
     init();
     pThis = this;
+    init_FR_OS();
 }
 
-void Uart5::runTask([[maybe_unused]] void* pvParameter) {
+void Uart5::runTask([[maybe_unused]] void* pvParameters) {
     uint16_t adcBat = (Uart1::pThis->rxBuf[0] << 2);
     uint16_t adc5V = (Uart1::pThis->rxBuf[1] << 2);
     float adcBat_f = (float)adcBat * 5 / 1024;
@@ -16,6 +17,8 @@ void Uart5::runTask([[maybe_unused]] void* pvParameter) {
     uint8_t adc5V_arr[5] = {0};
     sprintf((char*)adcBat_arr, "%.2f", adcBat_f);
     sprintf((char*)adc5V_arr, "%.2f", adc5V_f);
+    //snprintf((char*)adcBat_arr, 4, "%f", adcBat_f);
+    //snprintf((char*)adc5V_arr, 4, "%f", adc5V_f);
     TxBuff[0] = 'B';
     TxBuff[1] = '+';
     TxBuff[2] = '=';
@@ -24,15 +27,17 @@ void Uart5::runTask([[maybe_unused]] void* pvParameter) {
     TxBuff[5] = adcBat_arr[2];
     TxBuff[6] = adcBat_arr[3];
     TxBuff[7] = '\t';
+    TxBuff[8] = '\t';
 
-    TxBuff[8] = '+';
-    TxBuff[9] = '5';
-    TxBuff[10] = '=';
-    TxBuff[11] = adc5V_arr[0];
-    TxBuff[12] = adc5V_arr[1];
-    TxBuff[13] = adc5V_arr[2];
-    TxBuff[14] = adc5V_arr[3];
-    TxBuff[15] = '\t';
+    TxBuff[9] = '+';
+    TxBuff[10] = '5';
+    TxBuff[11] = '=';
+    TxBuff[12] = adc5V_arr[0];
+    TxBuff[13] = adc5V_arr[1];
+    TxBuff[14] = adc5V_arr[2];
+    TxBuff[15] = adc5V_arr[3];
+    TxBuff[16] = '\t';
+    TxBuff[17] = '\t';
     uint16_t adcI = (Uart3::pThis->rxBuf[0] << 2);
     uint16_t adcBuck = (Uart3::pThis->rxBuf[1] << 2);
     uint16_t adcBoost = (Uart3::pThis->rxBuf[2] << 2);
@@ -46,32 +51,37 @@ void Uart5::runTask([[maybe_unused]] void* pvParameter) {
     sprintf((char*)adcBuck_arr, "%.2f", adcBuck_f);
     sprintf((char*)adcBoost_arr, "%.2f", adcBoost_f);
 
-    TxBuff[16] = 'I';
-    TxBuff[17] = '=';
-    TxBuff[18] = adcI_arr[0];
-    TxBuff[19] = adcI_arr[1];
-    TxBuff[20] = adcI_arr[2];
-    TxBuff[21] = adcI_arr[3];
-    TxBuff[22] = '\t';
+    TxBuff[18] = 'I';
+    TxBuff[19] = '=';
+    TxBuff[20] = adcI_arr[0];
+    TxBuff[21] = adcI_arr[1];
+    TxBuff[22] = adcI_arr[2];
+    TxBuff[23] = adcI_arr[3];
+    TxBuff[24] = '\t';
+    TxBuff[25] = '\t';
 
-    TxBuff[23] = 'B';
-    TxBuff[24] = 'U';
-    TxBuff[25] = '=';
-    TxBuff[26] = adcBuck_arr[0];
-    TxBuff[27] = adcBuck_arr[1];
-    TxBuff[28] = adcBuck_arr[2];
-    TxBuff[29] = adcBuck_arr[3];
-    TxBuff[30] = '\t';
+    TxBuff[26] = 'B';
+    TxBuff[27] = 'U';
+    TxBuff[28] = '=';
+    TxBuff[29] = adcBuck_arr[0];
+    TxBuff[30] = adcBuck_arr[1];
+    TxBuff[31] = adcBuck_arr[2];
+    TxBuff[32] = adcBuck_arr[3];
+    TxBuff[33] = '\t';
+    TxBuff[34] = '\t';
 
-    TxBuff[31] = 'B';
-    TxBuff[32] = 'O';
-    TxBuff[33] = '=';
-    TxBuff[34] = adcBoost_arr[0];
-    TxBuff[35] = adcBoost_arr[1];
-    TxBuff[36] = adcBoost_arr[2];
-    TxBuff[37] = adcBoost_arr[3];
-    TxBuff[38] = '\r';
-    TxBuff[39] = '\n';
+    TxBuff[35] = 'B';
+    TxBuff[36] = 'O';
+    TxBuff[37] = '=';
+    TxBuff[38] = adcBoost_arr[0];
+    TxBuff[39] = adcBoost_arr[1];
+    TxBuff[40] = adcBoost_arr[2];
+    TxBuff[41] = adcBoost_arr[3];
+    TxBuff[42] = '\r';
+    TxBuff[43] = '\n';
+
+    Uart1::pThis->sendByte('>');
+    Uart3::pThis->sendByte('>');
 
     while (1) {
         adcBat = (Uart1::pThis->rxBuf[0] << 2);
@@ -80,15 +90,17 @@ void Uart5::runTask([[maybe_unused]] void* pvParameter) {
         adc5V_f = (float)adc5V * 5 * 2 / 1024;
         sprintf((char*)adcBat_arr, "%.2f", adcBat_f);
         sprintf((char*)adc5V_arr, "%.2f", adc5V_f);
+        //snprintf((char*)adcBat_arr, 4, "%f", adcBat_f);
+        //snprintf((char*)adc5V_arr, 4, "%f", adc5V_f);
         TxBuff[3] = adcBat_arr[0];
         TxBuff[4] = adcBat_arr[1];
         TxBuff[5] = adcBat_arr[2];
         TxBuff[6] = adcBat_arr[3];
 
-        TxBuff[11] = adc5V_arr[0];
-        TxBuff[12] = adc5V_arr[1];
-        TxBuff[13] = adc5V_arr[2];
-        TxBuff[14] = adc5V_arr[3];
+        TxBuff[12] = adc5V_arr[0];
+        TxBuff[13] = adc5V_arr[1];
+        TxBuff[14] = adc5V_arr[2];
+        TxBuff[15] = adc5V_arr[3];
 
         adcI = (Uart3::pThis->rxBuf[0] << 2);
         adcBuck = (Uart3::pThis->rxBuf[1] << 2);
@@ -97,22 +109,22 @@ void Uart5::runTask([[maybe_unused]] void* pvParameter) {
         adcBuck_f = (float)adcBuck * 2 / 1024;
         adcBoost_f = (float)adcBoost * 5 / 1024;
 
-        TxBuff[18] = adcI_arr[0];
-        TxBuff[19] = adcI_arr[1];
-        TxBuff[20] = adcI_arr[2];
-        TxBuff[21] = adcI_arr[3];
+        TxBuff[20] = adcI_arr[0];
+        TxBuff[21] = adcI_arr[1];
+        TxBuff[22] = adcI_arr[2];
+        TxBuff[23] = adcI_arr[3];
 
-        TxBuff[26] = adcBuck_arr[0];
-        TxBuff[27] = adcBuck_arr[1];
-        TxBuff[28] = adcBuck_arr[2];
-        TxBuff[29] = adcBuck_arr[3];
+        TxBuff[29] = adcBuck_arr[0];
+        TxBuff[30] = adcBuck_arr[1];
+        TxBuff[31] = adcBuck_arr[2];
+        TxBuff[32] = adcBuck_arr[3];
 
-        TxBuff[34] = adcBoost_arr[0];
-        TxBuff[35] = adcBoost_arr[1];
-        TxBuff[36] = adcBoost_arr[2];
-        TxBuff[37] = adcBoost_arr[3];
+        TxBuff[38] = adcBoost_arr[0];
+        TxBuff[39] = adcBoost_arr[1];
+        TxBuff[40] = adcBoost_arr[2];
+        TxBuff[41] = adcBoost_arr[3];
 
-        sendBuf(TxBuff, 40);
+        sendBuf(TxBuff, 44);
 
         Uart1::pThis->rxCounter = 0;
         Uart3::pThis->rxCounter = 0;
@@ -137,16 +149,21 @@ void Uart5::sendBuf(uint8_t* data, uint8_t len) {
     for (int i = 0; i < len; i++) { sendByte(data[i]); }
 }
 void Uart5::init() {
-    //! _______USART 3 init  pin D8-Tx D9-Rx AF7 remap 1:1  ___________________
+    //! _______UART 5 init  pin B4-Tx B5-Rx AF7 remap 0:1  ___________________
     RCC->APB2PCENR |= RCC_IOPBEN;
     // Tx AF-push/pull
     GPIOB->CFGLR &= ~GPIO_CFGLR_CNF4_0;
     GPIOB->CFGLR |= GPIO_CFGLR_CNF4_1;
     GPIOB->CFGLR |= GPIO_CFGLR_MODE4;
     // Rx in_floating
-    GPIOB->CFGLR &= ~GPIO_CFGLR_CNF5_1;
-    GPIOB->CFGLR |= GPIO_CFGLR_CNF5_0;
+    // GPIOB->CFGLR &= ~GPIO_CFGLR_CNF5_1;
+    // GPIOB->CFGLR |= GPIO_CFGLR_CNF5_0;
+    // GPIOB->CFGLR &= ~GPIO_CFGLR_MODE5;
+    // Rx in_floating
+    GPIOB->CFGLR &= ~GPIO_CFGLR_CNF5_0;
+    GPIOB->CFGLR |= GPIO_CFGLR_CNF5_1;
     GPIOB->CFGLR &= ~GPIO_CFGLR_MODE5;
+    GPIOB->OUTDR &= ~GPIO_OUTDR_ODR5;
 
     RCC->APB2PCENR |= RCC_AFIOEN;
     // 0:1 remap uart5 on b4,b5
@@ -200,12 +217,17 @@ void Uart1::init() {
     GPIOA->CFGHR |= GPIO_CFGHR_CNF9_1;
     GPIOA->CFGHR |= GPIO_CFGHR_MODE9;
     // Rx in_floating
-    GPIOB->CFGHR &= ~GPIO_CFGHR_CNF10_1;
-    GPIOB->CFGHR |= GPIO_CFGHR_CNF10_0;
-    GPIOB->CFGHR &= ~GPIO_CFGHR_MODE10;
+    // GPIOA->CFGHR &= ~GPIO_CFGHR_CNF10_1;
+    // GPIOA->CFGHR |= GPIO_CFGHR_CNF10_0;
+    // GPIOA->CFGHR &= ~GPIO_CFGHR_MODE10;
+    // Rx in_pull_up
+    GPIOA->CFGHR &= ~GPIO_CFGHR_CNF10_0;
+    GPIOA->CFGHR |= GPIO_CFGHR_CNF10_1;
+    GPIOA->CFGHR &= ~GPIO_CFGHR_MODE10;
+    GPIOA->OUTDR |= GPIO_OUTDR_ODR10;
 
     //------------------------- USART -------------------------------------
-    RCC->APB1PCENR |= RCC_USART1EN;
+    RCC->APB2PCENR |= RCC_USART1EN;
     USART1->CTLR1 |=
         USART_CTLR1_TE | USART_CTLR1_RE | USART_CTLR1_RXNEIE | USART_CTLR1_UE;
     // 72 MHz 9600 KB/s
@@ -224,7 +246,7 @@ void Uart1::init() {
 extern "C" __attribute__((interrupt)) void USART1_IRQHandler(void) {
     if (USART1->STATR & USART_STATR_RXNE) {
         USART1->STATR &= ~USART_STATR_RXNE;
-        Uart1::pThis->rxBuf[Uart1::pThis->rxCounter] = USART1->DATAR;
+        Uart1::pThis->rxBuf[Uart1::pThis->rxCounter++] = USART1->DATAR;
     }
 }
 //-----------------------------------------------------------------------------
@@ -257,9 +279,14 @@ void Uart3::init() {
     GPIOB->CFGHR &= ~GPIO_CFGHR_CNF11_1;
     GPIOB->CFGHR |= GPIO_CFGHR_CNF11_0;
     GPIOB->CFGHR &= ~GPIO_CFGHR_MODE11;
+    // Rx in_pull_up
+    GPIOB->CFGHR &= ~GPIO_CFGHR_CNF11_1;
+    GPIOB->CFGHR |= GPIO_CFGHR_CNF11_0;
+    GPIOB->CFGHR &= ~GPIO_CFGHR_MODE11;
+    GPIOB->OUTDR |= GPIO_OUTDR_ODR11;
 
     //------------------- USART -------------------------------------
-    RCC->APB1PCENR |= RCC_UART5EN;
+    RCC->APB1PCENR |= RCC_USART3EN;
     USART3->CTLR1 |=
         USART_CTLR1_TE | USART_CTLR1_RE | USART_CTLR1_RXNEIE | USART_CTLR1_UE;
     // 72 MHz 9600 KB/s
@@ -278,6 +305,6 @@ void Uart3::init() {
 extern "C" __attribute__((interrupt)) void USART3_IRQHandler(void) {
     if (USART3->STATR & USART_STATR_RXNE) {
         USART3->STATR &= ~USART_STATR_RXNE;
-        Uart3::pThis->rxBuf[Uart3::pThis->rxCounter] = USART3->DATAR;
+        Uart3::pThis->rxBuf[Uart3::pThis->rxCounter++] = USART3->DATAR;
     }
 }

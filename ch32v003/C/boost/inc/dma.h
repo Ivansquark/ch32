@@ -4,7 +4,8 @@
 #include "main.h"
 #include <string.h>
 
-#define DMA_CH1_BUF_SIZE 32
+// one conversion is 239 us => buffer will fill with 239 * DMA_CH1_BUF_SIZE us
+#define DMA_CH1_BUF_SIZE 128 // 30 ms
 
 extern volatile uint16_t dma_ch1_buff[DMA_CH1_BUF_SIZE];
 void dma_ch1_adc1_init();

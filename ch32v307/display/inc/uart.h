@@ -12,7 +12,7 @@ class Uart5 : public FR_OS {
     void sendByte(uint8_t byte);
     void sendStr(const char* str);
     void sendBuf(uint8_t* data, uint8_t len);
-    void runTask(void* pvParameter) override;
+    void runTask(void* pvParameters) override;
   private:
     void init();
     uint8_t TxBuff[256] = {0};

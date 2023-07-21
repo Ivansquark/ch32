@@ -8,11 +8,16 @@ void uart_init()
     GPIOC->CFGLR &= ~GPIO_CFGLR_CNF0_0;
     GPIOC->CFGLR |= GPIO_CFGLR_CNF0_1;
     GPIOC->CFGLR |= GPIO_CFGLR_MODE0;
-    // Rx in_floating
-    GPIOC->CFGLR &= ~GPIO_CFGLR_CNF1_1;
-    GPIOC->CFGLR |= GPIO_CFGLR_CNF1_0;
+    // Rx in_pull_up
+    GPIOC->CFGLR &= ~GPIO_CFGLR_CNF1_0;
+    GPIOC->CFGLR |= GPIO_CFGLR_CNF1_1;
     GPIOC->CFGLR &= ~GPIO_CFGLR_MODE1;
-    // remap not need
+    GPIOC->OUTDR |= GPIO_OUTDR_ODR1;
+
+    RCC->APB2PCENR |= RCC_AFIOEN;
+    // 0:1 remap uart5 on b4,b5
+    AFIO->PCFR1 |= AFIO_PCFR1_USART1_REMAP;
+    AFIO->PCFR1 |= (1 << 21) | (1 << 2);
 
     RCC->APB2PCENR |= RCC_USART1EN;
     USART1->CTLR1 |=
@@ -30,8 +35,8 @@ void uart_sendbyte(uint8_t byte)
     // USART1->DATAR = (byte & (uint16_t)0x01FF);
     uint16_t timeout = 0xffff;
     USART1->DATAR = byte;
-    while (!(USART1->STATR & USART_STATR_TC) && timeout--){}
-    //USART1->STATR &= ~USART_STATR_TC;
+    while (!(USART1->STATR & USART_STATR_TC) && timeout--) {}
+    // USART1->STATR &= ~USART_STATR_TC;
 }
 
 uint8_t uartByte = 0;

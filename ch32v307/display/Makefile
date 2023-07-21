@@ -39,10 +39,12 @@ CPPFLAGS = -c -std=c++17 -Wall -Wextra -g3 -O$(OPTIMIZATION) \
 		-fno-pic -fno-common -D"assert_param(x)=" \
 		-fno-exceptions -fno-rtti \
 		-Wno-pointer-arith \
+		-u_printf_float \
 		-ffast-math -fno-math-errno -ffunction-sections -fdata-sections
 LFLAGS = -nostartfiles -march=rv32imafc -mabi=ilp32f \
 		 -specs=nano.specs -specs=nosys.specs -fno-exceptions \
 		 -fno-use-cxa-atexit \
+		 -u_printf_float \
 		 -Xlinker -Map=$(BLD)main.map -Xlinker --gc-sections
 #-u_printf_float 
 #для FPU

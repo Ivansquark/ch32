@@ -5,7 +5,8 @@ uint16_t Calibrattion_Val = 0;
 void adc_init()
 {
     // init ADC1
-    //
+    // DMA write in memory after every conversion so first in memory buffer will
+    // be channel1 , second channel2, third channel1 ...
     // PA1 - ch1 analog input mode : 0:0:0:0
     RCC->APB2PCENR |= RCC_IOPAEN;
     GPIOA->CFGLR &= ~(GPIO_CFGLR_CNF1);
@@ -18,18 +19,20 @@ void adc_init()
 
     RCC->APB2PCENR |= RCC_ADC1EN;
     // PCLK2 - 24MHz / 4 = ADC_CLK = 8 MHz
-    RCC->CFGR0 |= RCC_ADCPRE_DIV4;
+    RCC->CFGR0 |= RCC_ADCPRE_DIV8; // 1MHz adc clock
 
     // adc in continuos mode with DMA
-    ADC1->CTLR2 |= ADC_CONT;    // continous mode
+    ADC1->CTLR1 |= ADC_SCAN;    // scan mode from 0 to 16
+    ADC1->CTLR2 |= ADC_CONT;    // continous mode (repeat after last)
     ADC1->CTLR2 |= ADC_EXTTRIG; // conversion on external signal
     ADC1->CTLR2 |= ADC_EXTSEL;  // 1:1:1 RSWSTART software trigger
     // A2 channel
-    ADC1->SAMPTR2 |= ADC_SMP0; // 1:1:1 239 cycles conversion
+    ADC1->SAMPTR2 |= ADC_SMP1 | ADC_SMP2; // 1:1:1 239 cycles conversion
     // ADC1->SAMPTR2 &= ~ADC_SMP0; //0:0:0 1.5 cycles conversion
     ADC1->RSQR1 = 0;  // 1 conversion
-    ADC1->RSQR3 |= 1; // channel 1 1 conversion
-    ADC1->RSQR3 |= 2; // channel 2 1 conversion
+    ADC1->RSQR1 |= (1 << 20);  // 2 conversion
+    ADC1->RSQR3 |= 1; // channel 1 first conversion
+    ADC1->RSQR3 |= (2 << 5); // channel 2 second conversion
 
     // DMA enable
     ADC1->CTLR2 |= ADC_DMA;

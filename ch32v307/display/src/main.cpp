@@ -22,6 +22,8 @@ char* queue_buf;
 //------------- objects in static memory (.data section) ----------------------
 Rcc rcc(8);
 Uart5 uart5;
+Uart1 uart1;
+Uart3 uart3;
 // LcdParIni parDisp;
 //Figure fig;
 // ---------------- OS classes ------------------------------------------------
@@ -45,8 +47,8 @@ int main(void) {
     BasicTimer6::Instance().start();
     __enable_irq();
     /* USB20 device init */
-    USBHS_RCC_Init();
-    USBHS_Device_Init(ENABLE);
+    //USBHS_RCC_Init();
+    //USBHS_Device_Init(ENABLE);
 
     // setRamSize(0x20000);
 
