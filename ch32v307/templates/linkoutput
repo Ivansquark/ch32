@@ -1,0 +1,243 @@
+src/eth.cpp:392:        You can peek in the netif->dhcp struct for the actual DHCP status.*/
+LWIP/include/lwip/ip6_zone.h:32: * lwIP link layer (everything below netif->output_ip6() and in particular ND6)
+LWIP/include/lwip/netif.h:169:/** Function prototype for netif->input functions. This function is saved as 'input'
+LWIP/include/lwip/netif.h:181:/** Function prototype for netif->output functions. Called by lwIP when a packet
+LWIP/include/lwip/netif.h:194:/** Function prototype for netif->output_ip6 functions. Called by lwIP when a packet
+LWIP/include/lwip/netif.h:206:/** Function prototype for netif->linkoutput functions. Only used for ethernet
+LWIP/include/lwip/pbuf.h:105:   * Use this if you intend to pass the pbuf to functions like netif->linkoutput().
+LWIP/include/lwip/pbuf.h:109:  /** Use this for input packets in a netif driver when calling netif->input()
+LWIP/include/lwip/opt.h:477: * with DMA-enabled MACs where the packet is not yet sent when netif->output
+LWIP/include/lwip/opt.h:1729: *       multithreaded environment like tcpip.c. In this case, netif->input()
+LWIP/include/netif/bridgeif.h:74:      influences memory allocated for netif->state of the bridge netif). */
+LWIP/netif/ethernet.cpp:71: * Don't call directly, pass to netif_add() and call netif->input().
+LWIP/netif/ethernet.cpp:183:        if (!(netif->flags & NETIF_FLAG_ETHARP)) { goto free_and_return; }
+LWIP/netif/ethernet.cpp:201:        if (!(netif->flags & NETIF_FLAG_ETHARP)) { goto free_and_return; }
+LWIP/netif/ethernet.cpp:268: * Send an ethernet packet on the network using netif->linkoutput().
+LWIP/netif/ethernet.cpp:316:    LWIP_ASSERT("netif->hwaddr_len must be 6 for ethernet_output!",
+LWIP/netif/ethernet.cpp:317:                (netif->hwaddr_len == ETH_HWADDR_LEN));
+LWIP/netif/ethernet.cpp:322:    return netif->linkoutput(netif, p);
+LWIP/core/udp.c:680:       * this could be an old address if netif->ip_addr has changed */
+LWIP/core/ip.c:151: * Don't call directly, pass to netif_add() and call netif->input().
+LWIP/core/netif.c:160:  netif->name[0] = 'l';
+LWIP/core/netif.c:161:  netif->name[1] = 'o';
+LWIP/core/netif.c:163:  netif->output = netif_loop_output_ipv4;
+LWIP/core/netif.c:166:  netif->output_ip6 = netif_loop_output_ipv6;
+LWIP/core/netif.c:212: * netif->input().
+LWIP/core/netif.c:310:  ip_addr_set_zero_ip4(&netif->ip_addr);
+LWIP/core/netif.c:311:  ip_addr_set_zero_ip4(&netif->netmask);
+LWIP/core/netif.c:312:  ip_addr_set_zero_ip4(&netif->gw);
+LWIP/core/netif.c:313:  netif->output = netif_null_output_ip4;
+LWIP/core/netif.c:317:    ip_addr_set_zero_ip6(&netif->ip6_addr[i]);
+LWIP/core/netif.c:318:    netif->ip6_addr_state[i] = IP6_ADDR_INVALID;
+LWIP/core/netif.c:320:    netif->ip6_addr_valid_life[i] = IP6_ADDR_LIFE_STATIC;
+LWIP/core/netif.c:321:    netif->ip6_addr_pref_life[i] = IP6_ADDR_LIFE_STATIC;
+LWIP/core/netif.c:324:  netif->output_ip6 = netif_null_output_ip6;
+LWIP/core/netif.c:327:  netif->mtu = 0;
+LWIP/core/netif.c:328:  netif->flags = 0;
+LWIP/core/netif.c:330:  memset(netif->client_data, 0, sizeof(netif->client_data));
+LWIP/core/netif.c:335:  netif->ip6_autoconfig_enabled = 0;
+LWIP/core/netif.c:340:  netif->status_callback = NULL;
+LWIP/core/netif.c:343:  netif->link_callback = NULL;
+LWIP/core/netif.c:346:  netif->igmp_mac_filter = NULL;
+LWIP/core/netif.c:349:  netif->mld_mac_filter = NULL;
+LWIP/core/netif.c:353:  netif->state = state;
+LWIP/core/netif.c:354:  netif->num = netif_num;
+LWIP/core/netif.c:355:  netif->input = input;
+LWIP/core/netif.c:359:  netif->loop_first = NULL;
+LWIP/core/netif.c:360:  netif->loop_last = NULL;
+LWIP/core/netif.c:362:  netif->loop_cnt_current = 0;
+LWIP/core/netif.c:365:  netif->reschedule_poll = 0;
+LWIP/core/netif.c:380:  netif->mtu6 = netif->mtu;
+LWIP/core/netif.c:393:      if (netif->num == 255) {
+LWIP/core/netif.c:394:        netif->num = 0;
+LWIP/core/netif.c:401:        if (netif2->num == netif->num) {
+LWIP/core/netif.c:402:          netif->num++;
+LWIP/core/netif.c:408:  if (netif->num == 254) {
+LWIP/core/netif.c:411:    netif_num = (u8_t)(netif->num + 1);
+LWIP/core/netif.c:415:  netif->next = netif_list;
+LWIP/core/netif.c:422:  if (netif->flags & NETIF_FLAG_IGMP) {
+LWIP/core/netif.c:428:                            netif->name[0], netif->name[1]));
+LWIP/core/netif.c:479:    ip4_addr_set(ip_2_ip4(&netif->ip_addr), ipaddr);
+LWIP/core/netif.c:480:    IP_SET_TYPE_VAL(netif->ip_addr, IPADDR_TYPE_V4);
+LWIP/core/netif.c:538:    ip4_addr_set(ip_2_ip4(&netif->netmask), netmask);
+LWIP/core/netif.c:539:    IP_SET_TYPE_VAL(netif->netmask, IPADDR_TYPE_V4);
+LWIP/core/netif.c:543:                netif->name[0], netif->name[1],
+LWIP/core/netif.c:602:    ip4_addr_set(ip_2_ip4(&netif->gw), gw);
+LWIP/core/netif.c:603:    IP_SET_TYPE_VAL(netif->gw, IPADDR_TYPE_V4);
+LWIP/core/netif.c:606:                netif->name[0], netif->name[1],
+LWIP/core/netif.c:763:  if (netif->flags & NETIF_FLAG_IGMP) {
+LWIP/core/netif.c:795:    netif_list = netif->next;
+LWIP/core/netif.c:800:      if (tmp_netif->next == netif) {
+LWIP/core/netif.c:801:        tmp_netif->next = netif->next;
+LWIP/core/netif.c:812:  if (netif->remove_callback) {
+LWIP/core/netif.c:813:    netif->remove_callback(netif);
+LWIP/core/netif.c:840:                            netif ? netif->name[0] : '\'', netif ? netif->name[1] : '\''));
+LWIP/core/netif.c:855:  if (!(netif->flags & NETIF_FLAG_UP)) {
+LWIP/core/netif.c:858:    MIB2_COPY_SYSUPTIME_TO(&netif->ts);
+LWIP/core/netif.c:877:/** Send ARP/IGMP/MLD/RS events, e.g. on link-up/netif-up or addr-change
+LWIP/core/netif.c:885:  if (!(netif->flags & NETIF_FLAG_LINK_UP) ||
+LWIP/core/netif.c:886:      !(netif->flags & NETIF_FLAG_UP)) {
+LWIP/core/netif.c:895:    if (netif->flags & (NETIF_FLAG_ETHARP)) {
+LWIP/core/netif.c:902:    if (netif->flags & NETIF_FLAG_IGMP) {
+LWIP/core/netif.c:930:  if (netif->flags & NETIF_FLAG_UP) {
+LWIP/core/netif.c:940:    MIB2_COPY_SYSUPTIME_TO(&netif->ts);
+LWIP/core/netif.c:943:    if (netif->flags & NETIF_FLAG_ETHARP) {
+LWIP/core/netif.c:967:    netif->status_callback = status_callback;
+LWIP/core/netif.c:983:    netif->remove_callback = remove_callback;
+LWIP/core/netif.c:999:  if (!(netif->flags & NETIF_FLAG_LINK_UP)) {
+LWIP/core/netif.c:1037:  if (netif->flags & NETIF_FLAG_LINK_UP) {
+LWIP/core/netif.c:1040:    netif->mtu6 = netif->mtu;
+LWIP/core/netif.c:1065:    netif->link_callback = link_callback;
+LWIP/core/netif.c:1075: * netif->input by netif_poll().
+LWIP/core/netif.c:1123:  if (((netif->loop_cnt_current + clen) < netif->loop_cnt_current) ||
+LWIP/core/netif.c:1124:      ((netif->loop_cnt_current + clen) > LWIP_MIN(LWIP_LOOPBACK_MAX_PBUFS, 0xFFFF))) {
+LWIP/core/netif.c:1131:  netif->loop_cnt_current = (u16_t)(netif->loop_cnt_current + clen);
+LWIP/core/netif.c:1152:  if (netif->loop_first != NULL) {
+LWIP/core/netif.c:1153:    LWIP_ASSERT("if first != NULL, last must also be != NULL", netif->loop_last != NULL);
+LWIP/core/netif.c:1154:    netif->loop_last->next = r;
+LWIP/core/netif.c:1155:    netif->loop_last = last;
+LWIP/core/netif.c:1157:    if (netif->reschedule_poll) {
+LWIP/core/netif.c:1159:      netif->reschedule_poll = 0;
+LWIP/core/netif.c:1163:    netif->loop_first = r;
+LWIP/core/netif.c:1164:    netif->loop_last = last;
+LWIP/core/netif.c:1181:      netif->reschedule_poll = 1;
+LWIP/core/netif.c:1214: * netif_loop_output() are put on a list that is passed to netif->input() by
+LWIP/core/netif.c:1235:  while (netif->loop_first != NULL) {
+LWIP/core/netif.c:1241:    in = in_end = netif->loop_first;
+LWIP/core/netif.c:1251:    LWIP_ASSERT("netif->loop_cnt_current underflow",
+LWIP/core/netif.c:1252:                ((netif->loop_cnt_current - clen) < netif->loop_cnt_current));
+LWIP/core/netif.c:1253:    netif->loop_cnt_current = (u16_t)(netif->loop_cnt_current - clen);
+LWIP/core/netif.c:1257:    if (in_end == netif->loop_last) {
+LWIP/core/netif.c:1259:      netif->loop_first = netif->loop_last = NULL;
+LWIP/core/netif.c:1262:      netif->loop_first = in_end->next;
+LWIP/core/netif.c:1263:      LWIP_ASSERT("should not be null since first != last!", netif->loop_first != NULL);
+LWIP/core/netif.c:1380:    ip_addr_copy(netif->ip6_addr[addr_idx], new_ipaddr);
+LWIP/core/netif.c:1398:              addr_idx, netif->name[0], netif->name[1], ip6addr_ntoa(netif_ip6_addr(netif, addr_idx)),
+LWIP/core/netif.c:1429:    if (netif->flags & NETIF_FLAG_MLD6) {
+LWIP/core/netif.c:1439:    netif->ip6_addr_state[addr_idx] = state;
+LWIP/core/netif.c:1465:              addr_idx, netif->name[0], netif->name[1], ip6addr_ntoa(netif_ip6_addr(netif, addr_idx)),
+LWIP/core/netif.c:1526:  ip_2_ip6(&netif->ip6_addr[0])->addr[0] = PP_HTONL(0xfe800000ul);
+LWIP/core/netif.c:1527:  ip_2_ip6(&netif->ip6_addr[0])->addr[1] = 0;
+LWIP/core/netif.c:1532:    ip_2_ip6(&netif->ip6_addr[0])->addr[2] = lwip_htonl((((u32_t)(netif->hwaddr[0] ^ 0x02)) << 24) |
+LWIP/core/netif.c:1533:        ((u32_t)(netif->hwaddr[1]) << 16) |
+LWIP/core/netif.c:1534:        ((u32_t)(netif->hwaddr[2]) << 8) |
+LWIP/core/netif.c:1536:    ip_2_ip6(&netif->ip6_addr[0])->addr[3] = lwip_htonl((u32_t)(0xfeul << 24) |
+LWIP/core/netif.c:1537:        ((u32_t)(netif->hwaddr[3]) << 16) |
+LWIP/core/netif.c:1538:        ((u32_t)(netif->hwaddr[4]) << 8) |
+LWIP/core/netif.c:1539:        (netif->hwaddr[5]));
+LWIP/core/netif.c:1542:    ip_2_ip6(&netif->ip6_addr[0])->addr[2] = 0;
+LWIP/core/netif.c:1543:    ip_2_ip6(&netif->ip6_addr[0])->addr[3] = 0;
+LWIP/core/netif.c:1546:    for (i = 0; (i < 8) && (i < netif->hwaddr_len); i++) {
+LWIP/core/netif.c:1550:      ip_2_ip6(&netif->ip6_addr[0])->addr[addr_index] |= lwip_htonl(((u32_t)(netif->hwaddr[netif->hwaddr_len - i - 1])) << (8 * (i & 0x03)));
+LWIP/core/netif.c:1562:  ip6_addr_assign_zone(ip_2_ip6(&netif->ip6_addr[0]), IP6_UNICAST, netif);
+LWIP/core/netif.c:1606:      ip_addr_copy_from_ip6(netif->ip6_addr[i], *ip6addr);
+LWIP/core/netif.c:1607:      ip6_addr_assign_zone(ip_2_ip6(&netif->ip6_addr[i]), IP6_UNICAST, netif);
+LWIP/core/netif.c:1681:    name[0] = netif->name[0];
+LWIP/core/netif.c:1682:    name[1] = netif->name[1];
+LWIP/core/netif.c:1717: * @param name the name of the netif (like netif->name) plus concatenated number
+LWIP/core/netif.c:1739:    if (num == netif->num &&
+LWIP/core/netif.c:1740:        name[0] == netif->name[0] &&
+LWIP/core/netif.c:1741:        name[1] == netif->name[1]) {
+LWIP/core/ipv4/igmp.c:141:    if (netif->igmp_mac_filter != NULL) {
+LWIP/core/ipv4/igmp.c:145:      netif->igmp_mac_filter(netif, &allsystems, NETIF_ADD_MAC_FILTER);
+LWIP/core/ipv4/igmp.c:170:    if (netif->igmp_mac_filter != NULL) {
+LWIP/core/ipv4/igmp.c:174:      netif->igmp_mac_filter(netif, &(group->group_address), NETIF_DEL_MAC_FILTER);
+LWIP/core/ipv4/igmp.c:463:    if ((netif->flags & NETIF_FLAG_IGMP) && ((ip4_addr_isany(ifaddr) || ip4_addr_cmp(netif_ip4_addr(netif), ifaddr)))) {
+LWIP/core/ipv4/igmp.c:496:  LWIP_ERROR("igmp_joingroup_netif: attempt to join on non-IGMP netif", netif->flags & NETIF_FLAG_IGMP, return ERR_VAL;);
+LWIP/core/ipv4/igmp.c:512:      if ((group->use == 0) && (netif->igmp_mac_filter != NULL)) {
+LWIP/core/ipv4/igmp.c:516:        netif->igmp_mac_filter(netif, groupaddr, NETIF_ADD_MAC_FILTER);
+LWIP/core/ipv4/igmp.c:560:    if ((netif->flags & NETIF_FLAG_IGMP) && ((ip4_addr_isany(ifaddr) || ip4_addr_cmp(netif_ip4_addr(netif), ifaddr)))) {
+LWIP/core/ipv4/igmp.c:592:  LWIP_ERROR("igmp_leavegroup_netif: attempt to leave on non-IGMP netif", netif->flags & NETIF_FLAG_IGMP, return ERR_VAL;);
+LWIP/core/ipv4/igmp.c:616:      if (netif->igmp_mac_filter != NULL) {
+LWIP/core/ipv4/igmp.c:620:        netif->igmp_mac_filter(netif, groupaddr, NETIF_DEL_MAC_FILTER);
+LWIP/core/ipv4/igmp.c:738: *         returns errors returned by netif->output
+LWIP/core/ipv4/ip4_addr.c:68:  } else if ((netif->flags & NETIF_FLAG_BROADCAST) == 0) {
+LWIP/core/ipv4/dhcp.c:113:#define DHCP_MAX_MSG_LEN(netif)        (netif->mtu)
+LWIP/core/ipv4/dhcp.c:287:              (void *)netif, netif->name[0], netif->name[1], (u16_t)netif->num));
+LWIP/core/ipv4/dhcp.c:313:  LWIP_DEBUGF(DHCP_DEBUG | LWIP_DBG_TRACE, ("dhcp_check(netif=%p) %c%c\n", (void *)netif, (s16_t)netif->name[0],
+LWIP/core/ipv4/dhcp.c:314:              (s16_t)netif->name[1]));
+LWIP/core/ipv4/dhcp.c:342:              (void *)netif, netif->name[0], netif->name[1], (u16_t)netif->num));
+LWIP/core/ipv4/dhcp.c:384:  LWIP_DEBUGF(DHCP_DEBUG | LWIP_DBG_TRACE, ("dhcp_select(netif=%p) %c%c%"U16_F"\n", (void *)netif, netif->name[0], netif->name[1], (u16_t)netif->num));
+LWIP/core/ipv4/dhcp.c:751:  LWIP_DEBUGF(DHCP_DEBUG | LWIP_DBG_TRACE | LWIP_DBG_STATE, ("dhcp_start(netif=%p) %c%c%"U16_F"\n", (void *)netif, netif->name[0], netif->name[1], (u16_t)netif->num));
+LWIP/core/ipv4/dhcp.c:754:  if (netif->mtu < DHCP_MAX_MSG_LEN_MIN_REQUIRED) {
+LWIP/core/ipv4/dhcp.c:1053:  LWIP_DEBUGF(DHCP_DEBUG | LWIP_DBG_TRACE, ("dhcp_bind(netif=%p) %c%c%"U16_F"\n", (void *)netif, netif->name[0], netif->name[1], (u16_t)netif->num));
+LWIP/core/ipv4/dhcp.c:1474:  if (netif->hostname != NULL) {
+LWIP/core/ipv4/dhcp.c:1475:    size_t namelen = strlen(netif->hostname);
+LWIP/core/ipv4/dhcp.c:1478:      const char *p = netif->hostname;
+LWIP/core/ipv4/dhcp.c:1792:  for (i = 0; i < netif->hwaddr_len && i < LWIP_MIN(DHCP_CHADDR_LEN, NETIF_MAX_HWADDR_LEN); i++) {
+LWIP/core/ipv4/dhcp.c:1793:    if (netif->hwaddr[i] != reply_msg->chaddr[i]) {
+LWIP/core/ipv4/dhcp.c:1795:                  ("netif->hwaddr[%"U16_F"]==%02"X16_F" != reply_msg->chaddr[%"U16_F"]==%02"X16_F"\n",
+LWIP/core/ipv4/dhcp.c:1796:                   (u16_t)i, (u16_t)netif->hwaddr[i], (u16_t)i, (u16_t)reply_msg->chaddr[i]));
+LWIP/core/ipv4/dhcp.c:1830:      if ((netif->flags & NETIF_FLAG_ETHARP) != 0) {
+LWIP/core/ipv4/dhcp.c:1930:  msg_out->hlen = netif->hwaddr_len;
+LWIP/core/ipv4/dhcp.c:1934:  /* set ciaddr to netif->ip_addr based on message_type and state */
+LWIP/core/ipv4/dhcp.c:1942:    msg_out->chaddr[i] = netif->hwaddr[i];
+LWIP/core/ipv4/dhcp.c:1974:/** check if DHCP supplied netif->ip_addr
+LWIP/core/ipv4/dhcp.c:1977: * @return 1 if DHCP supplied netif->ip_addr (states BOUND or RENEWING),
+LWIP/core/ipv4/ip4_frag.c:750:  const u16_t nfb = (u16_t)((netif->mtu - IP_HLEN) / 8);
+LWIP/core/ipv4/ip4_frag.c:852:    last = (left <= netif->mtu - IP_HLEN);
+LWIP/core/ipv4/ip4_frag.c:872:    netif->output(netif, rambuf, dest);
+LWIP/core/ipv4/ip4.c:179:      if (((netif->flags & NETIF_FLAG_BROADCAST) == 0) && ip4_addr_cmp(dest, netif_ip4_gw(netif))) {
+LWIP/core/ipv4/ip4.c:349:  if (netif->mtu && (p->tot_len > netif->mtu)) {
+LWIP/core/ipv4/ip4.c:365:  netif->output(netif, p, ip4_current_dest_addr());
+LWIP/core/ipv4/ip4.c:376:  LWIP_DEBUGF(IP_DEBUG, ("ip_input: iphdr->dest 0x%" X32_F " netif->ip_addr 0x%" X32_F " (0x%" X32_F ", 0x%" X32_F ", 0x%" X32_F ")\n",
+LWIP/core/ipv4/ip4.c:393:                             netif->name[0], netif->name[1]));
+LWIP/core/ipv4/ip4.c:402:                             netif->name[0], netif->name[1]));
+LWIP/core/ipv4/ip4.c:781: *         returns errors returned by netif->output
+LWIP/core/ipv4/ip4.c:980:  LWIP_DEBUGF(IP_DEBUG, ("ip4_output_if: %c%c%" U16_F "\n", netif->name[0], netif->name[1], (u16_t)netif->num));
+LWIP/core/ipv4/ip4.c:1001:  if (netif->mtu && (p->tot_len > netif->mtu)) {
+LWIP/core/ipv4/ip4.c:1006:  LWIP_DEBUGF(IP_DEBUG, ("ip4_output_if: call netif->output()\n"));
+LWIP/core/ipv4/ip4.c:1007:  return netif->output(netif, p, dest);
+LWIP/core/ipv4/ip4.c:1046:/** Like ip_output, but takes and addr_hint pointer that is passed on to netif->addr_hint
+LWIP/core/ipv4/ip4.c:1058: * @param netif_hint netif output hint pointer set to netif->hint before
+LWIP/core/ipv4/autoip.c:76:#define LWIP_AUTOIP_RAND(netif) ( (((u32_t)((netif->hwaddr[5]) & 0xff) << 24) | \
+LWIP/core/ipv4/autoip.c:77:                                   ((u32_t)((netif->hwaddr[3]) & 0xff) << 16) | \
+LWIP/core/ipv4/autoip.c:78:                                   ((u32_t)((netif->hwaddr[2]) & 0xff) << 8) | \
+LWIP/core/ipv4/autoip.c:79:                                   ((u32_t)((netif->hwaddr[4]) & 0xff))) + \
+LWIP/core/ipv4/autoip.c:89:  lwip_htonl(AUTOIP_RANGE_START + ((u32_t)(((u8_t)(netif->hwaddr[4])) | \
+LWIP/core/ipv4/autoip.c:90:                 ((u32_t)((u8_t)(netif->hwaddr[5]))) << 8)))
+LWIP/core/ipv4/autoip.c:207:  /* this works because netif->ip_addr is ANY */
+LWIP/core/ipv4/autoip.c:235:               (void *)netif, netif->name[0], netif->name[1], (u16_t)netif->num,
+LWIP/core/ipv4/autoip.c:269:              ("autoip_start(netif=%p) %c%c%"U16_F"\n", (void *)netif, netif->name[0],
+LWIP/core/ipv4/autoip.c:270:               netif->name[1], (u16_t)netif->num));
+LWIP/core/ipv4/autoip.c:459:    /* when ip.src == llipaddr && hw.src != netif->hwaddr
+LWIP/core/ipv4/autoip.c:461:     * when probing  ip.dst == llipaddr && hw.src != netif->hwaddr
+LWIP/core/ipv4/autoip.c:466:    SMEMCPY(netifaddr.addr, netif->hwaddr, ETH_HWADDR_LEN);
+LWIP/core/ipv4/autoip.c:504:/** check if AutoIP supplied netif->ip_addr
+LWIP/core/ipv4/autoip.c:507: * @return 1 if AutoIP supplied netif->ip_addr (state BOUND or ANNOUNCING),
+LWIP/core/ipv4/etharp.c:425:  LWIP_ASSERT("netif->hwaddr_len == ETH_HWADDR_LEN", netif->hwaddr_len == ETH_HWADDR_LEN);
+LWIP/core/ipv4/etharp.c:486:    ethernet_output(netif, p, (struct eth_addr *)(netif->hwaddr), ethaddr, ETHTYPE_IP);
+LWIP/core/ipv4/etharp.c:710:                   (struct eth_addr *)netif->hwaddr, &hdr->shwaddr,
+LWIP/core/ipv4/etharp.c:711:                   (struct eth_addr *)netif->hwaddr, netif_ip4_addr(netif),
+LWIP/core/ipv4/etharp.c:716:        /* { for_us == 0 and netif->ip_addr.addr == 0 } */
+LWIP/core/ipv4/etharp.c:720:        /* { for_us == 0 and netif->ip_addr.addr != 0 } */
+LWIP/core/ipv4/etharp.c:769:  return ethernet_output(netif, q, (struct eth_addr *)(netif->hwaddr), &arp_table[arp_idx].ethaddr, ETHTYPE_IP);
+LWIP/core/ipv4/etharp.c:856:    if (netif->hints != NULL) {
+LWIP/core/ipv4/etharp.c:858:      netif_addr_idx_t etharp_cached_entry = netif->hints->addr_hint;
+LWIP/core/ipv4/etharp.c:896:  return ethernet_output(netif, q, (struct eth_addr *)(netif->hwaddr), dest, ETHTYPE_IP);
+LWIP/core/ipv4/etharp.c:935:  struct eth_addr *srcaddr = (struct eth_addr *)netif->hwaddr;
+LWIP/core/ipv4/etharp.c:1137:  LWIP_ASSERT("netif->hwaddr_len must be the same as ETH_HWADDR_LEN for etharp!",
+LWIP/core/ipv4/etharp.c:1138:              (netif->hwaddr_len == ETH_HWADDR_LEN));
+LWIP/core/ipv4/etharp.c:1191:  return etharp_raw(netif, (struct eth_addr *)netif->hwaddr, hw_dst_addr,
+LWIP/core/ipv4/etharp.c:1192:                    (struct eth_addr *)netif->hwaddr, netif_ip4_addr(netif), &ethzero,
+LWIP/api/tcpip.c:275: * and call netif->input().
+LWIP/ethernetif.cpp:28:    netif->hwaddr_len = ETH_HWADDR_LEN;
+LWIP/ethernetif.cpp:31:    netif->hwaddr[0] = *mac;
+LWIP/ethernetif.cpp:33:    netif->hwaddr[1] = *mac;
+LWIP/ethernetif.cpp:35:    netif->hwaddr[2] = *mac;
+LWIP/ethernetif.cpp:37:    netif->hwaddr[3] = *mac;
+LWIP/ethernetif.cpp:39:    netif->hwaddr[4] = *mac;
+LWIP/ethernetif.cpp:41:    netif->hwaddr[5] = *mac;
+LWIP/ethernetif.cpp:44:    netif->mtu = NETIF_MTU;
+LWIP/ethernetif.cpp:47:    netif->flags |= NETIF_FLAG_BROADCAST | NETIF_FLAG_ETHARP;
+LWIP/ethernetif.cpp:49:    netif->flags |= NETIF_FLAG_BROADCAST;
+LWIP/ethernetif.cpp:53:    netif->flags |= NETIF_FLAG_LINK_UP | NETIF_FLAG_UP;
+LWIP/ethernetif.cpp:186:    err = netif->input(p, netif);
+LWIP/ethernetif.cpp:221:    netif->hostname = "lwip";
+LWIP/ethernetif.cpp:230:    netif->state = ethernetif;
+LWIP/ethernetif.cpp:231:    netif->name[0] = IFNAME0;
+LWIP/ethernetif.cpp:232:    netif->name[1] = IFNAME1;
+LWIP/ethernetif.cpp:238:    netif->output = etharp_output;
+LWIP/ethernetif.cpp:242:    netif->output_ip6 = ethip6_output;
+LWIP/ethernetif.cpp:245:    netif->linkoutput = low_level_output;
+LWIP/ethernetif.cpp:247:    ethernetif->ethaddr = (struct eth_addr*)&(netif->hwaddr[0]);

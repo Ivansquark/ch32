@@ -5,6 +5,7 @@
 #include "eeprom.h"
 #include "eth.h"
 #include "gpio.h"
+//#include "gpios.h"
 #include "http_os.h"
 #include "rcc.h"
 #include "tcp_os.h"
@@ -25,9 +26,8 @@ char* queue_buf;
 //------------- objects in static memory (.data section) ----------------------
 Rcc rcc(24);
 Adc adc1;
-// Eeprom eeprom;
+Eeprom eeprom;
 W25q flash;
-// Eth eth(192, 168, 0, 100);
 // ---------------- OS classes ------------------------------------------------
 Eth eth(192, 168, 1, 100, TASK_RECEIVE_STK_SIZE);
 UdpOS udp((uint8_t*)recv_buf);
@@ -36,6 +36,9 @@ TcpOS tcp(recv_buf);
 // void timeout();
 
 int main(void) {
+    //Gpios::In<Gpios::PA, 2> in2;
+    //in2.setMode(Gpios::ANALOG);
+    //Gpios::init_in();
     // initialize mutex for proper socket work
     extern sys_mutex_t lock_tcpip_core;
     sys_mutex_new(&lock_tcpip_core);
