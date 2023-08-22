@@ -22,9 +22,9 @@ perINC = Peripheral/inc/
 perSRC = Peripheral/src/
 #///////////////////////////////////
 #OPTIMIZATION = fast
-OPTIMIZATION = s
+#OPTIMIZATION = s
 #OPTIMIZATION = 1
-#OPTIMIZATION = 0
+OPTIMIZATION = 0
 
 
 CFLAGS = -c -Wall -Wextra -g -O$(OPTIMIZATION) \
@@ -32,7 +32,7 @@ CFLAGS = -c -Wall -Wextra -g -O$(OPTIMIZATION) \
 		-fno-pic -fno-common \
 		-Wno-pointer-arith \
 		-ffast-math -fno-math-errno -ffunction-sections -fdata-sections
-CPPFLAGS = -c -std=c++17 -Wall -Wextra -g3 -O$(OPTIMIZATION) \
+CPPFLAGS = -c -std=c++2a -Wall -Wextra -g3 -O$(OPTIMIZATION) \
 		-march=rv32imafc -mabi=ilp32f \
 		-fno-pic -fno-common -D"assert_param(x)=" \
 		-fno-exceptions -fno-rtti \

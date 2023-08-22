@@ -1,12 +1,13 @@
-%compile_commands.json 
+g++
 --gcc-toolchain=/opt/ch32_riscv_gcc
 --target=riscv32
 %c  -std=c11
-%cpp -std=c++17
+%cpp -std=c++2a
+%h %cpp -std=c++17
 -stdlib=libc++
-%h -x
-%h c++-header
-%h %hpp --include=Base.h
+#%h -x
+#%h c++-header
+#%h %hpp --include=Base.h
 -Iinc/
 -Ilib/
 -IPeripheral/inc/
@@ -17,3 +18,4 @@
 -I/opt/ch32_riscv_gcc/riscv-none-embed/include/
 -I/opt/ch32_riscv_gcc/riscv-none-embed/
 -I/opt/ch32_riscv_gcc/riscv-none-embed/include/c++/8.2.0/
+#%compile_commands.json
