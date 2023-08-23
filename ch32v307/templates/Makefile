@@ -57,7 +57,7 @@ $(BLD)main.lst: $(BLD)main.elf
 #------------------------------------  LINKER ---------------------------------
 $(BLD)main.elf:	$(BLD)core_riscv.o $(BLD)startup.o
 $(BLD)main.elf: $(BLD)rcc.o $(BLD)gpio.o $(BLD)gpios.o
-$(BLD)main.elf: $(BLD)basic_timer.o
+$(BLD)main.elf: $(BLD)basic_timer.o $(BLD)tirq.o
 $(BLD)main.elf: $(BLD)adc.o $(BLD)led.o
 $(BLD)main.elf: $(BLD)main.o
 	$(CPP) -o $@ -T$(LIB)Link.ld $^ -I$(LIB) $(LFLAGS)

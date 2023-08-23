@@ -6,6 +6,7 @@
 #include "gpio.h"
 #include "led.h"
 #include "rcc.h"
+#include "tirq.h"
 
 #include <algorithm>
 #include <array>
@@ -23,6 +24,13 @@ Rcc rcc(24);
 void bubble(uint8_t* arr, int size);
 void sort();
 
+template<typename T>
+class LedIrq {
+    static void interruptHandler() {
+        
+    }
+};
+
 int main(void) {
     //int x;
     //if constexpr(x == std::same_as<int>){
@@ -33,23 +41,24 @@ int main(void) {
     //Gpios::In<Gpios::PA, 13, Gpios::InitModeIn::ANALOG> a13;
     //Gpios::In<Gpios::PA, 14, Gpios::InitModeIn::ANALOG> a14;
     // volatile bool x = Gpios::get_in2();
-    //__enable_irq();
     // BasicTimer6::Instance().setCallback(timeout);
-    // BasicTimer6::Instance().start(500);
-    // Gpio::Out::init();
-    Led leds;
+    BasicTimer6::Instance().start(500);
+    // Gpio::Out::init();    
+    const Led leds;
+    InterruptManagerForClasses<TIM6_IRQn, Led> timIrq;
+    __enable_irq();
     //Gpios::initLedGreen();
 
     // on Os code size as like pure C functions
     //Gpios::Out<Gpios::PA, 15> a15;
     //a15.setSpeed(Gpios::PortSpeed::LOW);
     while (1) {
-        leds.green_turnOn();
+        //leds.green_turnOn();
         //auto fptr1 = [&]() { a15.setLow(); };
         //fptr1();
         //Gpios::setLedGreen();
         for (volatile int i = 0; i < 1000000; i++) {}
-        leds.green_turnOff();
+        //leds.green_turnOff();
         // void (Led::*fptr)() = &Led::green_turnOff;
         //(leds.*fptr)();
         //auto fptr = [&]() { a15.setHigh(); };

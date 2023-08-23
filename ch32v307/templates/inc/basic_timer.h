@@ -2,6 +2,7 @@
 #define BASIC_TIMER_H
 
 #include "main.h"
+#include "tirq.h"
 
 class BasicTimer6 {
   public:

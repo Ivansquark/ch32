@@ -23,11 +23,13 @@ extern "C" void TIM6_IRQHandler() {
         // TIM6->INTFR &= ~TIM_UIF;
         TIM6->INTFR = 0x0000;
         // NVIC_ClearPendingIRQ(TIM6_IRQn);
+
         if (BasicTimer6::Instance().counter >=
             BasicTimer6::Instance().counterMax) {
-            if (BasicTimer6::Instance().fPtr != nullptr) {
-                BasicTimer6::Instance().fPtr();
-            }
+            InterruptManager::call(TIM6_IRQn);
+            // if (BasicTimer6::Instance().fPtr != nullptr) {
+            // BasicTimer6::Instance().fPtr();
+            //}
             BasicTimer6::Instance().counter = 0;
         } else {
             BasicTimer6::Instance().counter++;
