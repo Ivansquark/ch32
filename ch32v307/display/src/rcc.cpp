@@ -31,10 +31,10 @@ void Rcc::init(uint8_t quarz) {
         if (HSEStatus == (uint32_t)0x01) {
             /* HCLK = SYSCLK */
             RCC->CFGR0 |= (uint32_t)RCC_HPRE_DIV1;
-            /* PCLK2 = HCLK */
-            RCC->CFGR0 |= (uint32_t)RCC_PPRE2_DIV1;
             /* PCLK1 = HCLK */
             RCC->CFGR0 |= (uint32_t)RCC_PPRE1_DIV1;
+            /* PCLK2 = HCLK */
+            RCC->CFGR0 |= (uint32_t)RCC_PPRE2_DIV2;
             RCC->CFGR0 &= (uint32_t)(
                 (uint32_t) ~(RCC_PLLSRC | RCC_PLLXTPRE | RCC_PLLMULL));
 

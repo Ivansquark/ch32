@@ -10,7 +10,8 @@ extern volatile uint16_t dma_ch1_buff[DMA_CH1_BUF_SIZE];
 void delay_ticks(volatile uint32_t ticks);
 void timeOut_50ms() {
     //voltage regulator
-    voltage_handler();
+    //voltage_handler();
+    pwm_change_duty(35);
 }
 
 int main(void)
@@ -30,6 +31,7 @@ int main(void)
 
     // TODO: complimentary PWM
     pwm_init();
+    pwm_change_duty(35);
     pwm_start();
 
     __enable_irq();

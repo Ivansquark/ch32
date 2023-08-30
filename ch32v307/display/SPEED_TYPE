@@ -1,0 +1,106 @@
+src/ch32v30x_usbhs_device.cpp:84:    USBHSD->ENDP_CONFIG = USBHS_UEP2_T_EN | USBHS_UEP2_R_EN | USBHS_UEP3_T_EN |
+src/ch32v30x_usbhs_device.cpp:87:    USBHSD->UEP0_MAX_LEN = DEF_USBD_UEP0_SIZE;
+src/ch32v30x_usbhs_device.cpp:88:    USBHSD->UEP2_MAX_LEN = DEF_USB_EP2_HS_SIZE;
+src/ch32v30x_usbhs_device.cpp:89:    USBHSD->UEP3_MAX_LEN = DEF_USB_EP3_HS_SIZE;
+src/ch32v30x_usbhs_device.cpp:90:    USBHSD->UEP4_MAX_LEN = DEF_USB_EP4_HS_SIZE;
+src/ch32v30x_usbhs_device.cpp:92:    USBHSD->UEP0_DMA = (uint32_t)(uint8_t*)USBHS_EP0_Buf;
+src/ch32v30x_usbhs_device.cpp:94:    USBHSD->UEP2_RX_DMA = (uint32_t)(uint8_t*)USBHS_EP2_Rx_Buf;
+src/ch32v30x_usbhs_device.cpp:95:    USBHSD->UEP2_TX_DMA = (uint32_t)(uint8_t*)USBHS_EP2_Tx_Buf;
+src/ch32v30x_usbhs_device.cpp:96:    USBHSD->UEP3_TX_DMA = (uint32_t)(uint8_t*)USBHS_EP3_Tx_Buf;
+src/ch32v30x_usbhs_device.cpp:97:    USBHSD->UEP4_RX_DMA = (uint32_t)(uint8_t*)USBHS_EP4_Rx_Buf;
+src/ch32v30x_usbhs_device.cpp:98:    USBHSD->UEP4_TX_DMA = (uint32_t)(uint8_t*)USBHS_EP4_Tx_Buf;
+src/ch32v30x_usbhs_device.cpp:100:    USBHSD->UEP0_TX_LEN = 0;
+src/ch32v30x_usbhs_device.cpp:101:    USBHSD->UEP0_TX_CTRL = USBHS_UEP_T_RES_NAK;
+src/ch32v30x_usbhs_device.cpp:102:    USBHSD->UEP0_RX_CTRL = USBHS_UEP_R_RES_ACK;
+src/ch32v30x_usbhs_device.cpp:104:    USBHSD->UEP2_TX_LEN = 0;
+src/ch32v30x_usbhs_device.cpp:105:    USBHSD->UEP2_TX_CTRL = USBHS_UEP_T_RES_NAK;
+src/ch32v30x_usbhs_device.cpp:106:    USBHSD->UEP2_RX_CTRL = USBHS_UEP_R_RES_ACK;
+src/ch32v30x_usbhs_device.cpp:108:    USBHSD->UEP3_TX_LEN = 0;
+src/ch32v30x_usbhs_device.cpp:109:    USBHSD->UEP3_TX_CTRL = USBHS_UEP_T_RES_NAK;
+src/ch32v30x_usbhs_device.cpp:110:    USBHSD->UEP3_RX_CTRL = USBHS_UEP_R_RES_ACK;
+src/ch32v30x_usbhs_device.cpp:112:    USBHSD->UEP4_TX_LEN = 0;
+src/ch32v30x_usbhs_device.cpp:113:    USBHSD->UEP4_TX_CTRL = USBHS_UEP_T_RES_NAK;
+src/ch32v30x_usbhs_device.cpp:114:    USBHSD->UEP4_RX_CTRL = USBHS_UEP_R_RES_ACK;
+src/ch32v30x_usbhs_device.cpp:135:        USBHSD->CONTROL = USBHS_UC_CLR_ALL | USBHS_UC_RESET_SIE;
+src/ch32v30x_usbhs_device.cpp:138:        USBHSD->CONTROL &= ~USBHS_UC_RESET_SIE;
+src/ch32v30x_usbhs_device.cpp:139:        USBHSD->HOST_CTRL = USBHS_UH_PHY_SUSPENDM;
+src/ch32v30x_usbhs_device.cpp:140:        USBHSD->CONTROL =
+src/ch32v30x_usbhs_device.cpp:142:        USBHSD->INT_EN = USBHS_UIE_SETUP_ACT | USBHS_UIE_TRANSFER |
+src/ch32v30x_usbhs_device.cpp:145:        USBHSD->CONTROL |= USBHS_UC_DEV_PU_EN;
+src/ch32v30x_usbhs_device.cpp:148:        USBHSD->CONTROL = USBHS_UC_CLR_ALL | USBHS_UC_RESET_SIE;
+src/ch32v30x_usbhs_device.cpp:150:        USBHSD->CONTROL = 0;
+src/ch32v30x_usbhs_device.cpp:172:        endp_en = USBHSD->ENDP_CONFIG;
+src/ch32v30x_usbhs_device.cpp:175:                endp_buf_mode = USBHSD->BUF_MODE;
+src/ch32v30x_usbhs_device.cpp:248:    intflag = USBHSD->INT_FG;
+src/ch32v30x_usbhs_device.cpp:249:    intst = USBHSD->INT_ST;
+src/ch32v30x_usbhs_device.cpp:259:                    USBHSD->UEP0_RX_CTRL =
+src/ch32v30x_usbhs_device.cpp:275:                        USBHSD->UEP0_TX_LEN = len;
+src/ch32v30x_usbhs_device.cpp:276:                        USBHSD->UEP0_TX_CTRL ^= USBHS_UEP_T_TOG_DATA1;
+src/ch32v30x_usbhs_device.cpp:280:                        USBHSD->DEV_AD = USBHS_DevAddr;
+src/ch32v30x_usbhs_device.cpp:284:                        USBHSD->UEP0_TX_LEN = 0;
+src/ch32v30x_usbhs_device.cpp:292:                USBHSD->UEP2_TX_CTRL =
+src/ch32v30x_usbhs_device.cpp:293:                    (USBHSD->UEP2_TX_CTRL & ~USBHS_UEP_T_RES_MASK) |
+src/ch32v30x_usbhs_device.cpp:295:                USBHSD->UEP2_TX_CTRL ^= USBHS_UEP_T_TOG_DATA1;
+src/ch32v30x_usbhs_device.cpp:303:                USBHSD->UEP3_TX_CTRL =
+src/ch32v30x_usbhs_device.cpp:304:                    (USBHSD->UEP3_TX_CTRL & ~USBHS_UEP_T_RES_MASK) |
+src/ch32v30x_usbhs_device.cpp:306:                USBHSD->UEP3_TX_CTRL ^= USBHS_UEP_T_TOG_DATA1;
+src/ch32v30x_usbhs_device.cpp:312:                USBHSD->UEP4_TX_CTRL =
+src/ch32v30x_usbhs_device.cpp:313:                    (USBHSD->UEP4_TX_CTRL & ~USBHS_UEP_T_RES_MASK) |
+src/ch32v30x_usbhs_device.cpp:315:                USBHSD->UEP4_TX_CTRL ^= USBHS_UEP_T_TOG_DATA1;
+src/ch32v30x_usbhs_device.cpp:372:                            USBHSD->UEP0_RX_CTRL ^= USBHS_UEP_R_TOG_DATA1;
+src/ch32v30x_usbhs_device.cpp:373:                            USBHSD->UEP0_RX_CTRL =
+src/ch32v30x_usbhs_device.cpp:374:                                (USBHSD->UEP0_RX_CTRL & USBHS_UEP_R_TOG_MASK) |
+src/ch32v30x_usbhs_device.cpp:382:                        USBHSD->UEP0_TX_LEN = 0;
+src/ch32v30x_usbhs_device.cpp:383:                        USBHSD->UEP0_TX_CTRL =
+src/ch32v30x_usbhs_device.cpp:392:                USBHSD->UEP2_RX_CTRL ^= USBHS_UEP_R_TOG_DATA1;
+src/ch32v30x_usbhs_device.cpp:396:                Rx_len = USBHSD->RX_LEN;
+src/ch32v30x_usbhs_device.cpp:397:                memcpy(Rx_buf, (const void*)USBHSD->UEP2_RX_DMA, Rx_len);
+src/ch32v30x_usbhs_device.cpp:400:                // USBHSD->UEP2_RX_DMA = (uint32_t)(uint8_t*)&Tx_Buf;
+src/ch32v30x_usbhs_device.cpp:404:                // USBHSD->UEP2_RX_DMA = (uint32_t)(uint8_t*)&UART1_Tx_Buf[(
+src/ch32v30x_usbhs_device.cpp:409:                //    USBHSD->UEP2_RX_DMA =
+src/ch32v30x_usbhs_device.cpp:416:                //    USBHSD->UEP2_RX_CTRL &= ~USBHS_UEP_R_RES_MASK;
+src/ch32v30x_usbhs_device.cpp:417:                //    USBHSD->UEP2_RX_CTRL |= USBHS_UEP_R_RES_NAK;
+src/ch32v30x_usbhs_device.cpp:420:                USBHSD->UEP2_RX_CTRL &= ~USBHS_UEP_R_RES_MASK;
+src/ch32v30x_usbhs_device.cpp:421:                USBHSD->UEP2_RX_CTRL |= USBHS_UEP_R_RES_NAK;
+src/ch32v30x_usbhs_device.cpp:426:                USBHSD->UEP4_RX_CTRL ^= USBHS_UEP_R_TOG_DATA1;
+src/ch32v30x_usbhs_device.cpp:428:                len = USBHSD->RX_LEN;
+src/ch32v30x_usbhs_device.cpp:432:                USBHSD->UEP4_TX_LEN = len;
+src/ch32v30x_usbhs_device.cpp:433:                USBHSD->UEP4_TX_CTRL &= ~USBHS_UEP_R_RES_MASK;
+src/ch32v30x_usbhs_device.cpp:434:                USBHSD->UEP4_TX_CTRL |= USBHS_UEP_R_RES_ACK;
+src/ch32v30x_usbhs_device.cpp:450:        USBHSD->INT_FG = USBHS_UIF_TRANSFER;
+src/ch32v30x_usbhs_device.cpp:452:        USBHSD->UEP0_TX_CTRL = USBHS_UEP_T_TOG_DATA1 | USBHS_UEP_T_RES_NAK;
+src/ch32v30x_usbhs_device.cpp:453:        USBHSD->UEP0_RX_CTRL = USBHS_UEP_R_TOG_DATA1 | USBHS_UEP_R_RES_NAK;
+src/ch32v30x_usbhs_device.cpp:566:                    if ((USBHSD->SPEED_TYPE & USBHS_SPEED_TYPE_MASK) ==
+src/ch32v30x_usbhs_device.cpp:731:                            USBHSD->UEP2_TX_CTRL = USBHS_UEP_T_RES_NAK;
+src/ch32v30x_usbhs_device.cpp:736:                            USBHSD->UEP2_RX_CTRL = USBHS_UEP_R_RES_ACK;
+src/ch32v30x_usbhs_device.cpp:741:                            USBHSD->UEP3_TX_CTRL = USBHS_UEP_T_RES_NAK;
+src/ch32v30x_usbhs_device.cpp:746:                            USBHSD->UEP4_TX_CTRL = USBHS_UEP_T_RES_NAK;
+src/ch32v30x_usbhs_device.cpp:751:                            USBHSD->UEP4_RX_CTRL = USBHS_UEP_R_RES_ACK;
+src/ch32v30x_usbhs_device.cpp:792:                            USBHSD->UEP2_TX_CTRL =
+src/ch32v30x_usbhs_device.cpp:793:                                (USBHSD->UEP2_TX_CTRL & ~USBHS_UEP_T_RES_MASK) |
+src/ch32v30x_usbhs_device.cpp:799:                            USBHSD->UEP2_RX_CTRL =
+src/ch32v30x_usbhs_device.cpp:800:                                (USBHSD->UEP2_RX_CTRL & ~USBHS_UEP_R_RES_MASK) |
+src/ch32v30x_usbhs_device.cpp:806:                            USBHSD->UEP3_TX_CTRL =
+src/ch32v30x_usbhs_device.cpp:807:                                (USBHSD->UEP3_TX_CTRL & ~USBHS_UEP_T_RES_MASK) |
+src/ch32v30x_usbhs_device.cpp:813:                            USBHSD->UEP4_TX_CTRL =
+src/ch32v30x_usbhs_device.cpp:814:                                (USBHSD->UEP4_TX_CTRL & ~USBHS_UEP_T_RES_MASK) |
+src/ch32v30x_usbhs_device.cpp:820:                            USBHSD->UEP4_RX_CTRL =
+src/ch32v30x_usbhs_device.cpp:821:                                (USBHSD->UEP4_RX_CTRL & ~USBHS_UEP_R_RES_MASK) |
+src/ch32v30x_usbhs_device.cpp:851:                        if (((USBHSD->UEP2_TX_CTRL) & USBHS_UEP_T_RES_MASK) ==
+src/ch32v30x_usbhs_device.cpp:858:                        if (((USBHSD->UEP2_RX_CTRL) & USBHS_UEP_R_RES_MASK) ==
+src/ch32v30x_usbhs_device.cpp:865:                        if (((USBHSD->UEP3_TX_CTRL) & USBHS_UEP_T_RES_MASK) ==
+src/ch32v30x_usbhs_device.cpp:872:                        if (((USBHSD->UEP4_TX_CTRL) & USBHS_UEP_T_RES_MASK) ==
+src/ch32v30x_usbhs_device.cpp:879:                        if (((USBHSD->UEP4_RX_CTRL) & USBHS_UEP_R_RES_MASK) ==
+src/ch32v30x_usbhs_device.cpp:909:            USBHSD->UEP0_TX_CTRL =
+src/ch32v30x_usbhs_device.cpp:911:            USBHSD->UEP0_RX_CTRL =
+src/ch32v30x_usbhs_device.cpp:921:                USBHSD->UEP0_TX_LEN = len;
+src/ch32v30x_usbhs_device.cpp:922:                USBHSD->UEP0_TX_CTRL =
+src/ch32v30x_usbhs_device.cpp:927:                    USBHSD->UEP0_TX_LEN = 0;
+src/ch32v30x_usbhs_device.cpp:928:                    USBHSD->UEP0_TX_CTRL =
+src/ch32v30x_usbhs_device.cpp:931:                    USBHSD->UEP0_RX_CTRL =
+src/ch32v30x_usbhs_device.cpp:936:        USBHSD->INT_FG = USBHS_UIF_SETUP_ACT;
+src/ch32v30x_usbhs_device.cpp:944:        USBHSD->DEV_AD = 0;
+src/ch32v30x_usbhs_device.cpp:953:        USBHSD->INT_FG = USBHS_UIF_BUS_RST;
+src/ch32v30x_usbhs_device.cpp:955:        USBHSD->INT_FG = USBHS_UIF_SUSPEND;
+src/ch32v30x_usbhs_device.cpp:957:        if (USBHSD->MIS_ST & USBHS_UMS_SUSPEND) {
+src/ch32v30x_usbhs_device.cpp:966:        USBHSD->INT_FG = intflag;

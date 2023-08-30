@@ -12,11 +12,11 @@ void voltage_handler()
     adc_5V = adc_5V_sum / (DMA_CH1_BUF_SIZE / 2);
 
     if (adc_5V < (VALUE_FOR_7V - MAX_DEVIATION_FROM_7V)) {
-        if (percent < 70) {
+        if (percent < 80) {
             pwm_change_duty(percent++);
         }
     } else if (adc_5V > (VALUE_FOR_7V + MAX_DEVIATION_FROM_7V)) {
-        if (percent > 30) {
+        if (percent > 20) {
             pwm_change_duty(percent--);
         }
     }

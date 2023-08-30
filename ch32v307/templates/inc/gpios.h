@@ -54,7 +54,8 @@ enum InitModeOut
     ALTERNATE_OPEN_DRAIN
 };
 
-template <PortName portName, uint8_t num, InitModeIn mode = FLOATING> class In {
+template <PortName portName, uint8_t num, InitModeIn mode = FLOATING>
+class In {
   public:
     In() {
         setRCC();
@@ -63,256 +64,320 @@ template <PortName portName, uint8_t num, InitModeIn mode = FLOATING> class In {
     static constexpr void setMode() {
         if constexpr (mode == ANALOG) {
             if constexpr (num == 0) {
-                *(io*)(addr + CFGLR) &= ~(GPIO_CFGLR_MODE0 | GPIO_CFGLR_CNF0);
+                *reinterpret_cast<io*>(addr + CFGLR) &=
+                    ~(GPIO_CFGLR_MODE0 | GPIO_CFGLR_CNF0);
             } else if constexpr (num == 1) {
-                *(io*)(addr + CFGLR) &= ~(GPIO_CFGLR_MODE1 | GPIO_CFGLR_CNF1);
+                *reinterpret_cast<io*>(addr + CFGLR) &=
+                    ~(GPIO_CFGLR_MODE1 | GPIO_CFGLR_CNF1);
             } else if constexpr (num == 2) {
-                *(io*)(addr + CFGLR) &= ~(GPIO_CFGLR_MODE2 | GPIO_CFGLR_CNF2);
+                *reinterpret_cast<io*>(addr + CFGLR) &=
+                    ~(GPIO_CFGLR_MODE2 | GPIO_CFGLR_CNF2);
             } else if constexpr (num == 3) {
-                *(io*)(addr + CFGLR) &= ~(GPIO_CFGLR_MODE3 | GPIO_CFGLR_CNF3);
+                *reinterpret_cast<io*>(addr + CFGLR) &=
+                    ~(GPIO_CFGLR_MODE3 | GPIO_CFGLR_CNF3);
             } else if constexpr (num == 4) {
-                *(io*)(addr + CFGLR) &= ~(GPIO_CFGLR_MODE4 | GPIO_CFGLR_CNF4);
+                *reinterpret_cast<io*>(addr + CFGLR) &=
+                    ~(GPIO_CFGLR_MODE4 | GPIO_CFGLR_CNF4);
             } else if constexpr (num == 5) {
-                *(io*)(addr + CFGLR) &= ~(GPIO_CFGLR_MODE5 | GPIO_CFGLR_CNF5);
+                *reinterpret_cast<io*>(addr + CFGLR) &=
+                    ~(GPIO_CFGLR_MODE5 | GPIO_CFGLR_CNF5);
             } else if constexpr (num == 6) {
-                *(io*)(addr + CFGLR) &= ~(GPIO_CFGLR_MODE6 | GPIO_CFGLR_CNF6);
+                *reinterpret_cast<io*>(addr + CFGLR) &=
+                    ~(GPIO_CFGLR_MODE6 | GPIO_CFGLR_CNF6);
             } else if constexpr (num == 7) {
-                *(io*)(addr + CFGLR) &= ~(GPIO_CFGLR_MODE7 | GPIO_CFGLR_CNF7);
+                *reinterpret_cast<io*>(addr + CFGLR) &=
+                    ~(GPIO_CFGLR_MODE7 | GPIO_CFGLR_CNF7);
             } else if constexpr (num == 8) {
-                *(io*)(addr + CFGHR) &= ~(GPIO_CFGHR_MODE8 | GPIO_CFGHR_CNF8);
+                *reinterpret_cast<io*>(addr + CFGHR) &=
+                    ~(GPIO_CFGHR_MODE8 | GPIO_CFGHR_CNF8);
             } else if constexpr (num == 9) {
-                *(io*)(addr + CFGHR) &= ~(GPIO_CFGHR_MODE8 | GPIO_CFGHR_CNF8);
+                *reinterpret_cast<io*>(addr + CFGHR) &=
+                    ~(GPIO_CFGHR_MODE8 | GPIO_CFGHR_CNF8);
             } else if constexpr (num == 10) {
-                *(io*)(addr + CFGHR) &= ~(GPIO_CFGHR_MODE8 | GPIO_CFGHR_CNF8);
+                *reinterpret_cast<io*>(addr + CFGHR) &=
+                    ~(GPIO_CFGHR_MODE8 | GPIO_CFGHR_CNF8);
             } else if constexpr (num == 11) {
-                *(io*)(addr + CFGHR) &= ~(GPIO_CFGHR_MODE8 | GPIO_CFGHR_CNF8);
+                *reinterpret_cast<io*>(addr + CFGHR) &=
+                    ~(GPIO_CFGHR_MODE8 | GPIO_CFGHR_CNF8);
             } else if constexpr (num == 12) {
-                *(io*)(addr + CFGHR) &= ~(GPIO_CFGHR_MODE8 | GPIO_CFGHR_CNF8);
+                *reinterpret_cast<io*>(addr + CFGHR) &=
+                    ~(GPIO_CFGHR_MODE8 | GPIO_CFGHR_CNF8);
             } else if constexpr (num == 13) {
-                *(io*)(addr + CFGHR) &= ~(GPIO_CFGHR_MODE8 | GPIO_CFGHR_CNF8);
+                *reinterpret_cast<io*>(addr + CFGHR) &=
+                    ~(GPIO_CFGHR_MODE8 | GPIO_CFGHR_CNF8);
             } else if constexpr (num == 14) {
-                *(io*)(addr + CFGHR) &= ~(GPIO_CFGHR_MODE8 | GPIO_CFGHR_CNF8);
+                *reinterpret_cast<io*>(addr + CFGHR) &=
+                    ~(GPIO_CFGHR_MODE8 | GPIO_CFGHR_CNF8);
             } else if constexpr (num == 15) {
-                *(io*)(addr + CFGHR) &= ~(GPIO_CFGHR_MODE8 | GPIO_CFGHR_CNF8);
+                *reinterpret_cast<io*>(addr + CFGHR) &=
+                    ~(GPIO_CFGHR_MODE8 | GPIO_CFGHR_CNF8);
             }
         } else if constexpr (mode == FLOATING) {
             if constexpr (num == 0) {
-                *(io*)(addr + CFGLR) &= ~(GPIO_CFGLR_MODE0 | GPIO_CFGLR_CNF0);
-                *(io*)(addr + CFGLR) |= GPIO_CFGLR_CNF0_0;
+                *reinterpret_cast<io*>(addr + CFGLR) &=
+                    ~(GPIO_CFGLR_MODE0 | GPIO_CFGLR_CNF0);
+                *reinterpret_cast<io*>(addr + CFGLR) |= GPIO_CFGLR_CNF0_0;
             } else if constexpr (num == 1) {
-                *(io*)(addr + CFGLR) &= ~(GPIO_CFGLR_MODE1 | GPIO_CFGLR_CNF1);
-                *(io*)(addr + CFGLR) |= GPIO_CFGLR_CNF1_0;
+                *reinterpret_cast<io*>(addr + CFGLR) &=
+                    ~(GPIO_CFGLR_MODE1 | GPIO_CFGLR_CNF1);
+                *reinterpret_cast<io*>(addr + CFGLR) |= GPIO_CFGLR_CNF1_0;
             } else if constexpr (num == 2) {
-                *(io*)(addr + CFGLR) &= ~(GPIO_CFGLR_MODE2 | GPIO_CFGLR_CNF2);
-                *(io*)(addr + CFGLR) |= GPIO_CFGLR_CNF2_0;
+                *reinterpret_cast<io*>(addr + CFGLR) &=
+                    ~(GPIO_CFGLR_MODE2 | GPIO_CFGLR_CNF2);
+                *reinterpret_cast<io*>(addr + CFGLR) |= GPIO_CFGLR_CNF2_0;
             } else if constexpr (num == 3) {
-                *(io*)(addr + CFGLR) &= ~(GPIO_CFGLR_MODE3 | GPIO_CFGLR_CNF3);
-                *(io*)(addr + CFGLR) |= GPIO_CFGLR_CNF3_0;
+                *reinterpret_cast<io*>(addr + CFGLR) &=
+                    ~(GPIO_CFGLR_MODE3 | GPIO_CFGLR_CNF3);
+                *reinterpret_cast<io*>(addr + CFGLR) |= GPIO_CFGLR_CNF3_0;
             } else if constexpr (num == 4) {
-                *(io*)(addr + CFGLR) &= ~(GPIO_CFGLR_MODE4 | GPIO_CFGLR_CNF4);
-                *(io*)(addr + CFGLR) |= GPIO_CFGLR_CNF4_0;
+                *reinterpret_cast<io*>(addr + CFGLR) &=
+                    ~(GPIO_CFGLR_MODE4 | GPIO_CFGLR_CNF4);
+                *reinterpret_cast<io*>(addr + CFGLR) |= GPIO_CFGLR_CNF4_0;
             } else if constexpr (num == 5) {
-                *(io*)(addr + CFGLR) &= ~(GPIO_CFGLR_MODE5 | GPIO_CFGLR_CNF5);
-                *(io*)(addr + CFGLR) |= GPIO_CFGLR_CNF5_0;
+                *reinterpret_cast<io*>(addr + CFGLR) &=
+                    ~(GPIO_CFGLR_MODE5 | GPIO_CFGLR_CNF5);
+                *reinterpret_cast<io*>(addr + CFGLR) |= GPIO_CFGLR_CNF5_0;
             } else if constexpr (num == 6) {
-                *(io*)(addr + CFGLR) &= ~(GPIO_CFGLR_MODE6 | GPIO_CFGLR_CNF6);
-                *(io*)(addr + CFGLR) |= GPIO_CFGLR_CNF6_0;
+                *reinterpret_cast<io*>(addr + CFGLR) &=
+                    ~(GPIO_CFGLR_MODE6 | GPIO_CFGLR_CNF6);
+                *reinterpret_cast<io*>(addr + CFGLR) |= GPIO_CFGLR_CNF6_0;
             } else if constexpr (num == 7) {
-                *(io*)(addr + CFGLR) &= ~(GPIO_CFGLR_MODE7 | GPIO_CFGLR_CNF7);
-                *(io*)(addr + CFGLR) |= GPIO_CFGLR_CNF7_0;
+                *reinterpret_cast<io*>(addr + CFGLR) &=
+                    ~(GPIO_CFGLR_MODE7 | GPIO_CFGLR_CNF7);
+                *reinterpret_cast<io*>(addr + CFGLR) |= GPIO_CFGLR_CNF7_0;
             } else if constexpr (num == 8) {
-                *(io*)(addr + CFGHR) &= ~(GPIO_CFGHR_MODE8 | GPIO_CFGHR_CNF8);
-                *(io*)(addr + CFGHR) |= GPIO_CFGHR_CNF8_0;
+                *reinterpret_cast<io*>(addr + CFGHR) &=
+                    ~(GPIO_CFGHR_MODE8 | GPIO_CFGHR_CNF8);
+                *reinterpret_cast<io*>(addr + CFGHR) |= GPIO_CFGHR_CNF8_0;
             } else if constexpr (num == 9) {
-                *(io*)(addr + CFGHR) &= ~(GPIO_CFGHR_MODE9 | GPIO_CFGHR_CNF9);
-                *(io*)(addr + CFGHR) |= GPIO_CFGHR_CNF9_0;
+                *reinterpret_cast<io*>(addr + CFGHR) &=
+                    ~(GPIO_CFGHR_MODE9 | GPIO_CFGHR_CNF9);
+                *reinterpret_cast<io*>(addr + CFGHR) |= GPIO_CFGHR_CNF9_0;
             } else if constexpr (num == 10) {
-                *(io*)(addr + CFGHR) &= ~(GPIO_CFGHR_MODE10 | GPIO_CFGHR_CNF10);
-                *(io*)(addr + CFGHR) |= GPIO_CFGHR_CNF10_0;
+                *reinterpret_cast<io*>(addr + CFGHR) &=
+                    ~(GPIO_CFGHR_MODE10 | GPIO_CFGHR_CNF10);
+                *reinterpret_cast<io*>(addr + CFGHR) |= GPIO_CFGHR_CNF10_0;
             } else if constexpr (num == 11) {
-                *(io*)(addr + CFGHR) &= ~(GPIO_CFGHR_MODE11 | GPIO_CFGHR_CNF11);
-                *(io*)(addr + CFGHR) |= GPIO_CFGHR_CNF11_0;
+                *reinterpret_cast<io*>(addr + CFGHR) &=
+                    ~(GPIO_CFGHR_MODE11 | GPIO_CFGHR_CNF11);
+                *reinterpret_cast<io*>(addr + CFGHR) |= GPIO_CFGHR_CNF11_0;
             } else if constexpr (num == 12) {
-                *(io*)(addr + CFGHR) &= ~(GPIO_CFGHR_MODE12 | GPIO_CFGHR_CNF12);
-                *(io*)(addr + CFGHR) |= GPIO_CFGHR_CNF12_0;
+                *reinterpret_cast<io*>(addr + CFGHR) &=
+                    ~(GPIO_CFGHR_MODE12 | GPIO_CFGHR_CNF12);
+                *reinterpret_cast<io*>(addr + CFGHR) |= GPIO_CFGHR_CNF12_0;
             } else if constexpr (num == 13) {
-                *(io*)(addr + CFGHR) &= ~(GPIO_CFGHR_MODE13 | GPIO_CFGHR_CNF13);
-                *(io*)(addr + CFGHR) |= GPIO_CFGHR_CNF13_0;
+                *reinterpret_cast<io*>(addr + CFGHR) &=
+                    ~(GPIO_CFGHR_MODE13 | GPIO_CFGHR_CNF13);
+                *reinterpret_cast<io*>(addr + CFGHR) |= GPIO_CFGHR_CNF13_0;
             } else if constexpr (num == 14) {
-                *(io*)(addr + CFGHR) &= ~(GPIO_CFGHR_MODE14 | GPIO_CFGHR_CNF14);
-                *(io*)(addr + CFGHR) |= GPIO_CFGHR_CNF14_0;
+                *reinterpret_cast<io*>(addr + CFGHR) &=
+                    ~(GPIO_CFGHR_MODE14 | GPIO_CFGHR_CNF14);
+                *reinterpret_cast<io*>(addr + CFGHR) |= GPIO_CFGHR_CNF14_0;
             } else if constexpr (num == 15) {
-                *(io*)(addr + CFGHR) &= ~(GPIO_CFGHR_MODE15 | GPIO_CFGHR_CNF15);
-                *(io*)(addr + CFGHR) |= GPIO_CFGHR_CNF15_0;
+                *reinterpret_cast<io*>(addr + CFGHR) &=
+                    ~(GPIO_CFGHR_MODE15 | GPIO_CFGHR_CNF15);
+                *reinterpret_cast<io*>(addr + CFGHR) |= GPIO_CFGHR_CNF15_0;
             }
         } else if constexpr (mode == PULL_DOWN) {
             if constexpr (num == 0) {
-                *(io*)(addr + CFGLR) &= ~(GPIO_CFGLR_MODE0 | GPIO_CFGLR_CNF0);
-                *(io*)(addr + CFGLR) |= GPIO_CFGLR_CNF0_1;
-                *(io*)(addr + OUTDR) &= ~GPIO_OUTDR_ODR0;
+                *reinterpret_cast<io*>(addr + CFGLR) &=
+                    ~(GPIO_CFGLR_MODE0 | GPIO_CFGLR_CNF0);
+                *reinterpret_cast<io*>(addr + CFGLR) |= GPIO_CFGLR_CNF0_1;
+                *reinterpret_cast<io*>(addr + OUTDR) &= ~GPIO_OUTDR_ODR0;
             } else if constexpr (num == 1) {
-                *(io*)(addr + CFGLR) &= ~(GPIO_CFGLR_MODE1 | GPIO_CFGLR_CNF1);
-                *(io*)(addr + CFGLR) |= GPIO_CFGLR_CNF1_1;
-                *(io*)(addr + OUTDR) &= ~GPIO_OUTDR_ODR1;
+                *reinterpret_cast<io*>(addr + CFGLR) &=
+                    ~(GPIO_CFGLR_MODE1 | GPIO_CFGLR_CNF1);
+                *reinterpret_cast<io*>(addr + CFGLR) |= GPIO_CFGLR_CNF1_1;
+                *reinterpret_cast<io*>(addr + OUTDR) &= ~GPIO_OUTDR_ODR1;
             } else if constexpr (num == 2) {
-                *(io*)(addr + CFGLR) &= ~(GPIO_CFGLR_MODE2 | GPIO_CFGLR_CNF2);
-                *(io*)(addr + CFGLR) |= GPIO_CFGLR_CNF2_1;
-                *(io*)(addr + OUTDR) &= ~GPIO_OUTDR_ODR2;
+                *reinterpret_cast<io*>(addr + CFGLR) &=
+                    ~(GPIO_CFGLR_MODE2 | GPIO_CFGLR_CNF2);
+                *reinterpret_cast<io*>(addr + CFGLR) |= GPIO_CFGLR_CNF2_1;
+                *reinterpret_cast<io*>(addr + OUTDR) &= ~GPIO_OUTDR_ODR2;
             } else if constexpr (num == 3) {
-                *(io*)(addr + CFGLR) &= ~(GPIO_CFGLR_MODE3 | GPIO_CFGLR_CNF3);
-                *(io*)(addr + CFGLR) |= GPIO_CFGLR_CNF3_1;
-                *(io*)(addr + OUTDR) &= ~GPIO_OUTDR_ODR3;
+                *reinterpret_cast<io*>(addr + CFGLR) &=
+                    ~(GPIO_CFGLR_MODE3 | GPIO_CFGLR_CNF3);
+                *reinterpret_cast<io*>(addr + CFGLR) |= GPIO_CFGLR_CNF3_1;
+                *reinterpret_cast<io*>(addr + OUTDR) &= ~GPIO_OUTDR_ODR3;
             } else if constexpr (num == 4) {
-                *(io*)(addr + CFGLR) &= ~(GPIO_CFGLR_MODE4 | GPIO_CFGLR_CNF4);
-                *(io*)(addr + CFGLR) |= GPIO_CFGLR_CNF4_1;
-                *(io*)(addr + OUTDR) &= ~GPIO_OUTDR_ODR4;
+                *reinterpret_cast<io*>(addr + CFGLR) &=
+                    ~(GPIO_CFGLR_MODE4 | GPIO_CFGLR_CNF4);
+                *reinterpret_cast<io*>(addr + CFGLR) |= GPIO_CFGLR_CNF4_1;
+                *reinterpret_cast<io*>(addr + OUTDR) &= ~GPIO_OUTDR_ODR4;
             } else if constexpr (num == 5) {
-                *(io*)(addr + CFGLR) &= ~(GPIO_CFGLR_MODE5 | GPIO_CFGLR_CNF5);
-                *(io*)(addr + CFGLR) |= GPIO_CFGLR_CNF5_1;
-                *(io*)(addr + OUTDR) &= ~GPIO_OUTDR_ODR5;
+                *reinterpret_cast<io*>(addr + CFGLR) &=
+                    ~(GPIO_CFGLR_MODE5 | GPIO_CFGLR_CNF5);
+                *reinterpret_cast<io*>(addr + CFGLR) |= GPIO_CFGLR_CNF5_1;
+                *reinterpret_cast<io*>(addr + OUTDR) &= ~GPIO_OUTDR_ODR5;
             } else if constexpr (num == 6) {
-                *(io*)(addr + CFGLR) &= ~(GPIO_CFGLR_MODE6 | GPIO_CFGLR_CNF6);
-                *(io*)(addr + CFGLR) |= GPIO_CFGLR_CNF6_1;
-                *(io*)(addr + OUTDR) &= ~GPIO_OUTDR_ODR6;
+                *reinterpret_cast<io*>(addr + CFGLR) &=
+                    ~(GPIO_CFGLR_MODE6 | GPIO_CFGLR_CNF6);
+                *reinterpret_cast<io*>(addr + CFGLR) |= GPIO_CFGLR_CNF6_1;
+                *reinterpret_cast<io*>(addr + OUTDR) &= ~GPIO_OUTDR_ODR6;
             } else if constexpr (num == 7) {
-                *(io*)(addr + CFGLR) &= ~(GPIO_CFGLR_MODE7 | GPIO_CFGLR_CNF7);
-                *(io*)(addr + CFGLR) |= GPIO_CFGLR_CNF7_1;
-                *(io*)(addr + OUTDR) &= ~GPIO_OUTDR_ODR7;
+                *reinterpret_cast<io*>(addr + CFGLR) &=
+                    ~(GPIO_CFGLR_MODE7 | GPIO_CFGLR_CNF7);
+                *reinterpret_cast<io*>(addr + CFGLR) |= GPIO_CFGLR_CNF7_1;
+                *reinterpret_cast<io*>(addr + OUTDR) &= ~GPIO_OUTDR_ODR7;
             } else if constexpr (num == 8) {
-                *(io*)(addr + CFGHR) &= ~(GPIO_CFGHR_MODE8 | GPIO_CFGHR_CNF8);
-                *(io*)(addr + CFGHR) |= GPIO_CFGHR_CNF8_1;
-                *(io*)(addr + OUTDR) &= ~GPIO_OUTDR_ODR8;
+                *reinterpret_cast<io*>(addr + CFGHR) &=
+                    ~(GPIO_CFGHR_MODE8 | GPIO_CFGHR_CNF8);
+                *reinterpret_cast<io*>(addr + CFGHR) |= GPIO_CFGHR_CNF8_1;
+                *reinterpret_cast<io*>(addr + OUTDR) &= ~GPIO_OUTDR_ODR8;
             } else if constexpr (num == 9) {
-                *(io*)(addr + CFGHR) &= ~(GPIO_CFGHR_MODE9 | GPIO_CFGHR_CNF9);
-                *(io*)(addr + CFGHR) |= GPIO_CFGHR_CNF9_1;
-                *(io*)(addr + OUTDR) &= ~GPIO_OUTDR_ODR9;
+                *reinterpret_cast<io*>(addr + CFGHR) &=
+                    ~(GPIO_CFGHR_MODE9 | GPIO_CFGHR_CNF9);
+                *reinterpret_cast<io*>(addr + CFGHR) |= GPIO_CFGHR_CNF9_1;
+                *reinterpret_cast<io*>(addr + OUTDR) &= ~GPIO_OUTDR_ODR9;
             } else if constexpr (num == 10) {
-                *(io*)(addr + CFGHR) &= ~(GPIO_CFGHR_MODE10 | GPIO_CFGHR_CNF10);
-                *(io*)(addr + CFGHR) |= GPIO_CFGHR_CNF10_1;
-                *(io*)(addr + OUTDR) &= ~GPIO_OUTDR_ODR10;
+                *reinterpret_cast<io*>(addr + CFGHR) &=
+                    ~(GPIO_CFGHR_MODE10 | GPIO_CFGHR_CNF10);
+                *reinterpret_cast<io*>(addr + CFGHR) |= GPIO_CFGHR_CNF10_1;
+                *reinterpret_cast<io*>(addr + OUTDR) &= ~GPIO_OUTDR_ODR10;
             } else if constexpr (num == 11) {
-                *(io*)(addr + CFGHR) &= ~(GPIO_CFGHR_MODE11 | GPIO_CFGHR_CNF11);
-                *(io*)(addr + CFGHR) |= GPIO_CFGHR_CNF11_1;
-                *(io*)(addr + OUTDR) &= ~GPIO_OUTDR_ODR11;
+                *reinterpret_cast<io*>(addr + CFGHR) &=
+                    ~(GPIO_CFGHR_MODE11 | GPIO_CFGHR_CNF11);
+                *reinterpret_cast<io*>(addr + CFGHR) |= GPIO_CFGHR_CNF11_1;
+                *reinterpret_cast<io*>(addr + OUTDR) &= ~GPIO_OUTDR_ODR11;
             } else if constexpr (num == 12) {
-                *(io*)(addr + CFGHR) &= ~(GPIO_CFGHR_MODE12 | GPIO_CFGHR_CNF12);
-                *(io*)(addr + CFGHR) |= GPIO_CFGHR_CNF12_1;
-                *(io*)(addr + OUTDR) &= ~GPIO_OUTDR_ODR12;
+                *reinterpret_cast<io*>(addr + CFGHR) &=
+                    ~(GPIO_CFGHR_MODE12 | GPIO_CFGHR_CNF12);
+                *reinterpret_cast<io*>(addr + CFGHR) |= GPIO_CFGHR_CNF12_1;
+                *reinterpret_cast<io*>(addr + OUTDR) &= ~GPIO_OUTDR_ODR12;
             } else if constexpr (num == 13) {
-                *(io*)(addr + CFGHR) &= ~(GPIO_CFGHR_MODE13 | GPIO_CFGHR_CNF13);
-                *(io*)(addr + CFGHR) |= GPIO_CFGHR_CNF13_1;
-                *(io*)(addr + OUTDR) &= ~GPIO_OUTDR_ODR13;
+                *reinterpret_cast<io*>(addr + CFGHR) &=
+                    ~(GPIO_CFGHR_MODE13 | GPIO_CFGHR_CNF13);
+                *reinterpret_cast<io*>(addr + CFGHR) |= GPIO_CFGHR_CNF13_1;
+                *reinterpret_cast<io*>(addr + OUTDR) &= ~GPIO_OUTDR_ODR13;
             } else if constexpr (num == 14) {
-                *(io*)(addr + CFGHR) &= ~(GPIO_CFGHR_MODE14 | GPIO_CFGHR_CNF14);
-                *(io*)(addr + CFGHR) |= GPIO_CFGHR_CNF14_1;
-                *(io*)(addr + OUTDR) &= ~GPIO_OUTDR_ODR14;
+                *reinterpret_cast<io*>(addr + CFGHR) &=
+                    ~(GPIO_CFGHR_MODE14 | GPIO_CFGHR_CNF14);
+                *reinterpret_cast<io*>(addr + CFGHR) |= GPIO_CFGHR_CNF14_1;
+                *reinterpret_cast<io*>(addr + OUTDR) &= ~GPIO_OUTDR_ODR14;
             } else if constexpr (num == 15) {
-                *(io*)(addr + CFGHR) &= ~(GPIO_CFGHR_MODE15 | GPIO_CFGHR_CNF15);
-                *(io*)(addr + CFGHR) |= GPIO_CFGHR_CNF15_1;
-                *(io*)(addr + OUTDR) &= ~GPIO_OUTDR_ODR15;
+                *reinterpret_cast<io*>(addr + CFGHR) &=
+                    ~(GPIO_CFGHR_MODE15 | GPIO_CFGHR_CNF15);
+                *reinterpret_cast<io*>(addr + CFGHR) |= GPIO_CFGHR_CNF15_1;
+                *reinterpret_cast<io*>(addr + OUTDR) &= ~GPIO_OUTDR_ODR15;
             }
         } else if constexpr (mode == PULL_UP) {
             if constexpr (num == 0) {
-                *(io*)(addr + CFGLR) &= ~(GPIO_CFGLR_MODE0 | GPIO_CFGLR_CNF0);
-                *(io*)(addr + CFGLR) |= GPIO_CFGLR_CNF0_1;
-                *(io*)(addr + OUTDR) |= GPIO_OUTDR_ODR0;
+                *reinterpret_cast<io*>(addr + CFGLR) &=
+                    ~(GPIO_CFGLR_MODE0 | GPIO_CFGLR_CNF0);
+                *reinterpret_cast<io*>(addr + CFGLR) |= GPIO_CFGLR_CNF0_1;
+                *reinterpret_cast<io*>(addr + OUTDR) |= GPIO_OUTDR_ODR0;
             } else if constexpr (num == 1) {
-                *(io*)(addr + CFGLR) &= ~(GPIO_CFGLR_MODE1 | GPIO_CFGLR_CNF1);
-                *(io*)(addr + CFGLR) |= GPIO_CFGLR_CNF1_1;
-                *(io*)(addr + OUTDR) |= GPIO_OUTDR_ODR1;
+                *reinterpret_cast<io*>(addr + CFGLR) &=
+                    ~(GPIO_CFGLR_MODE1 | GPIO_CFGLR_CNF1);
+                *reinterpret_cast<io*>(addr + CFGLR) |= GPIO_CFGLR_CNF1_1;
+                *reinterpret_cast<io*>(addr + OUTDR) |= GPIO_OUTDR_ODR1;
             } else if constexpr (num == 2) {
-                *(io*)(addr + CFGLR) &= ~(GPIO_CFGLR_MODE2 | GPIO_CFGLR_CNF2);
-                *(io*)(addr + CFGLR) |= GPIO_CFGLR_CNF2_1;
-                *(io*)(addr + OUTDR) |= GPIO_OUTDR_ODR2;
+                *reinterpret_cast<io*>(addr + CFGLR) &=
+                    ~(GPIO_CFGLR_MODE2 | GPIO_CFGLR_CNF2);
+                *reinterpret_cast<io*>(addr + CFGLR) |= GPIO_CFGLR_CNF2_1;
+                *reinterpret_cast<io*>(addr + OUTDR) |= GPIO_OUTDR_ODR2;
             } else if constexpr (num == 3) {
-                *(io*)(addr + CFGLR) &= ~(GPIO_CFGLR_MODE3 | GPIO_CFGLR_CNF3);
-                *(io*)(addr + CFGLR) |= GPIO_CFGLR_CNF3_1;
-                *(io*)(addr + OUTDR) |= GPIO_OUTDR_ODR3;
+                *reinterpret_cast<io*>(addr + CFGLR) &=
+                    ~(GPIO_CFGLR_MODE3 | GPIO_CFGLR_CNF3);
+                *reinterpret_cast<io*>(addr + CFGLR) |= GPIO_CFGLR_CNF3_1;
+                *reinterpret_cast<io*>(addr + OUTDR) |= GPIO_OUTDR_ODR3;
             } else if constexpr (num == 4) {
-                *(io*)(addr + CFGLR) &= ~(GPIO_CFGLR_MODE4 | GPIO_CFGLR_CNF4);
-                *(io*)(addr + CFGLR) |= GPIO_CFGLR_CNF4_1;
-                *(io*)(addr + OUTDR) |= GPIO_OUTDR_ODR4;
+                *reinterpret_cast<io*>(addr + CFGLR) &=
+                    ~(GPIO_CFGLR_MODE4 | GPIO_CFGLR_CNF4);
+                *reinterpret_cast<io*>(addr + CFGLR) |= GPIO_CFGLR_CNF4_1;
+                *reinterpret_cast<io*>(addr + OUTDR) |= GPIO_OUTDR_ODR4;
             } else if constexpr (num == 5) {
-                *(io*)(addr + CFGLR) &= ~(GPIO_CFGLR_MODE5 | GPIO_CFGLR_CNF5);
-                *(io*)(addr + CFGLR) |= GPIO_CFGLR_CNF5_1;
-                *(io*)(addr + OUTDR) |= GPIO_OUTDR_ODR5;
+                *reinterpret_cast<io*>(addr + CFGLR) &=
+                    ~(GPIO_CFGLR_MODE5 | GPIO_CFGLR_CNF5);
+                *reinterpret_cast<io*>(addr + CFGLR) |= GPIO_CFGLR_CNF5_1;
+                *reinterpret_cast<io*>(addr + OUTDR) |= GPIO_OUTDR_ODR5;
             } else if constexpr (num == 6) {
-                *(io*)(addr + CFGLR) &= ~(GPIO_CFGLR_MODE6 | GPIO_CFGLR_CNF6);
-                *(io*)(addr + CFGLR) |= GPIO_CFGLR_CNF6_1;
-                *(io*)(addr + OUTDR) |= GPIO_OUTDR_ODR6;
+                *reinterpret_cast<io*>(addr + CFGLR) &=
+                    ~(GPIO_CFGLR_MODE6 | GPIO_CFGLR_CNF6);
+                *reinterpret_cast<io*>(addr + CFGLR) |= GPIO_CFGLR_CNF6_1;
+                *reinterpret_cast<io*>(addr + OUTDR) |= GPIO_OUTDR_ODR6;
             } else if constexpr (num == 7) {
-                *(io*)(addr + CFGLR) &= ~(GPIO_CFGLR_MODE7 | GPIO_CFGLR_CNF7);
-                *(io*)(addr + CFGLR) |= GPIO_CFGLR_CNF7_1;
-                *(io*)(addr + OUTDR) |= GPIO_OUTDR_ODR7;
+                *reinterpret_cast<io*>(addr + CFGLR) &=
+                    ~(GPIO_CFGLR_MODE7 | GPIO_CFGLR_CNF7);
+                *reinterpret_cast<io*>(addr + CFGLR) |= GPIO_CFGLR_CNF7_1;
+                *reinterpret_cast<io*>(addr + OUTDR) |= GPIO_OUTDR_ODR7;
             } else if constexpr (num == 8) {
-                *(io*)(addr + CFGHR) &= ~(GPIO_CFGHR_MODE8 | GPIO_CFGHR_CNF8);
-                *(io*)(addr + CFGHR) |= GPIO_CFGHR_CNF8_1;
-                *(io*)(addr + OUTDR) |= GPIO_OUTDR_ODR8;
+                *reinterpret_cast<io*>(addr + CFGHR) &=
+                    ~(GPIO_CFGHR_MODE8 | GPIO_CFGHR_CNF8);
+                *reinterpret_cast<io*>(addr + CFGHR) |= GPIO_CFGHR_CNF8_1;
+                *reinterpret_cast<io*>(addr + OUTDR) |= GPIO_OUTDR_ODR8;
             } else if constexpr (num == 9) {
-                *(io*)(addr + CFGHR) &= ~(GPIO_CFGHR_MODE9 | GPIO_CFGHR_CNF9);
-                *(io*)(addr + CFGHR) |= GPIO_CFGHR_CNF9_1;
-                *(io*)(addr + OUTDR) |= GPIO_OUTDR_ODR9;
+                *reinterpret_cast<io*>(addr + CFGHR) &=
+                    ~(GPIO_CFGHR_MODE9 | GPIO_CFGHR_CNF9);
+                *reinterpret_cast<io*>(addr + CFGHR) |= GPIO_CFGHR_CNF9_1;
+                *reinterpret_cast<io*>(addr + OUTDR) |= GPIO_OUTDR_ODR9;
             } else if constexpr (num == 10) {
-                *(io*)(addr + CFGHR) &= ~(GPIO_CFGHR_MODE10 | GPIO_CFGHR_CNF10);
-                *(io*)(addr + CFGHR) |= GPIO_CFGHR_CNF10_1;
-                *(io*)(addr + OUTDR) |= GPIO_OUTDR_ODR10;
+                *reinterpret_cast<io*>(addr + CFGHR) &=
+                    ~(GPIO_CFGHR_MODE10 | GPIO_CFGHR_CNF10);
+                *reinterpret_cast<io*>(addr + CFGHR) |= GPIO_CFGHR_CNF10_1;
+                *reinterpret_cast<io*>(addr + OUTDR) |= GPIO_OUTDR_ODR10;
             } else if constexpr (num == 11) {
-                *(io*)(addr + CFGHR) &= ~(GPIO_CFGHR_MODE11 | GPIO_CFGHR_CNF11);
-                *(io*)(addr + CFGHR) |= GPIO_CFGHR_CNF11_1;
-                *(io*)(addr + OUTDR) |= GPIO_OUTDR_ODR11;
+                *reinterpret_cast<io*>(addr + CFGHR) &=
+                    ~(GPIO_CFGHR_MODE11 | GPIO_CFGHR_CNF11);
+                *reinterpret_cast<io*>(addr + CFGHR) |= GPIO_CFGHR_CNF11_1;
+                *reinterpret_cast<io*>(addr + OUTDR) |= GPIO_OUTDR_ODR11;
             } else if constexpr (num == 12) {
-                *(io*)(addr + CFGHR) &= ~(GPIO_CFGHR_MODE12 | GPIO_CFGHR_CNF12);
-                *(io*)(addr + CFGHR) |= GPIO_CFGHR_CNF12_1;
-                *(io*)(addr + OUTDR) |= GPIO_OUTDR_ODR12;
+                *reinterpret_cast<io*>(addr + CFGHR) &=
+                    ~(GPIO_CFGHR_MODE12 | GPIO_CFGHR_CNF12);
+                *reinterpret_cast<io*>(addr + CFGHR) |= GPIO_CFGHR_CNF12_1;
+                *reinterpret_cast<io*>(addr + OUTDR) |= GPIO_OUTDR_ODR12;
             } else if constexpr (num == 13) {
-                *(io*)(addr + CFGHR) &= ~(GPIO_CFGHR_MODE13 | GPIO_CFGHR_CNF13);
-                *(io*)(addr + CFGHR) |= GPIO_CFGHR_CNF13_1;
-                *(io*)(addr + OUTDR) |= GPIO_OUTDR_ODR13;
+                *reinterpret_cast<io*>(addr + CFGHR) &=
+                    ~(GPIO_CFGHR_MODE13 | GPIO_CFGHR_CNF13);
+                *reinterpret_cast<io*>(addr + CFGHR) |= GPIO_CFGHR_CNF13_1;
+                *reinterpret_cast<io*>(addr + OUTDR) |= GPIO_OUTDR_ODR13;
             } else if constexpr (num == 14) {
-                *(io*)(addr + CFGHR) &= ~(GPIO_CFGHR_MODE14 | GPIO_CFGHR_CNF14);
-                *(io*)(addr + CFGHR) |= GPIO_CFGHR_CNF14_1;
-                *(io*)(addr + OUTDR) |= GPIO_OUTDR_ODR14;
+                *reinterpret_cast<io*>(addr + CFGHR) &=
+                    ~(GPIO_CFGHR_MODE14 | GPIO_CFGHR_CNF14);
+                *reinterpret_cast<io*>(addr + CFGHR) |= GPIO_CFGHR_CNF14_1;
+                *reinterpret_cast<io*>(addr + OUTDR) |= GPIO_OUTDR_ODR14;
             } else if constexpr (num == 15) {
-                *(io*)(addr + CFGHR) &= ~(GPIO_CFGHR_MODE15 | GPIO_CFGHR_CNF15);
-                *(io*)(addr + CFGHR) |= GPIO_CFGHR_CNF15_1;
-                *(io*)(addr + OUTDR) |= GPIO_OUTDR_ODR15;
+                *reinterpret_cast<io*>(addr + CFGHR) &=
+                    ~(GPIO_CFGHR_MODE15 | GPIO_CFGHR_CNF15);
+                *reinterpret_cast<io*>(addr + CFGHR) |= GPIO_CFGHR_CNF15_1;
+                *reinterpret_cast<io*>(addr + OUTDR) |= GPIO_OUTDR_ODR15;
             }
         }
     }
     static bool getState() {
         if constexpr (num == 0) {
-            return *(io*)(addr + INDR) & GPIO_INDR_IDR0;
+            return *reinterpret_cast<io*>(addr + INDR) & GPIO_INDR_IDR0;
         } else if constexpr (num == 1) {
-            return *(io*)(addr + INDR) & GPIO_INDR_IDR1;
+            return *reinterpret_cast<io*>(addr + INDR) & GPIO_INDR_IDR1;
         } else if constexpr (num == 2) {
-            return *(io*)(addr + INDR) & GPIO_INDR_IDR2;
+            return *reinterpret_cast<io*>(addr + INDR) & GPIO_INDR_IDR2;
         } else if constexpr (num == 3) {
-            return *(io*)(addr + INDR) & GPIO_INDR_IDR3;
+            return *reinterpret_cast<io*>(addr + INDR) & GPIO_INDR_IDR3;
         } else if constexpr (num == 4) {
-            return *(io*)(addr + INDR) & GPIO_INDR_IDR4;
+            return *reinterpret_cast<io*>(addr + INDR) & GPIO_INDR_IDR4;
         } else if constexpr (num == 5) {
-            return *(io*)(addr + INDR) & GPIO_INDR_IDR5;
+            return *reinterpret_cast<io*>(addr + INDR) & GPIO_INDR_IDR5;
         } else if constexpr (num == 6) {
-            return *(io*)(addr + INDR) & GPIO_INDR_IDR6;
+            return *reinterpret_cast<io*>(addr + INDR) & GPIO_INDR_IDR6;
         } else if constexpr (num == 7) {
-            return *(io*)(addr + INDR) & GPIO_INDR_IDR7;
+            return *reinterpret_cast<io*>(addr + INDR) & GPIO_INDR_IDR7;
         } else if constexpr (num == 8) {
-            return *(io*)(addr + INDR) & GPIO_INDR_IDR8;
+            return *reinterpret_cast<io*>(addr + INDR) & GPIO_INDR_IDR8;
         } else if constexpr (num == 9) {
-            return *(io*)(addr + INDR) & GPIO_INDR_IDR9;
+            return *reinterpret_cast<io*>(addr + INDR) & GPIO_INDR_IDR9;
         } else if constexpr (num == 10) {
-            return *(io*)(addr + INDR) & GPIO_INDR_IDR10;
+            return *reinterpret_cast<io*>(addr + INDR) & GPIO_INDR_IDR10;
         } else if constexpr (num == 11) {
-            return *(io*)(addr + INDR) & GPIO_INDR_IDR11;
+            return *reinterpret_cast<io*>(addr + INDR) & GPIO_INDR_IDR11;
         } else if constexpr (num == 12) {
-            return *(io*)(addr + INDR) & GPIO_INDR_IDR12;
+            return *reinterpret_cast<io*>(addr + INDR) & GPIO_INDR_IDR12;
         } else if constexpr (num == 13) {
-            return *(io*)(addr + INDR) & GPIO_INDR_IDR13;
+            return *reinterpret_cast<io*>(addr + INDR) & GPIO_INDR_IDR13;
         } else if constexpr (num == 14) {
-            return *(io*)(addr + INDR) & GPIO_INDR_IDR14;
+            return *reinterpret_cast<io*>(addr + INDR) & GPIO_INDR_IDR14;
         } else if constexpr (num == 15) {
-            return *(io*)(addr + INDR) & GPIO_INDR_IDR15;
-        }
+            return *reinterpret_cast<io*>(addr + INDR) & GPIO_INDR_IDR15;
+        } else return false;
     }
 
   private:
@@ -355,329 +420,376 @@ class Out {
     static constexpr void setMode() {
         if constexpr (mode == PUSH_PULL) {
             if constexpr (num == 0) {
-                *(io*)(addr + CFGLR) &= ~(GPIO_CFGLR_CNF0);
-                *(io*)(addr + CFGLR) |= GPIO_CFGLR_MODE0;
+                *reinterpret_cast<io*>(addr + CFGLR) &= ~(GPIO_CFGLR_CNF0);
+                *reinterpret_cast<io*>(addr + CFGLR) |= GPIO_CFGLR_MODE0;
             } else if constexpr (num == 1) {
-                *(io*)(addr + CFGLR) &= ~(GPIO_CFGLR_CNF1);
-                *(io*)(addr + CFGLR) |= GPIO_CFGLR_MODE1;
+                *reinterpret_cast<io*>(addr + CFGLR) &= ~(GPIO_CFGLR_CNF1);
+                *reinterpret_cast<io*>(addr + CFGLR) |= GPIO_CFGLR_MODE1;
             } else if constexpr (num == 2) {
-                *(io*)(addr + CFGLR) &= ~(GPIO_CFGLR_CNF2);
-                *(io*)(addr + CFGLR) |= GPIO_CFGLR_MODE2;
+                *reinterpret_cast<io*>(addr + CFGLR) &= ~(GPIO_CFGLR_CNF2);
+                *reinterpret_cast<io*>(addr + CFGLR) |= GPIO_CFGLR_MODE2;
             } else if constexpr (num == 3) {
-                *(io*)(addr + CFGLR) &= ~(GPIO_CFGLR_CNF3);
-                *(io*)(addr + CFGLR) |= GPIO_CFGLR_MODE3;
+                *reinterpret_cast<io*>(addr + CFGLR) &= ~(GPIO_CFGLR_CNF3);
+                *reinterpret_cast<io*>(addr + CFGLR) |= GPIO_CFGLR_MODE3;
             } else if constexpr (num == 4) {
-                *(io*)(addr + CFGLR) &= ~(GPIO_CFGLR_CNF4);
-                *(io*)(addr + CFGLR) |= GPIO_CFGLR_MODE4;
+                *reinterpret_cast<io*>(addr + CFGLR) &= ~(GPIO_CFGLR_CNF4);
+                *reinterpret_cast<io*>(addr + CFGLR) |= GPIO_CFGLR_MODE4;
             } else if constexpr (num == 5) {
-                *(io*)(addr + CFGLR) &= ~(GPIO_CFGLR_CNF5);
-                *(io*)(addr + CFGLR) |= GPIO_CFGLR_MODE5;
+                *reinterpret_cast<io*>(addr + CFGLR) &= ~(GPIO_CFGLR_CNF5);
+                *reinterpret_cast<io*>(addr + CFGLR) |= GPIO_CFGLR_MODE5;
             } else if constexpr (num == 6) {
-                *(io*)(addr + CFGLR) &= ~(GPIO_CFGLR_CNF6);
-                *(io*)(addr + CFGLR) |= GPIO_CFGLR_MODE6;
+                *reinterpret_cast<io*>(addr + CFGLR) &= ~(GPIO_CFGLR_CNF6);
+                *reinterpret_cast<io*>(addr + CFGLR) |= GPIO_CFGLR_MODE6;
             } else if constexpr (num == 7) {
-                *(io*)(addr + CFGLR) &= ~(GPIO_CFGLR_CNF7);
-                *(io*)(addr + CFGLR) |= GPIO_CFGLR_MODE7;
+                *reinterpret_cast<io*>(addr + CFGLR) &= ~(GPIO_CFGLR_CNF7);
+                *reinterpret_cast<io*>(addr + CFGLR) |= GPIO_CFGLR_MODE7;
             } else if constexpr (num == 8) {
-                *(io*)(addr + CFGHR) &= ~(GPIO_CFGHR_CNF8);
-                *(io*)(addr + CFGHR) |= GPIO_CFGHR_MODE8;
+                *reinterpret_cast<io*>(addr + CFGHR) &= ~(GPIO_CFGHR_CNF8);
+                *reinterpret_cast<io*>(addr + CFGHR) |= GPIO_CFGHR_MODE8;
             } else if constexpr (num == 9) {
-                *(io*)(addr + CFGHR) &= ~(GPIO_CFGHR_CNF9);
-                *(io*)(addr + CFGHR) |= GPIO_CFGHR_MODE9;
+                *reinterpret_cast<io*>(addr + CFGHR) &= ~(GPIO_CFGHR_CNF9);
+                *reinterpret_cast<io*>(addr + CFGHR) |= GPIO_CFGHR_MODE9;
             } else if constexpr (num == 10) {
-                *(io*)(addr + CFGHR) &= ~(GPIO_CFGHR_CNF10);
-                *(io*)(addr + CFGHR) |= GPIO_CFGHR_MODE10;
+                *reinterpret_cast<io*>(addr + CFGHR) &= ~(GPIO_CFGHR_CNF10);
+                *reinterpret_cast<io*>(addr + CFGHR) |= GPIO_CFGHR_MODE10;
             } else if constexpr (num == 11) {
-                *(io*)(addr + CFGHR) &= ~(GPIO_CFGHR_CNF11);
-                *(io*)(addr + CFGHR) |= GPIO_CFGHR_MODE11;
+                *reinterpret_cast<io*>(addr + CFGHR) &= ~(GPIO_CFGHR_CNF11);
+                *reinterpret_cast<io*>(addr + CFGHR) |= GPIO_CFGHR_MODE11;
             } else if constexpr (num == 12) {
-                *(io*)(addr + CFGHR) &= ~(GPIO_CFGHR_CNF12);
-                *(io*)(addr + CFGHR) |= GPIO_CFGHR_MODE12;
+                *reinterpret_cast<io*>(addr + CFGHR) &= ~(GPIO_CFGHR_CNF12);
+                *reinterpret_cast<io*>(addr + CFGHR) |= GPIO_CFGHR_MODE12;
             } else if constexpr (num == 13) {
-                *(io*)(addr + CFGHR) &= ~(GPIO_CFGHR_CNF13);
-                *(io*)(addr + CFGHR) |= GPIO_CFGHR_MODE13;
+                *reinterpret_cast<io*>(addr + CFGHR) &= ~(GPIO_CFGHR_CNF13);
+                *reinterpret_cast<io*>(addr + CFGHR) |= GPIO_CFGHR_MODE13;
             } else if constexpr (num == 14) {
-                *(io*)(addr + CFGHR) &= ~(GPIO_CFGHR_CNF14);
-                *(io*)(addr + CFGHR) |= GPIO_CFGHR_MODE14;
+                *reinterpret_cast<io*>(addr + CFGHR) &= ~(GPIO_CFGHR_CNF14);
+                *reinterpret_cast<io*>(addr + CFGHR) |= GPIO_CFGHR_MODE14;
             } else if constexpr (num == 15) {
-                *(io*)(addr + CFGHR) &= ~(GPIO_CFGHR_CNF15);
-                *(io*)(addr + CFGHR) |= GPIO_CFGHR_MODE15;
+                *reinterpret_cast<io*>(addr + CFGHR) &= ~(GPIO_CFGHR_CNF15);
+                *reinterpret_cast<io*>(addr + CFGHR) |= GPIO_CFGHR_MODE15;
             }
         } else if constexpr (mode == OPEN_DRAIN) {
             if constexpr (num == 0) {
-                *(io*)(addr + CFGLR) |= (GPIO_CFGLR_MODE0 | GPIO_CFGLR_CNF0);
-                *(io*)(addr + CFGLR) &= ~GPIO_CFGLR_CNF0_1;
+                *reinterpret_cast<io*>(addr + CFGLR) |=
+                    (GPIO_CFGLR_MODE0 | GPIO_CFGLR_CNF0);
+                *reinterpret_cast<io*>(addr + CFGLR) &= ~GPIO_CFGLR_CNF0_1;
             } else if constexpr (num == 1) {
-                *(io*)(addr + CFGLR) |= (GPIO_CFGLR_MODE1 | GPIO_CFGLR_CNF1);
-                *(io*)(addr + CFGLR) &= ~GPIO_CFGLR_CNF1_1;
+                *reinterpret_cast<io*>(addr + CFGLR) |=
+                    (GPIO_CFGLR_MODE1 | GPIO_CFGLR_CNF1);
+                *reinterpret_cast<io*>(addr + CFGLR) &= ~GPIO_CFGLR_CNF1_1;
             } else if constexpr (num == 2) {
-                *(io*)(addr + CFGLR) |= (GPIO_CFGLR_MODE2 | GPIO_CFGLR_CNF2);
-                *(io*)(addr + CFGLR) &= ~GPIO_CFGLR_CNF2_1;
+                *reinterpret_cast<io*>(addr + CFGLR) |=
+                    (GPIO_CFGLR_MODE2 | GPIO_CFGLR_CNF2);
+                *reinterpret_cast<io*>(addr + CFGLR) &= ~GPIO_CFGLR_CNF2_1;
             } else if constexpr (num == 3) {
-                *(io*)(addr + CFGLR) |= (GPIO_CFGLR_MODE3 | GPIO_CFGLR_CNF3);
-                *(io*)(addr + CFGLR) &= ~GPIO_CFGLR_CNF3_1;
+                *reinterpret_cast<io*>(addr + CFGLR) |=
+                    (GPIO_CFGLR_MODE3 | GPIO_CFGLR_CNF3);
+                *reinterpret_cast<io*>(addr + CFGLR) &= ~GPIO_CFGLR_CNF3_1;
             } else if constexpr (num == 4) {
-                *(io*)(addr + CFGLR) |= (GPIO_CFGLR_MODE4 | GPIO_CFGLR_CNF4);
-                *(io*)(addr + CFGLR) &= ~GPIO_CFGLR_CNF4_1;
+                *reinterpret_cast<io*>(addr + CFGLR) |=
+                    (GPIO_CFGLR_MODE4 | GPIO_CFGLR_CNF4);
+                *reinterpret_cast<io*>(addr + CFGLR) &= ~GPIO_CFGLR_CNF4_1;
             } else if constexpr (num == 5) {
-                *(io*)(addr + CFGLR) |= (GPIO_CFGLR_MODE5 | GPIO_CFGLR_CNF5);
-                *(io*)(addr + CFGLR) &= ~GPIO_CFGLR_CNF5_1;
+                *reinterpret_cast<io*>(addr + CFGLR) |=
+                    (GPIO_CFGLR_MODE5 | GPIO_CFGLR_CNF5);
+                *reinterpret_cast<io*>(addr + CFGLR) &= ~GPIO_CFGLR_CNF5_1;
             } else if constexpr (num == 6) {
-                *(io*)(addr + CFGLR) |= (GPIO_CFGLR_MODE6 | GPIO_CFGLR_CNF6);
-                *(io*)(addr + CFGLR) &= ~GPIO_CFGLR_CNF6_1;
+                *reinterpret_cast<io*>(addr + CFGLR) |=
+                    (GPIO_CFGLR_MODE6 | GPIO_CFGLR_CNF6);
+                *reinterpret_cast<io*>(addr + CFGLR) &= ~GPIO_CFGLR_CNF6_1;
             } else if constexpr (num == 7) {
-                *(io*)(addr + CFGLR) |= (GPIO_CFGLR_MODE7 | GPIO_CFGLR_CNF7);
-                *(io*)(addr + CFGLR) &= ~GPIO_CFGLR_CNF7_1;
+                *reinterpret_cast<io*>(addr + CFGLR) |=
+                    (GPIO_CFGLR_MODE7 | GPIO_CFGLR_CNF7);
+                *reinterpret_cast<io*>(addr + CFGLR) &= ~GPIO_CFGLR_CNF7_1;
             } else if constexpr (num == 8) {
-                *(io*)(addr + CFGHR) |= (GPIO_CFGHR_MODE8 | GPIO_CFGHR_CNF8);
-                *(io*)(addr + CFGHR) &= ~GPIO_CFGHR_CNF8_1;
+                *reinterpret_cast<io*>(addr + CFGHR) |=
+                    (GPIO_CFGHR_MODE8 | GPIO_CFGHR_CNF8);
+                *reinterpret_cast<io*>(addr + CFGHR) &= ~GPIO_CFGHR_CNF8_1;
             } else if constexpr (num == 9) {
-                *(io*)(addr + CFGHR) |= (GPIO_CFGHR_MODE9 | GPIO_CFGHR_CNF9);
-                *(io*)(addr + CFGHR) &= ~GPIO_CFGHR_CNF9_1;
+                *reinterpret_cast<io*>(addr + CFGHR) |=
+                    (GPIO_CFGHR_MODE9 | GPIO_CFGHR_CNF9);
+                *reinterpret_cast<io*>(addr + CFGHR) &= ~GPIO_CFGHR_CNF9_1;
             } else if constexpr (num == 10) {
-                *(io*)(addr + CFGHR) |= (GPIO_CFGHR_MODE10 | GPIO_CFGHR_CNF10);
-                *(io*)(addr + CFGHR) &= ~GPIO_CFGHR_CNF10_1;
+                *reinterpret_cast<io*>(addr + CFGHR) |=
+                    (GPIO_CFGHR_MODE10 | GPIO_CFGHR_CNF10);
+                *reinterpret_cast<io*>(addr + CFGHR) &= ~GPIO_CFGHR_CNF10_1;
             } else if constexpr (num == 11) {
-                *(io*)(addr + CFGHR) |= (GPIO_CFGHR_MODE11 | GPIO_CFGHR_CNF11);
-                *(io*)(addr + CFGHR) &= ~GPIO_CFGHR_CNF11_1;
+                *reinterpret_cast<io*>(addr + CFGHR) |=
+                    (GPIO_CFGHR_MODE11 | GPIO_CFGHR_CNF11);
+                *reinterpret_cast<io*>(addr + CFGHR) &= ~GPIO_CFGHR_CNF11_1;
             } else if constexpr (num == 12) {
-                *(io*)(addr + CFGHR) |= (GPIO_CFGHR_MODE12 | GPIO_CFGHR_CNF12);
-                *(io*)(addr + CFGHR) &= ~GPIO_CFGHR_CNF12_1;
+                *reinterpret_cast<io*>(addr + CFGHR) |=
+                    (GPIO_CFGHR_MODE12 | GPIO_CFGHR_CNF12);
+                *reinterpret_cast<io*>(addr + CFGHR) &= ~GPIO_CFGHR_CNF12_1;
             } else if constexpr (num == 13) {
-                *(io*)(addr + CFGHR) |= (GPIO_CFGHR_MODE13 | GPIO_CFGHR_CNF13);
-                *(io*)(addr + CFGHR) &= ~GPIO_CFGHR_CNF13_1;
+                *reinterpret_cast<io*>(addr + CFGHR) |=
+                    (GPIO_CFGHR_MODE13 | GPIO_CFGHR_CNF13);
+                *reinterpret_cast<io*>(addr + CFGHR) &= ~GPIO_CFGHR_CNF13_1;
             } else if constexpr (num == 14) {
-                *(io*)(addr + CFGHR) |= (GPIO_CFGHR_MODE14 | GPIO_CFGHR_CNF14);
-                *(io*)(addr + CFGHR) &= ~GPIO_CFGHR_CNF14_1;
+                *reinterpret_cast<io*>(addr + CFGHR) |=
+                    (GPIO_CFGHR_MODE14 | GPIO_CFGHR_CNF14);
+                *reinterpret_cast<io*>(addr + CFGHR) &= ~GPIO_CFGHR_CNF14_1;
             } else if constexpr (num == 15) {
-                *(io*)(addr + CFGHR) |= (GPIO_CFGHR_MODE15 | GPIO_CFGHR_CNF15);
-                *(io*)(addr + CFGHR) &= ~GPIO_CFGHR_CNF15_1;
+                *reinterpret_cast<io*>(addr + CFGHR) |=
+                    (GPIO_CFGHR_MODE15 | GPIO_CFGHR_CNF15);
+                *reinterpret_cast<io*>(addr + CFGHR) &= ~GPIO_CFGHR_CNF15_1;
             }
         } else if constexpr (mode == ALTERNATE_PUSH_PULL) {
             if constexpr (num == 0) {
-                *(io*)(addr + CFGLR) |= (GPIO_CFGLR_MODE0 | GPIO_CFGLR_CNF0);
-                *(io*)(addr + CFGLR) &= ~GPIO_CFGLR_CNF0_0;
+                *reinterpret_cast<io*>(addr + CFGLR) |=
+                    (GPIO_CFGLR_MODE0 | GPIO_CFGLR_CNF0);
+                *reinterpret_cast<io*>(addr + CFGLR) &= ~GPIO_CFGLR_CNF0_0;
             } else if constexpr (num == 1) {
-                *(io*)(addr + CFGLR) |= (GPIO_CFGLR_MODE1 | GPIO_CFGLR_CNF1);
-                *(io*)(addr + CFGLR) &= ~GPIO_CFGLR_CNF1_0;
+                *reinterpret_cast<io*>(addr + CFGLR) |=
+                    (GPIO_CFGLR_MODE1 | GPIO_CFGLR_CNF1);
+                *reinterpret_cast<io*>(addr + CFGLR) &= ~GPIO_CFGLR_CNF1_0;
             } else if constexpr (num == 2) {
-                *(io*)(addr + CFGLR) |= (GPIO_CFGLR_MODE2 | GPIO_CFGLR_CNF2);
-                *(io*)(addr + CFGLR) &= ~GPIO_CFGLR_CNF2_0;
+                *reinterpret_cast<io*>(addr + CFGLR) |=
+                    (GPIO_CFGLR_MODE2 | GPIO_CFGLR_CNF2);
+                *reinterpret_cast<io*>(addr + CFGLR) &= ~GPIO_CFGLR_CNF2_0;
             } else if constexpr (num == 3) {
-                *(io*)(addr + CFGLR) |= (GPIO_CFGLR_MODE3 | GPIO_CFGLR_CNF3);
-                *(io*)(addr + CFGLR) &= ~GPIO_CFGLR_CNF3_0;
+                *reinterpret_cast<io*>(addr + CFGLR) |=
+                    (GPIO_CFGLR_MODE3 | GPIO_CFGLR_CNF3);
+                *reinterpret_cast<io*>(addr + CFGLR) &= ~GPIO_CFGLR_CNF3_0;
             } else if constexpr (num == 4) {
-                *(io*)(addr + CFGLR) |= (GPIO_CFGLR_MODE4 | GPIO_CFGLR_CNF4);
-                *(io*)(addr + CFGLR) &= ~GPIO_CFGLR_CNF4_0;
+                *reinterpret_cast<io*>(addr + CFGLR) |=
+                    (GPIO_CFGLR_MODE4 | GPIO_CFGLR_CNF4);
+                *reinterpret_cast<io*>(addr + CFGLR) &= ~GPIO_CFGLR_CNF4_0;
             } else if constexpr (num == 5) {
-                *(io*)(addr + CFGLR) |= (GPIO_CFGLR_MODE5 | GPIO_CFGLR_CNF5);
-                *(io*)(addr + CFGLR) &= ~GPIO_CFGLR_CNF5_0;
+                *reinterpret_cast<io*>(addr + CFGLR) |=
+                    (GPIO_CFGLR_MODE5 | GPIO_CFGLR_CNF5);
+                *reinterpret_cast<io*>(addr + CFGLR) &= ~GPIO_CFGLR_CNF5_0;
             } else if constexpr (num == 6) {
-                *(io*)(addr + CFGLR) |= (GPIO_CFGLR_MODE6 | GPIO_CFGLR_CNF6);
-                *(io*)(addr + CFGLR) &= ~GPIO_CFGLR_CNF6_0;
+                *reinterpret_cast<io*>(addr + CFGLR) |=
+                    (GPIO_CFGLR_MODE6 | GPIO_CFGLR_CNF6);
+                *reinterpret_cast<io*>(addr + CFGLR) &= ~GPIO_CFGLR_CNF6_0;
             } else if constexpr (num == 7) {
-                *(io*)(addr + CFGLR) |= (GPIO_CFGLR_MODE7 | GPIO_CFGLR_CNF7);
-                *(io*)(addr + CFGLR) &= ~GPIO_CFGLR_CNF7_0;
+                *reinterpret_cast<io*>(addr + CFGLR) |=
+                    (GPIO_CFGLR_MODE7 | GPIO_CFGLR_CNF7);
+                *reinterpret_cast<io*>(addr + CFGLR) &= ~GPIO_CFGLR_CNF7_0;
             } else if constexpr (num == 8) {
-                *(io*)(addr + CFGHR) |= (GPIO_CFGHR_MODE8 | GPIO_CFGHR_CNF8);
-                *(io*)(addr + CFGHR) &= ~GPIO_CFGHR_CNF8_0;
+                *reinterpret_cast<io*>(addr + CFGHR) |=
+                    (GPIO_CFGHR_MODE8 | GPIO_CFGHR_CNF8);
+                *reinterpret_cast<io*>(addr + CFGHR) &= ~GPIO_CFGHR_CNF8_0;
             } else if constexpr (num == 9) {
-                *(io*)(addr + CFGHR) |= (GPIO_CFGHR_MODE9 | GPIO_CFGHR_CNF9);
-                *(io*)(addr + CFGHR) &= ~GPIO_CFGHR_CNF9_0;
+                *reinterpret_cast<io*>(addr + CFGHR) |=
+                    (GPIO_CFGHR_MODE9 | GPIO_CFGHR_CNF9);
+                *reinterpret_cast<io*>(addr + CFGHR) &= ~GPIO_CFGHR_CNF9_0;
             } else if constexpr (num == 10) {
-                *(io*)(addr + CFGHR) |= (GPIO_CFGHR_MODE10 | GPIO_CFGHR_CNF10);
-                *(io*)(addr + CFGHR) &= ~GPIO_CFGHR_CNF10_0;
+                *reinterpret_cast<io*>(addr + CFGHR) |=
+                    (GPIO_CFGHR_MODE10 | GPIO_CFGHR_CNF10);
+                *reinterpret_cast<io*>(addr + CFGHR) &= ~GPIO_CFGHR_CNF10_0;
             } else if constexpr (num == 11) {
-                *(io*)(addr + CFGHR) |= (GPIO_CFGHR_MODE11 | GPIO_CFGHR_CNF11);
-                *(io*)(addr + CFGHR) &= ~GPIO_CFGHR_CNF11_0;
+                *reinterpret_cast<io*>(addr + CFGHR) |=
+                    (GPIO_CFGHR_MODE11 | GPIO_CFGHR_CNF11);
+                *reinterpret_cast<io*>(addr + CFGHR) &= ~GPIO_CFGHR_CNF11_0;
             } else if constexpr (num == 12) {
-                *(io*)(addr + CFGHR) |= (GPIO_CFGHR_MODE12 | GPIO_CFGHR_CNF12);
-                *(io*)(addr + CFGHR) &= ~GPIO_CFGHR_CNF12_0;
+                *reinterpret_cast<io*>(addr + CFGHR) |=
+                    (GPIO_CFGHR_MODE12 | GPIO_CFGHR_CNF12);
+                *reinterpret_cast<io*>(addr + CFGHR) &= ~GPIO_CFGHR_CNF12_0;
             } else if constexpr (num == 13) {
-                *(io*)(addr + CFGHR) |= (GPIO_CFGHR_MODE13 | GPIO_CFGHR_CNF13);
-                *(io*)(addr + CFGHR) &= ~GPIO_CFGHR_CNF13_0;
+                *reinterpret_cast<io*>(addr + CFGHR) |=
+                    (GPIO_CFGHR_MODE13 | GPIO_CFGHR_CNF13);
+                *reinterpret_cast<io*>(addr + CFGHR) &= ~GPIO_CFGHR_CNF13_0;
             } else if constexpr (num == 14) {
-                *(io*)(addr + CFGHR) |= (GPIO_CFGHR_MODE14 | GPIO_CFGHR_CNF14);
-                *(io*)(addr + CFGHR) &= ~GPIO_CFGHR_CNF14_0;
+                *reinterpret_cast<io*>(addr + CFGHR) |=
+                    (GPIO_CFGHR_MODE14 | GPIO_CFGHR_CNF14);
+                *reinterpret_cast<io*>(addr + CFGHR) &= ~GPIO_CFGHR_CNF14_0;
             } else if constexpr (num == 15) {
-                *(io*)(addr + CFGHR) |= (GPIO_CFGHR_MODE15 | GPIO_CFGHR_CNF15);
-                *(io*)(addr + CFGHR) &= ~GPIO_CFGHR_CNF15_0;
+                *reinterpret_cast<io*>(addr + CFGHR) |=
+                    (GPIO_CFGHR_MODE15 | GPIO_CFGHR_CNF15);
+                *reinterpret_cast<io*>(addr + CFGHR) &= ~GPIO_CFGHR_CNF15_0;
             }
         } else if constexpr (mode == ALTERNATE_OPEN_DRAIN) {
             if constexpr (num == 0) {
-                *(io*)(addr + CFGLR) |= (GPIO_CFGLR_MODE0 | GPIO_CFGLR_CNF0);
+                *reinterpret_cast<io*>(addr + CFGLR) |=
+                    (GPIO_CFGLR_MODE0 | GPIO_CFGLR_CNF0);
             } else if constexpr (num == 1) {
-                *(io*)(addr + CFGLR) |= (GPIO_CFGLR_MODE1 | GPIO_CFGLR_CNF1);
+                *reinterpret_cast<io*>(addr + CFGLR) |=
+                    (GPIO_CFGLR_MODE1 | GPIO_CFGLR_CNF1);
             } else if constexpr (num == 2) {
-                *(io*)(addr + CFGLR) |= (GPIO_CFGLR_MODE2 | GPIO_CFGLR_CNF2);
+                *reinterpret_cast<io*>(addr + CFGLR) |=
+                    (GPIO_CFGLR_MODE2 | GPIO_CFGLR_CNF2);
             } else if constexpr (num == 3) {
-                *(io*)(addr + CFGLR) |= (GPIO_CFGLR_MODE3 | GPIO_CFGLR_CNF3);
+                *reinterpret_cast<io*>(addr + CFGLR) |=
+                    (GPIO_CFGLR_MODE3 | GPIO_CFGLR_CNF3);
             } else if constexpr (num == 4) {
-                *(io*)(addr + CFGLR) |= (GPIO_CFGLR_MODE4 | GPIO_CFGLR_CNF4);
+                *reinterpret_cast<io*>(addr + CFGLR) |=
+                    (GPIO_CFGLR_MODE4 | GPIO_CFGLR_CNF4);
             } else if constexpr (num == 5) {
-                *(io*)(addr + CFGLR) |= (GPIO_CFGLR_MODE5 | GPIO_CFGLR_CNF5);
+                *reinterpret_cast<io*>(addr + CFGLR) |=
+                    (GPIO_CFGLR_MODE5 | GPIO_CFGLR_CNF5);
             } else if constexpr (num == 6) {
-                *(io*)(addr + CFGLR) |= (GPIO_CFGLR_MODE6 | GPIO_CFGLR_CNF6);
+                *reinterpret_cast<io*>(addr + CFGLR) |=
+                    (GPIO_CFGLR_MODE6 | GPIO_CFGLR_CNF6);
             } else if constexpr (num == 7) {
-                *(io*)(addr + CFGLR) |= (GPIO_CFGLR_MODE7 | GPIO_CFGLR_CNF7);
+                *reinterpret_cast<io*>(addr + CFGLR) |=
+                    (GPIO_CFGLR_MODE7 | GPIO_CFGLR_CNF7);
             } else if constexpr (num == 8) {
-                *(io*)(addr + CFGHR) |= (GPIO_CFGHR_MODE8 | GPIO_CFGHR_CNF8);
+                *reinterpret_cast<io*>(addr + CFGHR) |=
+                    (GPIO_CFGHR_MODE8 | GPIO_CFGHR_CNF8);
             } else if constexpr (num == 9) {
-                *(io*)(addr + CFGHR) |= (GPIO_CFGHR_MODE9 | GPIO_CFGHR_CNF9);
+                *reinterpret_cast<io*>(addr + CFGHR) |=
+                    (GPIO_CFGHR_MODE9 | GPIO_CFGHR_CNF9);
             } else if constexpr (num == 10) {
-                *(io*)(addr + CFGHR) |= (GPIO_CFGHR_MODE10 | GPIO_CFGHR_CNF10);
+                *reinterpret_cast<io*>(addr + CFGHR) |=
+                    (GPIO_CFGHR_MODE10 | GPIO_CFGHR_CNF10);
             } else if constexpr (num == 11) {
-                *(io*)(addr + CFGHR) |= (GPIO_CFGHR_MODE11 | GPIO_CFGHR_CNF11);
+                *reinterpret_cast<io*>(addr + CFGHR) |=
+                    (GPIO_CFGHR_MODE11 | GPIO_CFGHR_CNF11);
             } else if constexpr (num == 12) {
-                *(io*)(addr + CFGHR) |= (GPIO_CFGHR_MODE12 | GPIO_CFGHR_CNF12);
+                *reinterpret_cast<io*>(addr + CFGHR) |=
+                    (GPIO_CFGHR_MODE12 | GPIO_CFGHR_CNF12);
             } else if constexpr (num == 13) {
-                *(io*)(addr + CFGHR) |= (GPIO_CFGHR_MODE13 | GPIO_CFGHR_CNF13);
+                *reinterpret_cast<io*>(addr + CFGHR) |=
+                    (GPIO_CFGHR_MODE13 | GPIO_CFGHR_CNF13);
             } else if constexpr (num == 14) {
-                *(io*)(addr + CFGHR) |= (GPIO_CFGHR_MODE14 | GPIO_CFGHR_CNF14);
+                *reinterpret_cast<io*>(addr + CFGHR) |=
+                    (GPIO_CFGHR_MODE14 | GPIO_CFGHR_CNF14);
             } else if constexpr (num == 15) {
-                *(io*)(addr + CFGHR) |= (GPIO_CFGHR_MODE15 | GPIO_CFGHR_CNF15);
+                *reinterpret_cast<io*>(addr + CFGHR) |=
+                    (GPIO_CFGHR_MODE15 | GPIO_CFGHR_CNF15);
             }
         }
     }
     static constexpr void setHigh() {
         if constexpr (num == 0) {
-            *(io*)(addr + BSHR) = GPIO_BSHR_BS0;
+            *reinterpret_cast<io*>(addr + BSHR) = GPIO_BSHR_BS0;
         } else if constexpr (num == 1) {
-            *(io*)(addr + BSHR) = GPIO_BSHR_BS1;
+            *reinterpret_cast<io*>(addr + BSHR) = GPIO_BSHR_BS1;
         } else if constexpr (num == 2) {
-            *(io*)(addr + BSHR) = GPIO_BSHR_BS2;
+            *reinterpret_cast<io*>(addr + BSHR) = GPIO_BSHR_BS2;
         } else if constexpr (num == 3) {
-            *(io*)(addr + BSHR) = GPIO_BSHR_BS3;
+            *reinterpret_cast<io*>(addr + BSHR) = GPIO_BSHR_BS3;
         } else if constexpr (num == 4) {
-            *(io*)(addr + BSHR) = GPIO_BSHR_BS4;
+            *reinterpret_cast<io*>(addr + BSHR) = GPIO_BSHR_BS4;
         } else if constexpr (num == 5) {
-            *(io*)(addr + BSHR) = GPIO_BSHR_BS5;
+            *reinterpret_cast<io*>(addr + BSHR) = GPIO_BSHR_BS5;
         } else if constexpr (num == 6) {
-            *(io*)(addr + BSHR) = GPIO_BSHR_BS6;
+            *reinterpret_cast<io*>(addr + BSHR) = GPIO_BSHR_BS6;
         } else if constexpr (num == 7) {
-            *(io*)(addr + BSHR) = GPIO_BSHR_BS7;
+            *reinterpret_cast<io*>(addr + BSHR) = GPIO_BSHR_BS7;
         } else if constexpr (num == 8) {
-            *(io*)(addr + BSHR) = GPIO_BSHR_BS8;
+            *reinterpret_cast<io*>(addr + BSHR) = GPIO_BSHR_BS8;
         } else if constexpr (num == 9) {
-            *(io*)(addr + BSHR) = GPIO_BSHR_BS9;
+            *reinterpret_cast<io*>(addr + BSHR) = GPIO_BSHR_BS9;
         } else if constexpr (num == 10) {
-            *(io*)(addr + BSHR) = GPIO_BSHR_BS10;
+            *reinterpret_cast<io*>(addr + BSHR) = GPIO_BSHR_BS10;
         } else if constexpr (num == 11) {
-            *(io*)(addr + BSHR) = GPIO_BSHR_BS11;
+            *reinterpret_cast<io*>(addr + BSHR) = GPIO_BSHR_BS11;
         } else if constexpr (num == 12) {
-            *(io*)(addr + BSHR) = GPIO_BSHR_BS12;
+            *reinterpret_cast<io*>(addr + BSHR) = GPIO_BSHR_BS12;
         } else if constexpr (num == 13) {
-            *(io*)(addr + BSHR) = GPIO_BSHR_BS13;
+            *reinterpret_cast<io*>(addr + BSHR) = GPIO_BSHR_BS13;
         } else if constexpr (num == 14) {
-            *(io*)(addr + BSHR) = GPIO_BSHR_BS14;
+            *reinterpret_cast<io*>(addr + BSHR) = GPIO_BSHR_BS14;
         } else if constexpr (num == 15) {
-            *(io*)(addr + BSHR) = GPIO_BSHR_BS15;
+            *reinterpret_cast<io*>(addr + BSHR) = GPIO_BSHR_BS15;
         }
     }
     static constexpr void setLow() {
         if constexpr (num == 0) {
-            *(io*)(addr + BSHR) = GPIO_BSHR_BR0;
+            *reinterpret_cast<io*>(addr + BSHR) = GPIO_BSHR_BR0;
         } else if constexpr (num == 1) {
-            *(io*)(addr + BSHR) = GPIO_BSHR_BR1;
+            *reinterpret_cast<io*>(addr + BSHR) = GPIO_BSHR_BR1;
         } else if constexpr (num == 2) {
-            *(io*)(addr + BSHR) = GPIO_BSHR_BR2;
+            *reinterpret_cast<io*>(addr + BSHR) = GPIO_BSHR_BR2;
         } else if constexpr (num == 3) {
-            *(io*)(addr + BSHR) = GPIO_BSHR_BR3;
+            *reinterpret_cast<io*>(addr + BSHR) = GPIO_BSHR_BR3;
         } else if constexpr (num == 4) {
-            *(io*)(addr + BSHR) = GPIO_BSHR_BR4;
+            *reinterpret_cast<io*>(addr + BSHR) = GPIO_BSHR_BR4;
         } else if constexpr (num == 5) {
-            *(io*)(addr + BSHR) = GPIO_BSHR_BR5;
+            *reinterpret_cast<io*>(addr + BSHR) = GPIO_BSHR_BR5;
         } else if constexpr (num == 6) {
-            *(io*)(addr + BSHR) = GPIO_BSHR_BR6;
+            *reinterpret_cast<io*>(addr + BSHR) = GPIO_BSHR_BR6;
         } else if constexpr (num == 7) {
-            *(io*)(addr + BSHR) = GPIO_BSHR_BR7;
+            *reinterpret_cast<io*>(addr + BSHR) = GPIO_BSHR_BR7;
         } else if constexpr (num == 8) {
-            *(io*)(addr + BSHR) = GPIO_BSHR_BR8;
+            *reinterpret_cast<io*>(addr + BSHR) = GPIO_BSHR_BR8;
         } else if constexpr (num == 9) {
-            *(io*)(addr + BSHR) = GPIO_BSHR_BR9;
+            *reinterpret_cast<io*>(addr + BSHR) = GPIO_BSHR_BR9;
         } else if constexpr (num == 10) {
-            *(io*)(addr + BSHR) = GPIO_BSHR_BR10;
+            *reinterpret_cast<io*>(addr + BSHR) = GPIO_BSHR_BR10;
         } else if constexpr (num == 11) {
-            *(io*)(addr + BSHR) = GPIO_BSHR_BR11;
+            *reinterpret_cast<io*>(addr + BSHR) = GPIO_BSHR_BR11;
         } else if constexpr (num == 12) {
-            *(io*)(addr + BSHR) = GPIO_BSHR_BR12;
+            *reinterpret_cast<io*>(addr + BSHR) = GPIO_BSHR_BR12;
         } else if constexpr (num == 13) {
-            *(io*)(addr + BSHR) = GPIO_BSHR_BR13;
+            *reinterpret_cast<io*>(addr + BSHR) = GPIO_BSHR_BR13;
         } else if constexpr (num == 14) {
-            *(io*)(addr + BSHR) = GPIO_BSHR_BR14;
+            *reinterpret_cast<io*>(addr + BSHR) = GPIO_BSHR_BR14;
         } else if constexpr (num == 15) {
-            *(io*)(addr + BSHR) = GPIO_BSHR_BR15;
+            *reinterpret_cast<io*>(addr + BSHR) = GPIO_BSHR_BR15;
         }
     }
     static constexpr void toggle() {
         if constexpr (num == 0) {
-            *(io*)(addr + OUTDR) ^= GPIO_OUTDR_ODR0;
+            *reinterpret_cast<io*>(addr + OUTDR) ^= GPIO_OUTDR_ODR0;
         } else if constexpr (num == 1) {
-            *(io*)(addr + OUTDR) ^= GPIO_OUTDR_ODR1;
+            *reinterpret_cast<io*>(addr + OUTDR) ^= GPIO_OUTDR_ODR1;
         } else if constexpr (num == 2) {
-            *(io*)(addr + OUTDR) ^= GPIO_OUTDR_ODR2;
+            *reinterpret_cast<io*>(addr + OUTDR) ^= GPIO_OUTDR_ODR2;
         } else if constexpr (num == 3) {
-            *(io*)(addr + OUTDR) ^= GPIO_OUTDR_ODR3;
+            *reinterpret_cast<io*>(addr + OUTDR) ^= GPIO_OUTDR_ODR3;
         } else if constexpr (num == 4) {
-            *(io*)(addr + OUTDR) ^= GPIO_OUTDR_ODR4;
+            *reinterpret_cast<io*>(addr + OUTDR) ^= GPIO_OUTDR_ODR4;
         } else if constexpr (num == 5) {
-            *(io*)(addr + OUTDR) ^= GPIO_OUTDR_ODR5;
+            *reinterpret_cast<io*>(addr + OUTDR) ^= GPIO_OUTDR_ODR5;
         } else if constexpr (num == 6) {
-            *(io*)(addr + OUTDR) ^= GPIO_OUTDR_ODR6;
+            *reinterpret_cast<io*>(addr + OUTDR) ^= GPIO_OUTDR_ODR6;
         } else if constexpr (num == 7) {
-            *(io*)(addr + OUTDR) ^= GPIO_OUTDR_ODR7;
+            *reinterpret_cast<io*>(addr + OUTDR) ^= GPIO_OUTDR_ODR7;
         } else if constexpr (num == 8) {
-            *(io*)(addr + OUTDR) ^= GPIO_OUTDR_ODR8;
+            *reinterpret_cast<io*>(addr + OUTDR) ^= GPIO_OUTDR_ODR8;
         } else if constexpr (num == 9) {
-            *(io*)(addr + OUTDR) ^= GPIO_OUTDR_ODR9;
+            *reinterpret_cast<io*>(addr + OUTDR) ^= GPIO_OUTDR_ODR9;
         } else if constexpr (num == 10) {
-            *(io*)(addr + OUTDR) ^= GPIO_OUTDR_ODR10;
+            *reinterpret_cast<io*>(addr + OUTDR) ^= GPIO_OUTDR_ODR10;
         } else if constexpr (num == 11) {
-            *(io*)(addr + OUTDR) ^= GPIO_OUTDR_ODR11;
+            *reinterpret_cast<io*>(addr + OUTDR) ^= GPIO_OUTDR_ODR11;
         } else if constexpr (num == 12) {
-            *(io*)(addr + OUTDR) ^= GPIO_OUTDR_ODR12;
+            *reinterpret_cast<io*>(addr + OUTDR) ^= GPIO_OUTDR_ODR12;
         } else if constexpr (num == 13) {
-            *(io*)(addr + OUTDR) ^= GPIO_OUTDR_ODR13;
+            *reinterpret_cast<io*>(addr + OUTDR) ^= GPIO_OUTDR_ODR13;
         } else if constexpr (num == 14) {
-            *(io*)(addr + OUTDR) ^= GPIO_OUTDR_ODR14;
+            *reinterpret_cast<io*>(addr + OUTDR) ^= GPIO_OUTDR_ODR14;
         } else if constexpr (num == 15) {
-            *(io*)(addr + OUTDR) ^= GPIO_OUTDR_ODR15;
+            *reinterpret_cast<io*>(addr + OUTDR) ^= GPIO_OUTDR_ODR15;
         }
     }
     static constexpr bool getState() {
-        GPIO_TypeDef* name = (GPIO_TypeDef*)addr;
         if constexpr (num == 0) {
-            return *(io*)(addr + INDR) & GPIO_INDR_IDR0;
+            return *reinterpret_cast<io*>(addr + INDR) & GPIO_INDR_IDR0;
         } else if constexpr (num == 1) {
-            return *(io*)(addr + INDR) & GPIO_INDR_IDR1;
+            return *reinterpret_cast<io*>(addr + INDR) & GPIO_INDR_IDR1;
         } else if constexpr (num == 2) {
-            return *(io*)(addr + INDR) & GPIO_INDR_IDR2;
+            return *reinterpret_cast<io*>(addr + INDR) & GPIO_INDR_IDR2;
         } else if constexpr (num == 3) {
-            return *(io*)(addr + INDR) & GPIO_INDR_IDR3;
+            return *reinterpret_cast<io*>(addr + INDR) & GPIO_INDR_IDR3;
         } else if constexpr (num == 4) {
-            return *(io*)(addr + INDR) & GPIO_INDR_IDR4;
+            return *reinterpret_cast<io*>(addr + INDR) & GPIO_INDR_IDR4;
         } else if constexpr (num == 5) {
-            return *(io*)(addr + INDR) & GPIO_INDR_IDR5;
+            return *reinterpret_cast<io*>(addr + INDR) & GPIO_INDR_IDR5;
         } else if constexpr (num == 6) {
-            return *(io*)(addr + INDR) & GPIO_INDR_IDR6;
+            return *reinterpret_cast<io*>(addr + INDR) & GPIO_INDR_IDR6;
         } else if constexpr (num == 7) {
-            return *(io*)(addr + INDR) & GPIO_INDR_IDR7;
+            return *reinterpret_cast<io*>(addr + INDR) & GPIO_INDR_IDR7;
         } else if constexpr (num == 8) {
-            return *(io*)(addr + INDR) & GPIO_INDR_IDR8;
+            return *reinterpret_cast<io*>(addr + INDR) & GPIO_INDR_IDR8;
         } else if constexpr (num == 9) {
-            return *(io*)(addr + INDR) & GPIO_INDR_IDR9;
+            return *reinterpret_cast<io*>(addr + INDR) & GPIO_INDR_IDR9;
         } else if constexpr (num == 10) {
-            return *(io*)(addr + INDR) & GPIO_INDR_IDR10;
+            return *reinterpret_cast<io*>(addr + INDR) & GPIO_INDR_IDR10;
         } else if constexpr (num == 11) {
-            return *(io*)(addr + INDR) & GPIO_INDR_IDR11;
+            return *reinterpret_cast<io*>(addr + INDR) & GPIO_INDR_IDR11;
         } else if constexpr (num == 12) {
-            return *(io*)(addr + INDR) & GPIO_INDR_IDR12;
+            return *reinterpret_cast<io*>(addr + INDR) & GPIO_INDR_IDR12;
         } else if constexpr (num == 13) {
-            return *(io*)(addr + INDR) & GPIO_INDR_IDR13;
+            return *reinterpret_cast<io*>(addr + INDR) & GPIO_INDR_IDR13;
         } else if constexpr (num == 14) {
-            return *(io*)(addr + INDR) & GPIO_INDR_IDR14;
+            return *reinterpret_cast<io*>(addr + INDR) & GPIO_INDR_IDR14;
         } else if constexpr (num == 15) {
-            return *(io*)(addr + INDR) & GPIO_INDR_IDR15;
+            return *reinterpret_cast<io*>(addr + INDR) & GPIO_INDR_IDR15;
         }
     }
 
@@ -685,37 +797,37 @@ class Out {
     // usualy is max speed (so no need speed in template parameter)
     static constexpr void setSpeed(PortSpeed speed) {
         if constexpr (num == 0) {
-            *(io*)(addr + CFGLR) &= ~((~speed) & 0x3);
+            *reinterpret_cast<io*>(addr + CFGLR) &= ~((~speed) & 0x3);
         } else if constexpr (num == 1) {
-            *(io*)(addr + CFGLR) &= ~(((~speed) & 0x3) << 4);
+            *reinterpret_cast<io*>(addr + CFGLR) &= ~(((~speed) & 0x3) << 4);
         } else if constexpr (num == 2) {
-            *(io*)(addr + CFGLR) &= ~(((~speed) & 0x3) << 8);
+            *reinterpret_cast<io*>(addr + CFGLR) &= ~(((~speed) & 0x3) << 8);
         } else if constexpr (num == 3) {
-            *(io*)(addr + CFGLR) &= ~(((~speed) & 0x3) << 12);
+            *reinterpret_cast<io*>(addr + CFGLR) &= ~(((~speed) & 0x3) << 12);
         } else if constexpr (num == 4) {
-            *(io*)(addr + CFGLR) &= ~(((~speed) & 0x3) << 16);
+            *reinterpret_cast<io*>(addr + CFGLR) &= ~(((~speed) & 0x3) << 16);
         } else if constexpr (num == 5) {
-            *(io*)(addr + CFGLR) &= ~(((~speed) & 0x3) << 20);
+            *reinterpret_cast<io*>(addr + CFGLR) &= ~(((~speed) & 0x3) << 20);
         } else if constexpr (num == 6) {
-            *(io*)(addr + CFGLR) &= ~(((~speed) & 0x3) << 24);
+            *reinterpret_cast<io*>(addr + CFGLR) &= ~(((~speed) & 0x3) << 24);
         } else if constexpr (num == 7) {
-            *(io*)(addr + CFGLR) &= ~(((~speed) & 0x3) << 28);
+            *reinterpret_cast<io*>(addr + CFGLR) &= ~(((~speed) & 0x3) << 28);
         } else if constexpr (num == 8) {
-            *(io*)(addr + CFGHR) &= ~((~speed) & 0x3);
+            *reinterpret_cast<io*>(addr + CFGHR) &= ~((~speed) & 0x3);
         } else if constexpr (num == 9) {
-            *(io*)(addr + CFGHR) &= ~(((~speed) & 0x3) << 4);
+            *reinterpret_cast<io*>(addr + CFGHR) &= ~(((~speed) & 0x3) << 4);
         } else if constexpr (num == 10) {
-            *(io*)(addr + CFGHR) &= ~(((~speed) & 0x3) << 8);
+            *reinterpret_cast<io*>(addr + CFGHR) &= ~(((~speed) & 0x3) << 8);
         } else if constexpr (num == 11) {
-            *(io*)(addr + CFGHR) &= ~(((~speed) & 0x3) << 12);
+            *reinterpret_cast<io*>(addr + CFGHR) &= ~(((~speed) & 0x3) << 12);
         } else if constexpr (num == 12) {
-            *(io*)(addr + CFGHR) &= ~(((~speed) & 0x3) << 16);
+            *reinterpret_cast<io*>(addr + CFGHR) &= ~(((~speed) & 0x3) << 16);
         } else if constexpr (num == 13) {
-            *(io*)(addr + CFGHR) &= ~(((~speed) & 0x3) << 20);
+            *reinterpret_cast<io*>(addr + CFGHR) &= ~(((~speed) & 0x3) << 20);
         } else if constexpr (num == 14) {
-            *(io*)(addr + CFGHR) &= ~(((~speed) & 0x3) << 24);
+            *reinterpret_cast<io*>(addr + CFGHR) &= ~(((~speed) & 0x3) << 24);
         } else if constexpr (num == 15) {
-            *(io*)(addr + CFGHR) &= ~(((~speed) & 0x3) << 28);
+            *reinterpret_cast<io*>(addr + CFGHR) &= ~(((~speed) & 0x3) << 28);
         }
     }
 
@@ -760,36 +872,36 @@ class Out {
 //    static constexpr void setMode() {
 //        switch (mode) {
 //        case PUSH_PULL:
-//            *(io*)(addr + CFGHR * IsLowOrHigh) &=
+//            *reinterpret_cast<io*>(addr + CFGHR * IsLowOrHigh) &=
 //                ~(0xF << (num - (8 - num % 8) * (IsLowOrHigh)) * 4);
-//            *(io*)(addr + CFGHR * IsLowOrHigh) |=
+//            *reinterpret_cast<io*>(addr + CFGHR * IsLowOrHigh) |=
 //                (3 << (num - (8 - num % 8) * IsLowOrHigh) * 4);
 //            break;
 //        case OPEN_DRAIN:
-//            *(io*)(addr + CFGHR * IsLowOrHigh) &=
+//            *reinterpret_cast<io*>(addr + CFGHR * IsLowOrHigh) &=
 //                ~(0xF << (num - (8 - num % 8) * (IsLowOrHigh)) * 4);
-//            *(io*)(addr + CFGHR * IsLowOrHigh) |=
+//            *reinterpret_cast<io*>(addr + CFGHR * IsLowOrHigh) |=
 //                (7 << (num - (8 - num % 8) * IsLowOrHigh) * 4);
 //            break;
 //        case ALTERNATE_PUSH_PULL:
-//            *(io*)(addr + CFGHR * IsLowOrHigh) &=
+//            *reinterpret_cast<io*>(addr + CFGHR * IsLowOrHigh) &=
 //                ~(0xF << (num - (8 - num % 8) * (IsLowOrHigh)) * 4);
-//            *(io*)(addr + CFGHR * IsLowOrHigh) |=
+//            *reinterpret_cast<io*>(addr + CFGHR * IsLowOrHigh) |=
 //                (0xB << (num - (8 - num % 8) * IsLowOrHigh) * 4);
 //            break;
 //        case ALTERNATE_OPEN_DRAIN:
-//            *(io*)(addr + CFGHR * IsLowOrHigh) |=
+//            *reinterpret_cast<io*>(addr + CFGHR * IsLowOrHigh) |=
 //                (0xF << (num - (8 - num % 8) * IsLowOrHigh) * 4);
 //            break;
 //        }
 //    }
-//    static constexpr void setHigh() { *(io*)(addr + BSHR) = (0x1 << num); }
-//    static constexpr void setLow() {
-//        *(io*)(addr + BSHR) = (0x1 << (num + 16));
+//    static constexpr void setHigh() { *reinterpret_cast<io*>(addr + BSHR) =
+//    (0x1 << num); } static constexpr void setLow() {
+//        *reinterpret_cast<io*>(addr + BSHR) = (0x1 << (num + 16));
 //    }
-//    static constexpr void toggle() { *(io*)(addr + OUTDR) ^= (0x1 << num); }
-//    static constexpr bool getState() {
-//        return (*(io*)(addr + INDR) & (0x1 << num));
+//    static constexpr void toggle() { *reinterpret_cast<io*>(addr + OUTDR) ^=
+//    (0x1 << num); } static constexpr bool getState() {
+//        return (*reinterpret_cast<io*>(addr + INDR) & (0x1 << num));
 //    }
 //
 //  private:

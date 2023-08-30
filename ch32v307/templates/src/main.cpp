@@ -32,21 +32,16 @@ class LedIrq {
 };
 
 int main(void) {
-    //int x;
-    //if constexpr(x == std::same_as<int>){
-    //    return 0;
-    //}
-
     //Gpios::In<Gpios::PA, 1, Gpios::InitModeIn::ANALOG> a1;
     //Gpios::In<Gpios::PA, 13, Gpios::InitModeIn::ANALOG> a13;
     //Gpios::In<Gpios::PA, 14, Gpios::InitModeIn::ANALOG> a14;
     // volatile bool x = Gpios::get_in2();
     // BasicTimer6::Instance().setCallback(timeout);
-    BasicTimer6::Instance().start(500);
+    //BasicTimer6::Instance().start(500);
     // Gpio::Out::init();    
-    const Led leds;
-    InterruptManagerForClasses<TIM6_IRQn, Led> timIrq;
-    __enable_irq();
+    //const Led leds;
+    //ObserverForInterrupt<TIM6_IRQn, Led> timIrq;
+    //__enable_irq();
     //Gpios::initLedGreen();
 
     // on Os code size as like pure C functions
@@ -57,14 +52,14 @@ int main(void) {
         //auto fptr1 = [&]() { a15.setLow(); };
         //fptr1();
         //Gpios::setLedGreen();
-        for (volatile int i = 0; i < 1000000; i++) {}
+        //for (volatile int i = 0; i < 1000000; i++) {}
         //leds.green_turnOff();
         // void (Led::*fptr)() = &Led::green_turnOff;
         //(leds.*fptr)();
         //auto fptr = [&]() { a15.setHigh(); };
         //fptr();
         //Gpios::resetLedGreen();
-        for (volatile int i = 0; i < 1000000; i++) {}
+        //for (volatile int i = 0; i < 1000000; i++) {}
     }
 }
 

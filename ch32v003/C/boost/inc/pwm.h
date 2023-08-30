@@ -3,7 +3,7 @@
 
 #include "main.h"
 
-#define AUTO_RELOAD_VALUE_FOR_50kHz 240 //960 //240//480
+#define AUTO_RELOAD_VALUE_FOR_50kHz 80 //960 //240//480
 
 // TIM1 pwm init
 void pwm_init();

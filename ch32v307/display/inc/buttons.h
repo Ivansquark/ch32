@@ -12,6 +12,7 @@ class Buttons : public Interruptable {
     Buttons();
 
     void interruptHandler() override;
+    uint16_t but16Bits();
 
     enum WhichBut : uint8_t
     {

@@ -5,6 +5,27 @@ Buttons::Buttons() {
     joy_init();
 }
 
+uint16_t Buttons::but16Bits() {
+    uint16_t bits = 0;
+    if(isB0) bits |= 0x0001;
+    if(isB1) bits |= 0x0002;
+    if(isB2) bits |= 0x0004;
+    if(isB3) bits |= 0x0008;
+    if(isB4) bits |= 0x0010;
+    if(isB5) bits |= 0x0020;
+    if(isB6) bits |= 0x0040;
+    if(isB7) bits |= 0x0080;
+    if(isB8) bits |= 0x0100;
+    if(isB9) bits |= 0x0200;
+    if(isB10) bits |= 0x0400;
+    if(isB11) bits |= 0x0800;
+    if(isB12) bits |= 0x1000;
+    if(isB13) bits |= 0x2000;
+    if(isB14) bits |= 0x4000;
+    if(isB15) bits |= 0x8000;
+    return bits;
+}
+
 bool Buttons::isAnyButtonPressed() {
     bool state = false;
     if (isB0) {
@@ -354,7 +375,10 @@ void Buttons::interruptHandler() {
         isEnter = false;
     }
     if (ADC1->STATR & ADC_JEOC) {
-        ADC1->CTLR2 &= ~ADC_JSWSTART;
+        ADC1->STATR = 0;
+        //ADC1->STATR &= ~ADC_JSTRT;
+        //ADC1->STATR &= ~ADC_JEOC;
+        //ADC1->CTLR2 &= ~ADC_JSWSTART;
         moving_average_H(getH());
         moving_average_V(getV());
         ADC1->CTLR2 |= ADC_JSWSTART;
@@ -418,20 +442,28 @@ void Buttons::joy_init() {
     // PCLK2 - 72MHz / 6 = ADC_CLK = 12 MHz
     RCC->CFGR0 |= RCC_ADCPRE_DIV6;
 
+    ADC1->SAMPTR1 &= ~(ADC_SMP10 | ADC_SMP11); // 0:0:0 1,5 cycles conversion
     ADC1->SAMPTR1 |= ADC_SMP10_1 | ADC_SMP10_0; // 0:1:1 29 cycles conversion
     ADC1->SAMPTR1 |= ADC_SMP11_1 | ADC_SMP11_0; // 0:1:1 29 cycles conversion
     ADC1->CTLR2 |= ADC_JEXTTRIG;
     // 111: ISWSTART software trigger
     ADC1->CTLR2 |= ADC_JEXTSEL; // 1:1:1 ISWSTART software trigger
-    ADC1->CTLR2 |= ADC_JEXTSEL_1 | ADC_JEXTSEL_0;
+    //ADC1->CTLR2 |= ADC_JEXTSEL_1 | ADC_JEXTSEL_0;
+    //ADC1->CTLR1 |= ADC_JAUTO;
+    ADC1->CTLR1 |= ADC_SCAN;
+    //ADC1->CTLR1 |= ADC_JDISCEN;
     ADC1->ISQR |= ADC_JL_0; // 0:1 - two channels
     // JSQ1-ch10, JSQ2-ch11
-    ADC1->ISQR |= (10 << 0);
-    ADC1->ISQR |= (11 << 5);
+    //ADC1->ISQR |= (10 << 0);
+    //ADC1->ISQR |= (11 << 5);
+    ADC1->ISQR |= (10 << 10);
+    ADC1->ISQR |= (11 << 15);
     // ADC1->ISQR = (10 << 10);
     ADC1->CTLR2 |= ADC_ADON; // enable ADC
 
     // ADC_ResetCalibration(ADC1);
+    
+    ADC1->CTLR1 &= ~ADC_OutputBuffer_Enable;
     ADC1->CTLR2 |= ADC_RSTCAL;
     // while(ADC_GetResetCalibrationStatus(ADC1));
     while (ADC1->CTLR2 & ADC_RSTCAL) {}
@@ -439,8 +471,10 @@ void Buttons::joy_init() {
     ADC1->CTLR2 |= ADC_CAL;
     // while (ADC_GetCalibrationStatus(ADC1));
     while (ADC1->CTLR2 & ADC_CAL) {}
+    ADC1->CTLR1 |= ADC_OutputBuffer_Enable;
     // Calibrattion_Val = ADC1->RDATAR;
     // Calibrattion_Val = Get_CalibrationValue(ADC1);
+    
     ADC1->CTLR2 |= ADC_JSWSTART;
 }
 

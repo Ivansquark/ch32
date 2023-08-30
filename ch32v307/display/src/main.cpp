@@ -25,14 +25,18 @@ Uart5 uart5;
 Uart1 uart1;
 Uart3 uart3;
 // LcdParIni parDisp;
-//Figure fig;
+// Figure fig;
 // ---------------- OS classes ------------------------------------------------
 Buttons but;
 //-----------------------------------------------------------------------------
-extern uint8_t Tx_flag;
-extern uint8_t Rx_flag;
-extern uint16_t Rx_len;
-extern uint8_t Rx_buf[];
+extern uint8_t TxCDC_flag;
+extern uint8_t RxCDC_flag;
+extern uint16_t RxCDC_len;
+extern uint8_t RxCDC_buf[];
+extern uint8_t TxBULK_flag;
+extern uint8_t RxBULK_flag;
+extern uint16_t RxBULK_len;
+extern uint8_t RxBULK_buf[];
 
 void setRamSize(uint32_t size);
 void checkButtonsDisp();
@@ -47,18 +51,18 @@ int main(void) {
     BasicTimer6::Instance().start();
     __enable_irq();
     /* USB20 device init */
-    //USBHS_RCC_Init();
-    //USBHS_Device_Init(ENABLE);
+    USBHS_RCC_Init();
+    USBHS_Device_Init(ENABLE);
 
     // setRamSize(0x20000);
 
     // fig.drawRect(50, 100, 100, 130, Figure::RED);
-    uint16_t j = 0;
-    for (int i = 0; i < Figure::HALF_DISPLAY_MEMORY; i++) {
-        // fig.buff[i] = Figure::BLACK;
-    }
-    //fig.fillScreen(Figure::BLACK);
-    //checkButtonsDisp();
+    // uint16_t j = 0;
+    // for (int i = 0; i < Figure::HALF_DISPLAY_MEMORY; i++) {
+    //    fig.buff[i] = Figure::BLACK;
+    //}
+    // fig.fillScreen(Figure::BLACK);
+    // checkButtonsDisp();
     // for (int i = 0; i < Figure::HALF_DISPLAY_MEMORY; i++) {
     //     fig.buff[i] = Figure::BLACK + i + j;
     // }
@@ -66,33 +70,54 @@ int main(void) {
     // fig.fillHalfScreenLow(fig.buff);
     // j += 1;
     //
-    //uint32_t counter = 0;
-    /*
-    while (1) {
-        if(counter >= 500000) {
-            counter = 0;
-            uart5.sendStr("jopa\r\n");
-        } else {
-            counter ++;
-        }
+    uint32_t counter = 0;
+    uint16_t X;
+    uint16_t Y;
 
-        if (Rx_flag) {
-            Rx_flag = 0;
-            if (Rx_buf[0] == 0x30) { Tx_flag = 1; }
+    while (1) {
+        X = 1000 * but.averageH / 4095;
+        Y = 1000 * but.averageV / 4095;
+        if (RxCDC_flag) {
+            RxCDC_flag = 0;
+            if (RxCDC_buf[0] == 0x30) { TxCDC_flag = 1; }
         }
-        if (Tx_flag) {
-            Tx_flag = 0;
-            uint8_t testBuf[] = {'o', 'p', 'a'};
+        if (TxCDC_flag) {
+            TxCDC_flag = 0;
+            uint8_t testBuf[4] = {0};
+            auto& [a, b, c, d] = testBuf;
+            // auto& [a, b, c, d] = *(uint8_t(*)[4])testBuf;
+            a = (X >> 8) & 0xFF;
+            b = X;
+            c = (Y >> 8) & 0xFF;
+            d = Y;
             USBHS_Endp_DataUp(DEF_UEP2, testBuf, sizeof(testBuf),
                               DEF_UEP_CPY_LOAD);
-            Tx_flag = 0;
+            TxCDC_flag = 0;
+        }
+        if (counter >= 100000) {
+            counter = 0;
+            struct hid {
+                uint16_t X;
+                uint16_t Y;
+                uint16_t but16;
+                //uint16_t but17;
+            }__attribute__((packed));
+            hid h;
+            h.X = X;
+            h.Y = Y;
+            h.but16 = but.but16Bits();
+            //h.but17 = but.Enter ? 1 : 0;
+            USBHS_Endp_DataUp(DEF_UEP3, (uint8_t*)&h, sizeof(hid),
+                              DEF_UEP_CPY_LOAD);
+        } else {
+            counter++;
         }
     }
-    */
+
     //
     //
-    FR_OS::startOS();
-    while (1) {}
+    // FR_OS::startOS();
+    // while (1) {}
 }
 
 void setRamSize(uint32_t size) {
