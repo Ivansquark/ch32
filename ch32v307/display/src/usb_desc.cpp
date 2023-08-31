@@ -23,7 +23,7 @@ const uint8_t MyDevDescr[] = {
     (uint8_t)DEF_USB_VID,
     (uint8_t)(DEF_USB_VID >> 8), // idVendor 0x1A86
     (uint8_t)DEF_USB_PID,
-    (uint8_t)(DEF_USB_PID >> 8), // idProduct 0x5537
+    (uint8_t)(DEF_USB_PID >> 8), // idProduct 0xDEAD
     DEF_IC_PRG_VER,
     0x00, // bcdDevice 0.01
     0x01, // iManufacturer (String Index)
@@ -33,9 +33,7 @@ const uint8_t MyDevDescr[] = {
 };
 
 /* Configuration Descriptor (FS) */
-constexpr uint8_t MyCfgDescr_FS[] = {
-    0x09, 0x02, 0x6B + 23, 0x00
-};
+constexpr uint8_t MyCfgDescr_FS[] = {0x09, 0x02, 0x6B + 23, 0x00};
 constexpr uint8_t MyCfgDescr_FSS[0x6b + 32] = {
     /* Configure descriptor */
     0x09, 0x02, 0x6B + 23, 0x00,
@@ -96,14 +94,14 @@ constexpr uint8_t MyCfgDescr_FSS[0x6b + 32] = {
     /* interface 3 endpoint descriptor*/
     0x07, 0x05, 0x84,
     0x02, // Bulk endpoint type
-    (uint8_t)DEF_USBD_HS_ISO_PACK_SIZE,
-    (uint8_t)(DEF_USBD_HS_ISO_PACK_SIZE >> 8),
+    (uint8_t)DEF_USBD_HS_PACK_SIZE,
+    (uint8_t)(DEF_USBD_HS_PACK_SIZE >> 8),
     0x00, // Polling interval in milliseconds
 
     /* interface 3 endpoint descriptor */
     0x07, 0x05, 0x04,
     0x02, // Bulk endpoint type
-    (uint8_t)DEF_USBD_HS_ISO_PACK_SIZE,
+    (uint8_t)DEF_USBD_HS_PACK_SIZE,
     (uint8_t)(DEF_USBD_HS_ISO_PACK_SIZE >> 8),
     0x00 // Polling interval in milliseconds
 };
@@ -169,15 +167,15 @@ const uint8_t MyCfgDescr_HS[0x6B + 32] = {
     /* interface 3 endpoint 4 descriptor*/
     0x07, 0x05, 0x84,
     0x02, // Bulk endpoint type
-    (uint8_t)DEF_USBD_HS_ISO_PACK_SIZE,
-    (uint8_t)(DEF_USBD_HS_ISO_PACK_SIZE >> 8),
+    (uint8_t)DEF_USBD_HS_PACK_SIZE,
+    (uint8_t)(DEF_USBD_HS_PACK_SIZE >> 8),
     0x00, // Polling interval in milliseconds
 
     /* interface 3 endpoint 4 descriptor */
     0x07, 0x05, 0x04,
     0x02, // Bulk endpoint type
-    (uint8_t)DEF_USBD_HS_ISO_PACK_SIZE,
-    (uint8_t)(DEF_USBD_HS_ISO_PACK_SIZE >> 8),
+    (uint8_t)DEF_USBD_HS_PACK_SIZE,
+    (uint8_t)(DEF_USBD_HS_PACK_SIZE >> 8),
     0x00 // Polling interval in milliseconds
 };
 
@@ -231,20 +229,21 @@ const uint8_t MyHIDReportDesc_FSS[] = {
 
 /* HID Report Descriptor GAMEPAD */
 const uint8_t MyHIDReportDesc_HS[DEF_USBD_REPORT_DESC_LEN] = {
-    0x05, 0x01,                    // USAGE_PAGE (Generic Desktop)
-    0x09, 0x05,                    // USAGE (Game Pad)
-    0xa1, 0x01,                    // COLLECTION (Application)
-    0x09, 0x01,                    //   USAGE (Pointer)
-    0xa1, 0x00,                    //   COLLECTION (Physical)
-    0x09, 0x30,                    //     USAGE (X)
-    0x09, 0x31,                    //     USAGE (Y)
-    0x15, 0x00,                    //     LOGICAL_MINIMUM (0)
-    0x26, 0xe8, 0x03,              //     LOGICAL_MAXIMUM (1000)
-    0x75, 0x10,                    //     REPORT_SIZE (16)
-    0x95, 0x02,                    //     REPORT_COUNT (2)
-    0x81, 0x02,                    //     INPUT (Data,Var,Abs)
-    0xc0,                          //   END_COLLECTION
+    0x05, 0x01,       // USAGE_PAGE (Generic Desktop)
+    0x09, 0x05,       // USAGE (Game Pad)
+    0xa1, 0x01,       // COLLECTION (Application)
+    0x09, 0x01,       //   USAGE (Pointer)
+    0xa1, 0x00,       //   COLLECTION (Physical)
+    0x09, 0x30,       //     USAGE (X)
+    0x09, 0x31,       //     USAGE (Y)
+    0x15, 0x00,       //     LOGICAL_MINIMUM (0)
+    0x26, 0xe8, 0x03, //     LOGICAL_MAXIMUM (1000)
+    0x75, 0x10,       //     REPORT_SIZE (16)
+    0x95, 0x02,       //     REPORT_COUNT (2)
+    0x81, 0x02,       //     INPUT (Data,Var,Abs)
+    0xc0,             //   END_COLLECTION
     /*
+    // second axis
     0xa1, 0x00,                    //   COLLECTION (Physical)
     0x09, 0x33,                    //     USAGE (Rx)
     0x09, 0x34,                    //     USAGE (Ry)
@@ -255,56 +254,32 @@ const uint8_t MyHIDReportDesc_HS[DEF_USBD_REPORT_DESC_LEN] = {
     0x81, 0x02,                    //     INPUT (Data,Var,Abs)
     0xc0,                          //   END_COLLECTION
     */
-    0x05, 0x09,                    //   USAGE_PAGE (Button)
-    0x19, 0x01,                    //   USAGE_MINIMUM (Button 1)
-    0x29, 0x10,                    //   USAGE_MAXIMUM (Button 16)
-    0x15, 0x00,                    //   LOGICAL_MINIMUM (0)
-    0x25, 0x01,                    //   LOGICAL_MAXIMUM (1)
-    0x75, 0x01,                    //   REPORT_SIZE (1)
-    0x95, 0x10,                    //   REPORT_COUNT (16)
-    0x81, 0x02,                    //   INPUT (Data,Var,Abs)
-    0xc0                           // END_COLLECTION
-    
-    
-    /*
-    0x05, 0x01,       // Usage Page (Generic Desktop)
-    0x09, 0x05,       // Usage (0x05 gamepad)
-    0xA1, 0x01,       // Collection (Application)
-        0x09, 0x01,       //   Usage (0x01 pointer)
-        0xA1, 0x00,       // Collection (Physical)
-        0x09, 0x30,       //   Usage (X)
-        0x09, 0x31,       //   Usage (Y)
-        0x15, 0x00,       //     LOGICAL_MINIMUM (0)
-        0x26, 0xe8, 0x03, //     LOGICAL_MAXIMUM (1000)
-        0x75, 0x10,       //   Report Size (16) bits
-        0x95, 0x2,        //   Report Count (2 at 16 bits - 4 bytes
-        0x81, 0x02,       //     INPUT (Data,Var,Abs)
-    0xc0,             //   END_COLLECTION
-    0x05, 0x09,       //   USAGE_PAGE (Button)
-        0x19, 0x01,       //   USAGE_MINIMUM (Button 1)
-        0x29, 0x17,       //   USAGE_MAXIMUM(Button17)
-        0x15, 0x00,       //   LOGICAL_MINIMUM (0)
-        0x25, 0x01,       //   LOGICAL_MAXIMUM (1)
-        0x75, 0x01,       //   REPORT_SIZE (1) one bit field
-        0x95, 0x10,       //   REPORT_COUNT (17) //2 bytes
-        0x81, 0x02,       //   INPUT (Data,Var,Abs)
-    0xc0,              // END_COLLECTION
-    0xc0              // END_COLLECTION
-                    
-    */
+    0x05, 0x09, //   USAGE_PAGE (Button)
+    0x19, 0x01, //   USAGE_MINIMUM (Button 1)
+    0x29, 0x11, //   USAGE_MAXIMUM (Button 17)
+    0x15, 0x00, //   LOGICAL_MINIMUM (0)
+    0x25, 0x01, //   LOGICAL_MAXIMUM (1)
+    0x75, 0x01, //   REPORT_SIZE (1)
+    0x95, 0x17, //   REPORT_COUNT (17) 17 values by one bit
+    0x81, 0x02, //   INPUT (Data,Var,Abs)
+    // PADDING to one byte for last button
+    0x75, 0x01, //   REPORT_SIZE (7)
+    0x95, 0x10, //   REPORT_COUNT (1) 1 value by one byte
+    0x81, 0x02, //   INPUT (Data,Var,Abs)
+    0xc0        // END_COLLECTION
 };
 
 /* Language Descriptor */
 const uint8_t MyLangDescr[] = {0x04, 0x03, 0x09, 0x04};
 
 /* Manufacturer Descriptor */
-const uint8_t MyManuInfo[] = {0x0E, 0x03, 'w', 0,   'c', 0,   'h',
-                              0,    '.',  0,   'c', 0,   'n', 0};
+const uint8_t MyManuInfo[] = {0x0E, 0x03, 'S', 0,   'Q', 0,   'U',
+                              0,    'A',  0,   'R', 0,   'K', 0};
 
 /* Product Information */
 const uint8_t MyProdInfo[] = {0x16, 0x03, 'U', 0x00, 'S', 0x00, 'B', 0x00,
-                              ' ',  0x00, 'S', 0x00, 'e', 0x00, 'r', 0x00,
-                              'i',  0x00, 'a', 0x00, 'k', 0x00};
+                              ' ',  0x00, 'G', 0x00, 'A', 0x00, 'M', 0x00,
+                              'I',  0x00, 'N', 0x00, 'G', 0x00};
 
 /* Serial Number Information */
 const uint8_t MySerNumInfo[] = {0x16, 0x03, '0', 0x00, '1', 0x00, '2', 0x00,

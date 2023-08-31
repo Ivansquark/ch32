@@ -3,17 +3,13 @@
 #include "basic_timer.h"
 #include "buttons.h"
 #include "ch32v30x_usbhs_device.h"
+#include "dac.h"
 #include "gpio.h"
 #include "lcdpar.h"
 #include "rcc.h"
 #include "uart.h"
 
 #include "frwrapper.h"
-/* Global define */
-#define TASK_RECEIVE_TASK_PRIO 5
-#define TASK_RECEIVE_STK_SIZE 512
-#define RECV_BUF_SIZE 2048
-char recv_buf[RECV_BUF_SIZE] = {0};
 
 /* Global Variable */
 uint32_t SystemCoreClock = 144000000;
@@ -21,11 +17,12 @@ xQueueHandle queue1;
 char* queue_buf;
 //------------- objects in static memory (.data section) ----------------------
 Rcc rcc(8);
-Uart5 uart5;
-Uart1 uart1;
-Uart3 uart3;
-// LcdParIni parDisp;
-// Figure fig;
+// Uart5 uart5;
+// Uart1 uart1;
+// Uart3 uart3;
+LcdParIni parDisp;
+Figure fig;
+Dac dac;
 // ---------------- OS classes ------------------------------------------------
 Buttons but;
 //-----------------------------------------------------------------------------
@@ -40,8 +37,8 @@ extern uint8_t RxBULK_buf[];
 
 void setRamSize(uint32_t size);
 void checkButtonsDisp();
-
 int main(void) {
+    // setRamSize(0x20000);
     /* add queues, ... */
     queue1 = xQueueCreate(10, sizeof(uint32_t));
     //--------  Interrupt region ----------------------------------------------
@@ -54,25 +51,25 @@ int main(void) {
     USBHS_RCC_Init();
     USBHS_Device_Init(ENABLE);
 
-    // setRamSize(0x20000);
-
-    // fig.drawRect(50, 100, 100, 130, Figure::RED);
+    fig.drawRect(50, 100, 100, 130, Figure::RED);
     // uint16_t j = 0;
-    // for (int i = 0; i < Figure::HALF_DISPLAY_MEMORY; i++) {
-    //    fig.buff[i] = Figure::BLACK;
-    //}
-    // fig.fillScreen(Figure::BLACK);
+    for (int i = 0; i < Figure::HALF_DISPLAY_MEMORY; i++) {
+        fig.buff[i] = Figure::BLACK;
+    }
+    fig.fillScreen(Figure::BLACK);
     // checkButtonsDisp();
-    // for (int i = 0; i < Figure::HALF_DISPLAY_MEMORY; i++) {
-    //     fig.buff[i] = Figure::BLACK + i + j;
-    // }
-    // fig.fillHalfScreenHigh(fig.buff);
-    // fig.fillHalfScreenLow(fig.buff);
+    for (int i = 0; i < Figure::HALF_DISPLAY_MEMORY; i++) {
+        fig.buff[i] = Figure::YELLOW;
+    }
+    fig.fillHalfScreenHigh(fig.buff);
+    fig.fillHalfScreenLow(fig.buff);
     // j += 1;
     //
     uint32_t counter = 0;
     uint16_t X;
     uint16_t Y;
+    uint32_t counterBulk = 0;
+    bool isHighOrLow = false;
 
     while (1) {
         X = 1000 * but.averageH / 4095;
@@ -86,27 +83,52 @@ int main(void) {
             uint8_t testBuf[4] = {0};
             auto& [a, b, c, d] = testBuf;
             // auto& [a, b, c, d] = *(uint8_t(*)[4])testBuf;
-            a = (X >> 8) & 0xFF;
-            b = X;
-            c = (Y >> 8) & 0xFF;
-            d = Y;
             USBHS_Endp_DataUp(DEF_UEP2, testBuf, sizeof(testBuf),
                               DEF_UEP_CPY_LOAD);
             TxCDC_flag = 0;
         }
+        if (RxBULK_flag) {
+            memcpy((uint8_t*)(fig.buff) + counterBulk, RxBULK_buf, RxBULK_len);
+            counterBulk += RxBULK_len;
+            if (counterBulk >= LcdParIni::HALF_DISPLAY_MEMORY * 2) {
+                counterBulk = 0;
+                if (isHighOrLow) {
+                    fig.fillHalfScreenLow(fig.buff);
+                    isHighOrLow = false;
+                } else {
+                    fig.fillHalfScreenHigh(fig.buff);
+                    isHighOrLow = true;
+                }
+            }
+            RxBULK_flag = 0;
+            USBHSD->UEP4_RX_CTRL &= ~USBHS_UEP_R_RES_MASK;
+            USBHSD->UEP4_RX_CTRL |= USBHS_UEP_R_RES_ACK;
+        }
+        /*
+        if (TxBULK_flag) {
+            TxBULK_flag = 0;
+            uint8_t testBuf[4] = {0};
+            auto& [a, b, c, d] = testBuf;
+            a = 0x34;
+            USBHS_Endp_DataUp(DEF_UEP4, testBuf, sizeof(testBuf),
+                              DEF_UEP_CPY_LOAD);
+            TxBULK_flag = 0;
+        }
+        */
+        // TODO: set next to rtos hid
         if (counter >= 100000) {
             counter = 0;
             struct hid {
                 uint16_t X;
                 uint16_t Y;
-                uint16_t but16;
-                //uint16_t but17;
-            }__attribute__((packed));
+                uint16_t but16s;
+                uint8_t but17;
+            } __attribute__((packed));
             hid h;
             h.X = X;
             h.Y = Y;
-            h.but16 = but.but16Bits();
-            //h.but17 = but.Enter ? 1 : 0;
+            h.but16s = but.but16Bits();
+            h.but17 = but.getButtonState(Buttons::Enter) ? 1 : 0;
             USBHS_Endp_DataUp(DEF_UEP3, (uint8_t*)&h, sizeof(hid),
                               DEF_UEP_CPY_LOAD);
         } else {

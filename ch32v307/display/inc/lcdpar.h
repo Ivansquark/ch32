@@ -100,7 +100,7 @@ class LcdParIni : public LcdParInterface {
 
 class Figure : public LcdParIni {
   public:
-    //uint16_t buff[HALF_DISPLAY_MEMORY] = {0};
+    uint16_t buff[HALF_DISPLAY_MEMORY] = {0};
     void drawRect(uint16_t x1, uint16_t x2, uint16_t y1, uint16_t y2,
                   uint16_t color);
 };

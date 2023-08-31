@@ -11,11 +11,11 @@
 uint8_t TxCDC_flag = 0;
 uint8_t RxCDC_flag = 0;
 uint16_t RxCDC_len = 0;
-uint8_t RxCDC_buf[512] = {0};
+uint8_t RxCDC_buf[64] = {0};
 uint8_t TxBULK_flag = 0;
 uint8_t RxBULK_flag = 0;
 uint16_t RxBULK_len = 0;
-uint8_t RxBULK_buf[1024] = {0};
+uint8_t RxBULK_buf[512] = {0};
 /******************************************************************************/
 /* Variable Definition */
 const uint8_t* pUSBHS_Descr;
@@ -45,12 +45,12 @@ __attribute__((aligned(4))) uint8_t HID_Report_Buffer[DEF_USBD_HS_PACK_SIZE];
 
 /* Endpoint Buffer */
 __attribute__((aligned(4))) uint8_t USBHS_EP0_Buf[DEF_USBD_UEP0_SIZE];
-__attribute__((aligned(4))) uint8_t USBHS_EP1_Tx_Buf[DEF_USB_EP1_HS_SIZE];
-__attribute__((aligned(4))) uint8_t USBHS_EP1_Rx_Buf[DEF_USB_EP1_HS_SIZE];
-__attribute__((aligned(4))) uint8_t USBHS_EP2_Tx_Buf[DEF_USB_EP2_HS_SIZE];
-__attribute__((aligned(4))) uint8_t USBHS_EP2_Rx_Buf[DEF_USB_EP2_HS_SIZE];
-__attribute__((aligned(4))) uint8_t USBHS_EP3_Tx_Buf[DEF_USB_EP3_HS_SIZE];
-__attribute__((aligned(4))) uint8_t USBHS_EP3_Rx_Buf[DEF_USB_EP3_HS_SIZE];
+__attribute__((aligned(4))) uint8_t USBHS_EP1_Tx_Buf[DEF_USB_EP1_HS_SIZE / 256];
+__attribute__((aligned(4))) uint8_t USBHS_EP1_Rx_Buf[DEF_USB_EP1_HS_SIZE / 256];
+__attribute__((aligned(4))) uint8_t USBHS_EP2_Tx_Buf[DEF_USB_EP2_HS_SIZE / 8];
+__attribute__((aligned(4))) uint8_t USBHS_EP2_Rx_Buf[DEF_USB_EP2_HS_SIZE / 8];
+__attribute__((aligned(4))) uint8_t USBHS_EP3_Tx_Buf[DEF_USB_EP3_HS_SIZE / 8];
+__attribute__((aligned(4))) uint8_t USBHS_EP3_Rx_Buf[DEF_USB_EP3_HS_SIZE / 8];
 __attribute__((aligned(4))) uint8_t USBHS_EP4_Tx_Buf[DEF_USBD_HS_ISO_PACK_SIZE];
 __attribute__((aligned(4))) uint8_t USBHS_EP4_Rx_Buf[DEF_USBD_HS_ISO_PACK_SIZE];
 
@@ -427,17 +427,25 @@ void USBHS_IRQHandler(void) {
                 // TODO out data if(Tx_flag)...
                 /* Record related information & Switch DMA Address*/
                 // TODO get len
-                RxBULK_len = USBHSD->RX_LEN;
-                memcpy(RxBULK_buf, (const void*)USBHSD->UEP4_RX_DMA,
-                       RxBULK_len);
-                RxBULK_flag = 1;
-                // set tx buffer to dma
-                // USBHSD->UEP2_RX_DMA = (uint32_t)(uint8_t*)&Tx_Buf;
-                // USBHS_Endp_DataUp(DEF_UEP2, &Tx_Buf, packlen,
-                // DEF_UEP_DMA_LOAD);
+                if (RxBULK_flag) {
+                    USBHSD->UEP4_RX_CTRL &= ~USBHS_UEP_R_RES_MASK;
+                    USBHSD->UEP4_RX_CTRL |= USBHS_UEP_R_RES_NAK;
 
-                USBHSD->UEP4_RX_CTRL &= ~USBHS_UEP_R_RES_MASK;
-                USBHSD->UEP4_RX_CTRL |= USBHS_UEP_R_RES_ACK;
+                } else {
+                    RxBULK_len = USBHSD->RX_LEN;
+                    // memcpy(RxBULK_buf, (const void*)USBHSD->UEP4_RX_DMA,
+                    //       RxBULK_len);
+                    memcpy(RxBULK_buf, (const void*)USBHSD_UEP_RXBUF(4),
+                           RxBULK_len);
+                    RxBULK_flag = 1;
+                    // set tx buffer to dma
+                    // USBHSD->UEP2_RX_DMA = (uint32_t)(uint8_t*)&Tx_Buf;
+                    // USBHS_Endp_DataUp(DEF_UEP2, &Tx_Buf, packlen,
+                    // DEF_UEP_DMA_LOAD);
+
+                    //USBHSD->UEP4_RX_CTRL &= ~USBHS_UEP_R_RES_MASK;
+                    //USBHSD->UEP4_RX_CTRL |= USBHS_UEP_R_RES_ACK;
+                }
                 break;
 
             default:
