@@ -34,129 +34,57 @@ const uint8_t MyDevDescr[] = {
 
 /* Configuration Descriptor (FS) */
 constexpr uint8_t MyCfgDescr_FS[] = {0x09, 0x02, 0x6B + 23, 0x00};
-constexpr uint8_t MyCfgDescr_FSS[0x6b + 32] = {
-    /* Configure descriptor */
-    0x09, 0x02, 0x6B + 23, 0x00,
-    0x04, // bNumInterfaces
-    0x01, 0x00, 0x80, 0x32,
-
-    /* IAD Descriptor(interface 0/1)*/
-    0x08, 0x0B, 0x00, 0x02, 0x02, 0x02, 0x01, 0x00,
-
-    /* Interface 0 (CDC) descriptor */
-    0x09, 0x04, 0x00, 0x00, 0x01, 0x02, 0x02, 0x01, 0x00,
-
-    /* Functional Descriptors */
-    0x05, 0x24, 0x00, 0x10, 0x01,
-
-    /* Length/management descriptor (data class interface 1) */
-    0x05, 0x24, 0x01, 0x00, 0x01, 0x04, 0x24, 0x02, 0x02, 0x05, 0x24, 0x06,
-    0x00, 0x01,
-
-    /* Interrupt upload endpoint descriptor */
-    0x07, 0x05, 0x81, 0x03, (uint8_t)DEF_USB_EP3_HS_SIZE,
-    (uint8_t)(DEF_USB_EP3_HS_SIZE >> 8), 0x01,
-
-    /* Interface 1 (data interface) descriptor */
-    0x09, 0x04, 0x01, 0x00, 0x02, 0x0a, 0x00, 0x00, 0x00,
-
-    /* Endpoint descriptor */
-    0x07, 0x05, 0x02, 0x02, (uint8_t)DEF_USB_EP2_HS_SIZE,
-    (uint8_t)(DEF_USB_EP2_HS_SIZE >> 8), 0x00,
-
-    /* Endpoint descriptor */
-    0x07, 0x05, 0x82, 0x02, (uint8_t)DEF_USB_EP2_HS_SIZE,
-    (uint8_t)(DEF_USB_EP2_HS_SIZE >> 8), 0x00,
-
-    /* interface 2 (HID interface) descriptor */
-    0x09, 0x04, 0x02, 0x00, 0x02,
-    0x03, // bInterfaceClass
-    0x00, 0x00, 0x00,
-
-    /* interface 2 HID descriptor */
-    0x09, 0x21, 0x00, 0x01, 0x00, 0x01, 0x22, DEF_USBD_REPORT_DESC_LEN, 0x00,
-
-    /* interface 2 endpoint descriptor*/
-    0x07, 0x05, 0x83, 0x03, (uint8_t)DEF_USB_EP4_HS_SIZE,
-    (uint8_t)(DEF_USB_EP4_HS_SIZE >> 8), 0x01,
-
-    /* interface 2 endpoint descriptor */
-    0x07, 0x05, 0x03, 0x03, (uint8_t)DEF_USB_EP4_HS_SIZE,
-    (uint8_t)(DEF_USB_EP4_HS_SIZE >> 8), 0x01,
-    /* interface 3 (BULK Max speed interface) descriptor */
-    0x09, 0x04,
-    0x03, // bInterfaceNumber
-    0x00, // bAlternateSetting
-    0x02, // bNumEndpoints 2
-    0x00, // bInterfaceClass own class
-    0x00, 0x00, 0x00,
-
-    /* interface 3 endpoint descriptor*/
-    0x07, 0x05, 0x84,
-    0x02, // Bulk endpoint type
-    (uint8_t)DEF_USBD_HS_PACK_SIZE,
-    (uint8_t)(DEF_USBD_HS_PACK_SIZE >> 8),
-    0x00, // Polling interval in milliseconds
-
-    /* interface 3 endpoint descriptor */
-    0x07, 0x05, 0x04,
-    0x02, // Bulk endpoint type
-    (uint8_t)DEF_USBD_HS_PACK_SIZE,
-    (uint8_t)(DEF_USBD_HS_ISO_PACK_SIZE >> 8),
-    0x00 // Polling interval in milliseconds
-};
-
 /* Configuration Descriptor (HS) */
-const uint8_t MyCfgDescr_HS[0x6B + 32] = {
+const uint8_t MyCfgDescr_HS[130] = {
     /* Configure descriptor */
-    0x09, 0x02, 0x6B + 32, 0x00,
+    0x09, 0x02, 130, 0x00,
     0x04, // bNumInterfaces
-    0x01, 0x00, 0x80, 0x32,
+    0x01, 0x00, 0x80, 0x32, // 9 0-8 9
 
     /* IAD Descriptor(interface 0/1)*/
-    0x08, 0x0B, 0x00, 0x02, 0x02, 0x02, 0x01, 0x00,
+    0x08, 0x0B, 0x00, 0x02, 0x02, 0x02, 0x01, 0x00, // 8 9-16 17
 
     /* Interface 0 (CDC) descriptor */
-    0x09, 0x04, 0x00, 0x00, 0x01, 0x02, 0x02, 0x01, 0x00,
+    0x09, 0x04, 0x00, 0x00, 0x01, 0x02, 0x02, 0x01, 0x00, // 9 17-25 26
 
     /* Functional Descriptors */
-    0x05, 0x24, 0x00, 0x10, 0x01,
+    0x05, 0x24, 0x00, 0x10, 0x01, // 5 26-30 31
 
     /* Length/management descriptor (data class interface 1) */
     0x05, 0x24, 0x01, 0x00, 0x01, 0x04, 0x24, 0x02, 0x02, 0x05, 0x24, 0x06,
-    0x00, 0x01,
+    0x00, 0x01, // 14 31-44 45
 
     /* Interrupt upload endpoint descriptor */
     0x07, 0x05, 0x81, 0x03, (uint8_t)DEF_USB_EP3_HS_SIZE,
-    (uint8_t)(DEF_USB_EP3_HS_SIZE >> 8), 0x01,
+    (uint8_t)(DEF_USB_EP3_HS_SIZE >> 8), 0x01, // 7 45-51 52
 
     /* Interface 1 (data interface) descriptor */
-    0x09, 0x04, 0x01, 0x00, 0x02, 0x0a, 0x00, 0x00, 0x00,
+    0x09, 0x04, 0x01, 0x00, 0x02, 0x0a, 0x00, 0x00, 0x00, // 9 51-60 61
 
     /* Endpoint 2 CDC descriptor */
     0x07, 0x05, 0x02, 0x02, (uint8_t)DEF_USB_EP2_HS_SIZE,
-    (uint8_t)(DEF_USB_EP2_HS_SIZE >> 8), 0x00,
+    (uint8_t)(DEF_USB_EP2_HS_SIZE >> 8), 0x00,  // 7 61-67 68
 
     /* Endpoint 2 CDC descriptor */
     0x07, 0x05, 0x82, 0x02, (uint8_t)DEF_USB_EP2_HS_SIZE,
-    (uint8_t)(DEF_USB_EP2_HS_SIZE >> 8), 0x00,
+    (uint8_t)(DEF_USB_EP2_HS_SIZE >> 8), 0x00, // 7 68-74 75
 
     /* interface 2 (HID interface) descriptor */
     0x09, 0x04, 0x02, 0x00, 0x02,
     0x03, // bInterfaceClass
-    0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00,                   // 9 75-83 84
 
-    /* interface 2 HID descriptor */
+    /* interface 3 HID descriptor */
     0x09, 0x21, 0x11, 0x01, 0x00, 0x01, 0x22, DEF_USBD_REPORT_DESC_LEN, 0x00,
 
-    /* interface 2 endpoint 3 descriptor*/
+    /* interface 3 endpoint 3 descriptor*/
     0x07, 0x05, 0x83, 0x03, (uint8_t)DEF_USB_EP4_HS_SIZE,
     (uint8_t)(DEF_USB_EP4_HS_SIZE >> 8), 0x01,
 
-    /* interface 2 endpoint 3 descriptor */
+    /* interface 3 endpoint 3 descriptor */
     0x07, 0x05, 0x03, 0x03, (uint8_t)DEF_USB_EP4_HS_SIZE,
     (uint8_t)(DEF_USB_EP4_HS_SIZE >> 8), 0x01,
-    /* interface 3 (BULK Max speed interface) descriptor */
+    /* interface 4 (BULK Max speed interface) descriptor */
     0x09, 0x04,
     0x03, // bInterfaceNumber
     0x00, // bAlternateSetting
@@ -164,14 +92,14 @@ const uint8_t MyCfgDescr_HS[0x6B + 32] = {
     0x00, // bInterfaceClass own class
     0x00, 0x00, 0x00,
 
-    /* interface 3 endpoint 4 descriptor*/
+    /* interface 4 endpoint 4 descriptor*/
     0x07, 0x05, 0x84,
     0x02, // Bulk endpoint type
     (uint8_t)DEF_USBD_HS_PACK_SIZE,
     (uint8_t)(DEF_USBD_HS_PACK_SIZE >> 8),
     0x00, // Polling interval in milliseconds
 
-    /* interface 3 endpoint 4 descriptor */
+    /* interface 4 endpoint 4 descriptor */
     0x07, 0x05, 0x04,
     0x02, // Bulk endpoint type
     (uint8_t)DEF_USBD_HS_PACK_SIZE,
@@ -180,6 +108,7 @@ const uint8_t MyCfgDescr_HS[0x6B + 32] = {
 };
 
 /* HID Report Descriptor MOUSE */
+/*
 const uint8_t MyHIDReportDesc_FSS[] = {
     0x05, 0x01, // Usage Page (Generic Desktop Ctrls)
     0x09, 0x02, // Usage (Mouse)
@@ -226,6 +155,7 @@ const uint8_t MyHIDReportDesc_FSS[] = {
                 // Null Position,Non-volatile)
     0xC0,       // End Collection
 };
+*/
 
 /* HID Report Descriptor GAMEPAD */
 const uint8_t MyHIDReportDesc_HS[DEF_USBD_REPORT_DESC_LEN] = {

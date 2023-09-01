@@ -38,6 +38,7 @@ class LcdParInterface {
     void fillScreen(uint16_t color);
     void fillHalfScreenHigh(uint16_t* color);
     void fillHalfScreenLow(uint16_t* color);
+    void fillScreenSequence(uint16_t* color, uint16_t len, uint16_t num);
     //----------- reset C10 -----------------------
     inline void reset_on() { GPIOC->BSHR |= GPIO_BSHR_BR10; }  // low
     inline void reset_off() { GPIOC->BSHR |= GPIO_BSHR_BS10; } // high
@@ -61,7 +62,12 @@ class LcdParInterface {
 
     void reset();
     void send_command(uint8_t com);
-    void send_data(uint16_t data);
+    // void send_data(uint16_t data);
+    void send_data(uint16_t data) {
+        wr_off();
+        GPIOD->OUTDR = data;
+        wr_on();
+    }
     void sendByte(uint8_t byte);
     void send_word(uint16_t data);
     void setColumn(uint16_t StartCol, uint16_t EndCol);

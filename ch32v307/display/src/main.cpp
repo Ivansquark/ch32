@@ -88,7 +88,16 @@ int main(void) {
             TxCDC_flag = 0;
         }
         if (RxBULK_flag) {
-            memcpy((uint8_t*)(fig.buff) + counterBulk, RxBULK_buf, RxBULK_len);
+            // fig.fillScreenSequence((uint16_t*)USBHSD_UEP_RXBUF(4),
+            //                       RxBULK_len / 2);
+
+            // memcpy((uint8_t*)(fig.buff) + counterBulk, RxBULK_buf,
+            // RxBULK_len);
+
+            NVIC_DisableIRQ(USBHS_IRQn);
+            memcpy((uint8_t*)(fig.buff) + counterBulk, USBHSD_UEP_RXBUF(4),
+                   RxBULK_len);
+
             counterBulk += RxBULK_len;
             if (counterBulk >= LcdParIni::HALF_DISPLAY_MEMORY * 2) {
                 counterBulk = 0;
@@ -100,9 +109,11 @@ int main(void) {
                     isHighOrLow = true;
                 }
             }
-            RxBULK_flag = 0;
+
             USBHSD->UEP4_RX_CTRL &= ~USBHS_UEP_R_RES_MASK;
             USBHSD->UEP4_RX_CTRL |= USBHS_UEP_R_RES_ACK;
+            RxBULK_flag = 0;
+            NVIC_EnableIRQ(USBHS_IRQn);
         }
         /*
         if (TxBULK_flag) {

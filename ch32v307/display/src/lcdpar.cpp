@@ -1,10 +1,18 @@
 #include "lcdpar.h"
-
+void LcdParInterface::fillScreenSequence(uint16_t* color, uint16_t len,
+                                         uint16_t num) {
+    bool exceed = false;
+    
+    setColumn(0, 256);
+    setRow(0, 0);
+    send_command(0x2C);
+    for (volatile uint32_t i = 0; i < len; i++) { send_word(*(color + i)); }
+}
 void LcdParInterface::fillScreen(uint16_t color) {
     setColumn(0, 320);
     setRow(0, 240);
     send_command(0x2C);
-    for (volatile uint32_t i = 0; i < 320*240; i++) {
+    for (volatile uint32_t i = 0; i < 320 * 240; i++) {
         // send_word(color);
         send_word(color);
     }
@@ -15,7 +23,7 @@ void LcdParInterface::fillHalfScreenHigh(uint16_t* color) {
     send_command(0x2C);
     for (volatile uint32_t i = 0; i < HALF_DISPLAY_MEMORY; i++) {
         // send_word(color);
-        send_word(*(color+i));
+        send_word(*(color + i));
     }
 }
 void LcdParInterface::fillHalfScreenLow(uint16_t* color) {
@@ -24,7 +32,8 @@ void LcdParInterface::fillHalfScreenLow(uint16_t* color) {
     send_command(0x2C);
     for (volatile uint32_t i = 0; i < HALF_DISPLAY_MEMORY; i++) {
         // send_word(color);
-        send_word(*(color+i));
+        //send_word(*(color + i));
+        send_data(*(color + i));
     }
 }
 void LcdParInterface::reset() {
@@ -43,11 +52,6 @@ void LcdParInterface::send_command(uint8_t com) {
     dc_data();
 }
 
-void LcdParInterface::send_data(uint16_t data) {
-    wr_off();
-    GPIOD->OUTDR = data;
-    wr_on();
-}
 void LcdParInterface::sendByte(uint8_t byte) {
     wr_off();
     GPIOD->BSHR = byte;
@@ -83,7 +87,7 @@ void LcdParInterface::setXY(int poX, int poY) {
 void LcdParInterface::setPixel(int poX, int poY, int color) {
     setXY(poX, poY);
     send_word(color);
-    //send_word(color);
+    // send_word(color);
 }
 
 //-----------------------------------------------------------------------------
@@ -109,7 +113,7 @@ void LcdParIni::lcd_ini() {
     GPIOD->CFGLR = 0x33333333;
     GPIOD->CFGHR = 0x33333333;
     GPIOD->OUTDR = 0;
-    //tft_ini();
+    // tft_ini();
     tft_ini1();
 }
 
@@ -121,7 +125,7 @@ void LcdParIni::tft_ini1() {
     // Pixel Format Set
     send_command(0x3A);
     send_data(0x55); // 16bit
-                     
+
     send_command(0x2a); // column set
     send_data(0x00);
     send_data(0x00);
@@ -132,7 +136,7 @@ void LcdParIni::tft_ini1() {
     send_data(0x00);
     send_data(0x01);
     send_data(0x3F);
-                     
+
     // sleep mode off
     send_command(0x11);
     delay(100 * 72000); // 100 ms
@@ -141,7 +145,7 @@ void LcdParIni::tft_ini1() {
     // Memory Acsess Control - rotation
     //// 1-полубайт ориентация (через 2) - 2-ой цветовая схема (0 или 8)
     send_command(0x36);
-    //send_data(0xf8); 
+    // send_data(0xf8);
     send_data(TFT9341_ROTATION);
     delay(100 * 72000); // 100 ms
 }
@@ -202,7 +206,7 @@ void LcdParIni::tft_ini() {
     // Memory Acsess Control - rotation
     //// 1-полубайт ориентация (через 2) - 2-ой цветовая схема (0 или 8)
     send_command(0x36);
-    send_data(0xf8); 
+    send_data(0xf8);
     // Pixel Format Set
     send_command(0x3A);
     send_data(0x55); // 16bit
