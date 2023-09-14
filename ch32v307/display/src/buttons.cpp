@@ -5,27 +5,15 @@ Buttons::Buttons() {
     joy_init();
 }
 
-uint16_t Buttons::but16Bits() {
-    uint16_t bits = 0;
-    if(isB0) bits |= 0x0001;
-    if(isB1) bits |= 0x0002;
-    if(isB2) bits |= 0x0004;
-    if(isB3) bits |= 0x0008;
-    if(isB4) bits |= 0x0010;
-    if(isB5) bits |= 0x0020;
-    if(isB6) bits |= 0x0040;
-    if(isB7) bits |= 0x0080;
-    if(isB8) bits |= 0x0100;
-    if(isB9) bits |= 0x0200;
-    if(isB10) bits |= 0x0400;
-    if(isB11) bits |= 0x0800;
-    if(isB12) bits |= 0x1000;
-    if(isB13) bits |= 0x2000;
-    if(isB14) bits |= 0x4000;
-    if(isB15) bits |= 0x8000;
-    return bits;
+uint8_t Buttons::whichNumber() {
+    if (pressed2) {
+        return pressed2;
+    } else if (pressed1) {
+        return pressed1;
+    } else
+        return Button::NONE;
+    return 0;
 }
-
 bool Buttons::isAnyButtonPressed() {
     bool state = false;
     if (isB0) {
@@ -62,123 +50,183 @@ bool Buttons::isAnyButtonPressed() {
         state = true;
     } else if (isEnter) {
         state = true;
-    }
-    if (!state) { currentBut = NONE; }
-    return state;
-}
-
-bool Buttons::getButtonState(Button butNum) {
-    bool state = false;
-    switch (butNum) {
-    case B0:
-        state = isB0;
-        break;
-    case B1:
-        state = isB1;
-        break;
-    case B2:
-        state = isB2;
-        break;
-    case B3:
-        state = isB3;
-        break;
-    case B4:
-        state = isB4;
-        break;
-    case B5:
-        state = isB5;
-        break;
-    case B6:
-        state = isB6;
-        break;
-    case B7:
-        state = isB7;
-        break;
-    case B8:
-        state = isB8;
-        break;
-    case B9:
-        state = isB9;
-        break;
-    case B10:
-        state = isB10;
-        break;
-    case B11:
-        state = isB11;
-        break;
-    case B12:
-        state = isB12;
-        break;
-    case B13:
-        state = isB13;
-        break;
-    case B14:
-        state = isB14;
-        break;
-    case B15:
-        state = isB15;
-        break;
-    case Enter:
-        state = isEnter;
-        break;
-    default:
-        break;
-    }
+    } else if (averageV > 3000) {
+        state = true;
+    } else if (averageV < 1000) {
+        state = true;
+    } else if (averageH > 3000) {
+        state = true;
+    } else if (averageH < 1000) {
+        state = true;
+    };
+    // if (!state) { currentBut = NONE; }
     return state;
 }
 
 void Buttons::interruptHandler() {
     // once in ms
     // TODO: check buttons 4 times strobes
+    if (averageV < 1000) {
+        if (!pressed2) {
+            isDown = true;
+            butStateArr[iBdown] = Button::Bdown;
+            if (!pressed1) {
+                pressed1 = Button::Bdown;
+            } else {
+                if (pressed1 != Button::Bdown) pressed2 = Button::Bdown;
+            }
+        }
+    } else {
+        isDown = false;
+        butStateArr[iBdown] = Button::NONE;
+        if (pressed2 == Button::Bdown) {
+            pressed2 = Button::NONE;
+        } else if (pressed1 == Button::Bdown) {
+            pressed1 = pressed2;
+            pressed2 = Button::NONE;
+        }
+    }
+    if (averageV > 3000) {
+        if (!pressed2) {
+            isUp = true;
+            butStateArr[iBup] = Button::Bup;
+            if (!pressed1) {
+                pressed1 = Button::Bup;
+            } else {
+                if (pressed1 != Button::Bup) pressed2 = Button::Bup;
+            }
+        }
+    } else {
+        isUp = false;
+        butStateArr[iBup] = Button::NONE;
+        if (pressed2 == Button::Bup) {
+            pressed2 = Button::NONE;
+        } else if (pressed1 == Button::Bup) {
+            pressed1 = pressed2;
+            pressed2 = Button::NONE;
+        }
+    }
+    if (averageH > 3000) {
+        if (!pressed2) {
+            isRight = true;
+            butStateArr[iBright] = Button::Bright;
+            if (!pressed1) {
+                pressed1 = Button::Bright;
+            } else {
+                if (pressed1 != Button::Bright) pressed2 = Button::Bright;
+            }
+        }
+    } else {
+        isRight = false;
+        butStateArr[iBright] = Button::NONE;
+        if (pressed2 == Button::Bright) {
+            pressed2 = Button::NONE;
+        } else if (pressed1 == Button::Bright) {
+            pressed1 = pressed2;
+            pressed2 = Button::NONE;
+        }
+    }
+    if (averageH < 1000) {
+        if (!pressed2) {
+            isLeft = true;
+            butStateArr[iBleft] = Button::Bleft;
+            if (!pressed1) {
+                pressed1 = Button::Bleft;
+            } else {
+                if (pressed1 != Button::Bleft) pressed2 = Button::Bleft;
+            }
+        }
+    } else {
+        isLeft = false;
+        butStateArr[iBleft] = Button::NONE;
+        if (pressed2 == Button::Bleft) {
+            pressed2 = Button::NONE;
+        } else if (pressed1 == Button::Bleft) {
+            pressed1 = pressed2;
+            pressed2 = Button::NONE;
+        }
+    }
     switch (currentWhichBut) {
     case B_0:
         if (getB0_in()) {
-            if (!stack.isButInStack(B3)) {
+            if (!pressed2) {
                 isB3 = true;
-                currentBut = B3;
-                stack.push(B3);
+                butStateArr[iB3] = Button::B3;
+                if (!pressed1) {
+                    pressed1 = Button::B3;
+                } else {
+                    if (pressed1 != Button::B3) pressed2 = Button::B3;
+                }
             }
         } else {
-            if(currentBut == B3) {
-                stack.pop();
-            }
             isB3 = false;
+            butStateArr[iB3] = Button::NONE;
+            if (pressed2 == Button::B3) {
+                pressed2 = Button::NONE;
+            } else if (pressed1 == Button::B3) {
+                pressed1 = pressed2;
+                pressed2 = Button::NONE;
+            }
         }
         if (getB1_in()) {
-            if (!stack.isButInStack(B7)) {
+            if (!pressed2) {
                 isB7 = true;
-                currentBut = B7;
-                stack.push(B7);
+                butStateArr[iB7] = Button::B7;
+                if (!pressed1) {
+                    pressed1 = Button::B7;
+                } else {
+                    if (pressed1 != Button::B7) pressed2 = Button::B7;
+                }
             }
         } else {
-            if(currentBut == B7) {
-                stack.pop();
-            }
             isB7 = false;
+            butStateArr[iB7] = Button::NONE;
+            if (pressed2 == Button::B7) {
+                pressed2 = Button::NONE;
+            } else if (pressed1 == Button::B7) {
+                pressed1 = pressed2;
+                pressed2 = Button::NONE;
+            }
         }
         if (getB2_in()) {
-            if (!stack.isButInStack(B11)) {
+            if (!pressed2) {
                 isB11 = true;
-                currentBut = B11;
-                stack.push(B11);
+                butStateArr[iB11] = Button::B11;
+                if (!pressed1) {
+                    pressed1 = Button::B11;
+                } else {
+                    if (pressed1 != Button::B11) pressed2 = Button::B11;
+                }
             }
         } else {
-            if(currentBut == B11) {
-                stack.pop();
-            }
             isB11 = false;
+            butStateArr[iB11] = Button::NONE;
+            if (pressed2 == Button::B11) {
+                pressed2 = Button::NONE;
+            } else if (pressed1 == Button::B11) {
+                pressed1 = pressed2;
+                pressed2 = Button::NONE;
+            }
         }
         if (getB3_in()) {
-            if (!stack.isButInStack(B15)) {
+            if (!pressed2) {
                 isB15 = true;
-                currentBut = B15;
-                stack.push(B15);
+                butStateArr[iB15] = Button::B15;
+                if (!pressed1) {
+                    pressed1 = Button::B15;
+                } else {
+                    if (pressed1 != Button::B15) pressed2 = Button::B15;
+                }
             }
         } else {
-            if(currentBut == B15) {
-                stack.pop();
-            }
             isB15 = false;
+            butStateArr[iB15] = Button::NONE;
+            if (pressed2 == Button::B15) {
+                pressed2 = Button::NONE;
+            } else if (pressed1 == Button::B15) {
+                pressed1 = pressed2;
+                pressed2 = Button::NONE;
+            }
         }
         resetB0_out();
         resetB1_out();
@@ -190,52 +238,84 @@ void Buttons::interruptHandler() {
         break;
     case B_1:
         if (getB0_in()) {
-            if (!stack.isButInStack(B0)) {
+            if (!pressed2) {
                 isB0 = true;
-                currentBut = B0;
-                stack.push(B0);
+                butStateArr[iB0] = Button::B0;
+                if (!pressed1) {
+                    pressed1 = Button::B0;
+                } else {
+                    if (pressed1 != Button::B0) pressed2 = Button::B0;
+                }
             }
         } else {
-            if(currentBut == B0) {
-                stack.pop();
-            }
             isB0 = false;
+            butStateArr[iB0] = Button::NONE;
+            if (pressed2 == Button::B0) {
+                pressed2 = Button::NONE;
+            } else if (pressed1 == Button::B0) {
+                pressed1 = pressed2;
+                pressed2 = Button::NONE;
+            }
         }
         if (getB1_in()) {
-            if (!stack.isButInStack(B4)) {
+            if (!pressed2) {
                 isB4 = true;
-                currentBut = B4;
-                stack.push(B4);
+                butStateArr[iB4] = Button::B4;
+                if (!pressed1) {
+                    pressed1 = Button::B4;
+                } else {
+                    if (pressed1 != Button::B4) pressed2 = Button::B4;
+                }
             }
         } else {
-            if(currentBut == B4) {
-                stack.pop();
-            }
             isB4 = false;
+            butStateArr[iB4] = Button::NONE;
+            if (pressed2 == Button::B4) {
+                pressed2 = Button::NONE;
+            } else if (pressed1 == Button::B4) {
+                pressed1 = pressed2;
+                pressed2 = Button::NONE;
+            }
         }
         if (getB2_in()) {
-            if (!stack.isButInStack(B8)) {
+            if (!pressed2) {
                 isB8 = true;
-                currentBut = B8;
-                stack.push(B8);
+                butStateArr[iB8] = Button::B8;
+                if (!pressed1) {
+                    pressed1 = Button::B8;
+                } else {
+                    if (pressed1 != Button::B8) pressed2 = Button::B8;
+                }
             }
         } else {
-            if(currentBut == B8) {
-                stack.pop();
-            }
             isB8 = false;
+            butStateArr[iB8] = Button::NONE;
+            if (pressed2 == Button::B8) {
+                pressed2 = Button::NONE;
+            } else if (pressed1 == Button::B8) {
+                pressed1 = pressed2;
+                pressed2 = Button::NONE;
+            }
         }
         if (getB3_in()) {
-            if (!stack.isButInStack(B12)) {
+            if (!pressed2) {
                 isB12 = true;
-                currentBut = B12;
-                stack.push(B12);
+                butStateArr[iB12] = Button::B12;
+                if (!pressed1) {
+                    pressed1 = Button::B12;
+                } else {
+                    if (pressed1 != Button::B12) pressed2 = Button::B12;
+                }
             }
         } else {
-            if(currentBut == B12) {
-                stack.pop();
-            }
             isB12 = false;
+            butStateArr[iB12] = Button::NONE;
+            if (pressed2 == Button::B12) {
+                pressed2 = Button::NONE;
+            } else if (pressed1 == Button::B12) {
+                pressed1 = pressed2;
+                pressed2 = Button::NONE;
+            }
         }
         resetB0_out();
         resetB1_out();
@@ -246,52 +326,85 @@ void Buttons::interruptHandler() {
         break;
     case B_2:
         if (getB0_in()) {
-            if (!stack.isButInStack(B1)) {
+            if (!pressed2) {
                 isB1 = true;
-                currentBut = B1;
-                stack.push(B1);
+                butStateArr[iB1] = Button::B1;
+                if (!pressed1) {
+                    pressed1 = Button::B1;
+                } else {
+                    if (pressed1 != Button::B1) pressed2 = Button::B1;
+                }
             }
         } else {
-            if(currentBut == B1) {
-                stack.pop();
-            }
             isB1 = false;
+            butStateArr[iB1] = Button::NONE;
+            if (pressed2 == Button::B1) {
+                pressed2 = Button::NONE;
+            } else if (pressed1 == Button::B1) {
+                pressed1 = pressed2;
+                pressed2 = Button::NONE;
+            }
         }
+
         if (getB1_in()) {
-            if (!stack.isButInStack(B5)) {
+            if (!pressed2) {
                 isB5 = true;
-                currentBut = B5;
-                stack.push(B5);
+                butStateArr[iB5] = Button::B5;
+                if (!pressed1) {
+                    pressed1 = Button::B5;
+                } else {
+                    if (pressed1 != Button::B5) pressed2 = Button::B5;
+                }
             }
         } else {
-            if(currentBut == B5) {
-                stack.pop();
-            }
             isB5 = false;
+            butStateArr[iB5] = Button::NONE;
+            if (pressed2 == Button::B5) {
+                pressed2 = Button::NONE;
+            } else if (pressed1 == Button::B5) {
+                pressed1 = pressed2;
+                pressed2 = Button::NONE;
+            }
         }
         if (getB2_in()) {
-            if (!stack.isButInStack(B9)) {
+            if (!pressed2) {
                 isB9 = true;
-                currentBut = B9;
-                stack.push(B9);
+                butStateArr[iB9] = Button::B9;
+                if (!pressed1) {
+                    pressed1 = Button::B9;
+                } else {
+                    if (pressed1 != Button::B9) pressed2 = Button::B9;
+                }
             }
         } else {
-            if(currentBut == B9) {
-                stack.pop();
-            }
             isB9 = false;
+            butStateArr[iB9] = Button::NONE;
+            if (pressed2 == Button::B9) {
+                pressed2 = Button::NONE;
+            } else if (pressed1 == Button::B9) {
+                pressed1 = pressed2;
+                pressed2 = Button::NONE;
+            }
         }
         if (getB3_in()) {
-            if (!stack.isButInStack(B13)) {
+            if (!pressed2) {
                 isB13 = true;
-                currentBut = B13;
-                stack.push(B13);
+                butStateArr[iB13] = Button::B13;
+                if (!pressed1) {
+                    pressed1 = Button::B13;
+                } else {
+                    if (pressed1 != Button::B13) pressed2 = Button::B13;
+                }
             }
         } else {
-            if(currentBut == B13) {
-                stack.pop();
-            }
             isB13 = false;
+            butStateArr[iB13] = Button::NONE;
+            if (pressed2 == Button::B13) {
+                pressed2 = Button::NONE;
+            } else if (pressed1 == Button::B13) {
+                pressed1 = pressed2;
+                pressed2 = Button::NONE;
+            }
         }
         resetB0_out();
         resetB1_out();
@@ -302,52 +415,84 @@ void Buttons::interruptHandler() {
         break;
     case B_3:
         if (getB0_in()) {
-            if (!stack.isButInStack(B2)) {
+            if (!pressed2) {
                 isB2 = true;
-                currentBut = B2;
-                stack.push(B2);
+                butStateArr[iB2] = Button::B2;
+                if (!pressed1) {
+                    pressed1 = Button::B2;
+                } else {
+                    if (pressed1 != Button::B2) pressed2 = Button::B2;
+                }
             }
         } else {
-            if(currentBut == B2) {
-                stack.pop();
-            }
             isB2 = false;
+            butStateArr[iB2] = Button::NONE;
+            if (pressed2 == Button::B2) {
+                pressed2 = Button::NONE;
+            } else if (pressed1 == Button::B2) {
+                pressed1 = pressed2;
+                pressed2 = Button::NONE;
+            }
         }
         if (getB1_in()) {
-            if (!stack.isButInStack(B6)) {
+            if (!pressed2) {
                 isB6 = true;
-                currentBut = B6;
-                stack.push(B6);
+                butStateArr[iB6] = Button::B6;
+                if (!pressed1) {
+                    pressed1 = Button::B6;
+                } else {
+                    if (pressed1 != Button::B6) pressed2 = Button::B6;
+                }
             }
         } else {
-            if(currentBut == B6) {
-                stack.pop();
-            }
             isB6 = false;
+            butStateArr[iB6] = Button::NONE;
+            if (pressed2 == Button::B6) {
+                pressed2 = Button::NONE;
+            } else if (pressed1 == Button::B6) {
+                pressed1 = pressed2;
+                pressed2 = Button::NONE;
+            }
         }
         if (getB2_in()) {
-            if (!stack.isButInStack(B10)) {
+            if (!pressed2) {
                 isB10 = true;
-                currentBut = B10;
-                stack.push(B10);
+                butStateArr[iB10] = Button::B10;
+                if (!pressed1) {
+                    pressed1 = Button::B10;
+                } else {
+                    if (pressed1 != Button::B10) pressed2 = Button::B10;
+                }
             }
         } else {
-            if(currentBut == B10) {
-                stack.pop();
-            }
             isB10 = false;
+            butStateArr[iB10] = Button::NONE;
+            if (pressed2 == Button::B10) {
+                pressed2 = Button::NONE;
+            } else if (pressed1 == Button::B10) {
+                pressed1 = pressed2;
+                pressed2 = Button::NONE;
+            }
         }
         if (getB3_in()) {
-            if (!stack.isButInStack(B14)) {
+            if (!pressed2) {
                 isB14 = true;
-                currentBut = B14;
-                stack.push(B14);
+                butStateArr[iB14] = Button::B14;
+                if (!pressed1) {
+                    pressed1 = Button::B14;
+                } else {
+                    if (pressed1 != Button::B14) pressed2 = Button::B14;
+                }
             }
         } else {
-            if(currentBut == B14) {
-                stack.pop();
-            }
             isB14 = false;
+            butStateArr[iB14] = Button::NONE;
+            if (pressed2 == Button::B14) {
+                pressed2 = Button::NONE;
+            } else if (pressed1 == Button::B14) {
+                pressed1 = pressed2;
+                pressed2 = Button::NONE;
+            }
         }
         resetB0_out();
         resetB1_out();
@@ -359,26 +504,49 @@ void Buttons::interruptHandler() {
     default:
         break;
     }
-    if (!isAnyButtonPressed()) {
-        stack.clear();
-        currentBut = NONE;
-    }
     if (getEnter()) {
         if (counterEnter > MAX_BUTTON_COUNTER) {
             counterEnter = 0;
-            isEnter = true;
+            if (!pressed2) {
+                isEnter = true;
+                butStateArr[iEnter] = Button::Enter;
+                if (!pressed1) {
+                    pressed1 = Button::Enter;
+                } else {
+                    if (pressed1 != Button::Enter) pressed2 = Button::Enter;
+                }
+            }
         } else {
             counterEnter++;
         }
     } else {
         counterEnter = 0;
         isEnter = false;
+        butStateArr[iEnter] = Button::NONE;
+        if (pressed2 == Button::Enter) {
+            pressed2 = Button::NONE;
+        } else if (pressed1 == Button::Enter) {
+            pressed1 = pressed2;
+            pressed2 = Button::NONE;
+        }
+    }
+    if (getJoyB()) {
+        if (counterJoyB > 1000) {
+            counterJoyB = 0;
+            isJoyB = true;
+        } else {
+            counterJoyB++;
+        }
+    } else {
+        isJoyB = false;
+        counterJoyB = 0;
+    }
+    if (!isAnyButtonPressed()) {
+        pressed2 = Button::NONE;
+        pressed1 = Button::NONE;
     }
     if (ADC1->STATR & ADC_JEOC) {
         ADC1->STATR = 0;
-        //ADC1->STATR &= ~ADC_JSTRT;
-        //ADC1->STATR &= ~ADC_JEOC;
-        //ADC1->CTLR2 &= ~ADC_JSWSTART;
         moving_average_H(getH());
         moving_average_V(getV());
         ADC1->CTLR2 |= ADC_JSWSTART;
@@ -398,6 +566,7 @@ bool Buttons::getB1_in() { return !(GPIOE->INDR & GPIO_INDR_IDR13); }
 bool Buttons::getB2_in() { return !(GPIOE->INDR & GPIO_INDR_IDR14); }
 bool Buttons::getB3_in() { return !(GPIOE->INDR & GPIO_INDR_IDR15); }
 bool Buttons::getEnter() { return !(GPIOB->INDR & GPIO_INDR_IDR2); }
+bool Buttons::getJoyB() { return !(GPIOC->INDR & GPIO_INDR_IDR4); }
 
 uint16_t Buttons::getV() { return (ADC1->IDATAR1 & 0xFFFC); }
 uint16_t Buttons::getH() { return (ADC1->IDATAR2 & 0xFFFC); }
@@ -442,27 +611,27 @@ void Buttons::joy_init() {
     // PCLK2 - 72MHz / 6 = ADC_CLK = 12 MHz
     RCC->CFGR0 |= RCC_ADCPRE_DIV6;
 
-    ADC1->SAMPTR1 &= ~(ADC_SMP10 | ADC_SMP11); // 0:0:0 1,5 cycles conversion
+    ADC1->SAMPTR1 &= ~(ADC_SMP10 | ADC_SMP11);  // 0:0:0 1,5 cycles conversion
     ADC1->SAMPTR1 |= ADC_SMP10_1 | ADC_SMP10_0; // 0:1:1 29 cycles conversion
     ADC1->SAMPTR1 |= ADC_SMP11_1 | ADC_SMP11_0; // 0:1:1 29 cycles conversion
     ADC1->CTLR2 |= ADC_JEXTTRIG;
     // 111: ISWSTART software trigger
     ADC1->CTLR2 |= ADC_JEXTSEL; // 1:1:1 ISWSTART software trigger
-    //ADC1->CTLR2 |= ADC_JEXTSEL_1 | ADC_JEXTSEL_0;
-    //ADC1->CTLR1 |= ADC_JAUTO;
+    // ADC1->CTLR2 |= ADC_JEXTSEL_1 | ADC_JEXTSEL_0;
+    // ADC1->CTLR1 |= ADC_JAUTO;
     ADC1->CTLR1 |= ADC_SCAN;
-    //ADC1->CTLR1 |= ADC_JDISCEN;
+    // ADC1->CTLR1 |= ADC_JDISCEN;
     ADC1->ISQR |= ADC_JL_0; // 0:1 - two channels
     // JSQ1-ch10, JSQ2-ch11
-    //ADC1->ISQR |= (10 << 0);
-    //ADC1->ISQR |= (11 << 5);
+    // ADC1->ISQR |= (10 << 0);
+    // ADC1->ISQR |= (11 << 5);
     ADC1->ISQR |= (10 << 10);
     ADC1->ISQR |= (11 << 15);
     // ADC1->ISQR = (10 << 10);
     ADC1->CTLR2 |= ADC_ADON; // enable ADC
 
     // ADC_ResetCalibration(ADC1);
-    
+
     ADC1->CTLR1 &= ~ADC_OutputBuffer_Enable;
     ADC1->CTLR2 |= ADC_RSTCAL;
     // while(ADC_GetResetCalibrationStatus(ADC1));
@@ -474,7 +643,7 @@ void Buttons::joy_init() {
     ADC1->CTLR1 |= ADC_OutputBuffer_Enable;
     // Calibrattion_Val = ADC1->RDATAR;
     // Calibrattion_Val = Get_CalibrationValue(ADC1);
-    
+
     ADC1->CTLR2 |= ADC_JSWSTART;
 }
 

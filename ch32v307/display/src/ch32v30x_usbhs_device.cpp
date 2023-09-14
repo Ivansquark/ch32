@@ -13,8 +13,8 @@ uint8_t RxCDC_flag = 0;
 uint16_t RxCDC_len = 0;
 uint8_t RxCDC_buf[64] = {0};
 uint8_t TxBULK_flag = 0;
-uint8_t RxBULK_flag = 0;
-uint16_t RxBULK_len = 0;
+volatile uint8_t RxBULK_flag = 0;
+volatile uint16_t RxBULK_len = 0;
 uint8_t RxBULK_buf[512] = {0};
 /******************************************************************************/
 /* Variable Definition */
@@ -429,15 +429,18 @@ void USBHS_IRQHandler(void) {
                 // TODO get len
                 if (RxBULK_flag) {
                     USBHSD->UEP4_RX_CTRL &= ~USBHS_UEP_R_RES_MASK;
-                    //USBHSD->UEP4_RX_CTRL |= USBHS_UEP_R_RES_NAK;
+                    USBHSD->UEP4_RX_CTRL |= USBHS_UEP_R_RES_NAK;
                     //USBHSD->UEP4_RX_CTRL |= USBHS_UEP_R_RES_STALL;
                 } else {
                     RxBULK_len = USBHSD->RX_LEN;
                     // memcpy(RxBULK_buf, (const void*)USBHSD->UEP4_RX_DMA,
                     //       RxBULK_len);
-                    //memcpy(RxBULK_buf, (const void*)USBHSD_UEP_RXBUF(4),
+                    // memcpy(RxBULK_buf, (const void*)USBHSD_UEP_RXBUF(4),
                     //       RxBULK_len);
                     RxBULK_flag = 1;
+                    NVIC_DisableIRQ(USBHS_IRQn);
+                    USBHSD->UEP4_RX_CTRL &= ~USBHS_UEP_R_RES_MASK;
+                    USBHSD->UEP4_RX_CTRL |= USBHS_UEP_R_RES_NAK;
                     // set tx buffer to dma
                     // USBHSD->UEP2_RX_DMA = (uint32_t)(uint8_t*)&Tx_Buf;
                     // USBHS_Endp_DataUp(DEF_UEP2, &Tx_Buf, packlen,

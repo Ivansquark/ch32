@@ -31,12 +31,54 @@ extern uint8_t RxCDC_flag;
 extern uint16_t RxCDC_len;
 extern uint8_t RxCDC_buf[];
 extern uint8_t TxBULK_flag;
-extern uint8_t RxBULK_flag;
-extern uint16_t RxBULK_len;
+extern volatile uint8_t RxBULK_flag;
+extern volatile uint16_t RxBULK_len;
 extern uint8_t RxBULK_buf[];
 
 void setRamSize(uint32_t size);
 void checkButtonsDisp();
+
+typedef struct {
+    // Report ID = 0x01 (1) Collection: CA:Keyboard
+    uint8_t reportId;
+    // Usage 0x000700E0: Keyboard Left Control, Value = 0 to 1
+    uint8_t KB_KeyboardKeyboardLeftControl : 1;
+    // Usage 0x000700E1: Keyboard Left Shift, Value = 0 to 1
+    uint8_t KB_KeyboardKeyboardLeftShift : 1;
+    // Usage 0x000700E2: Keyboard Left Alt, Value = 0 to 1
+    uint8_t KB_KeyboardKeyboardLeftAlt : 1;
+    // Usage 0x000700E3: Keyboard Left GUI, Value = 0 to 1
+    uint8_t KB_KeyboardKeyboardLeftGui : 1;
+    // Usage 0x000700E4: Keyboard Right Control, Value = 0 to 1
+    uint8_t KB_KeyboardKeyboardRightControl : 1;
+    // Usage 0x000700E5: Keyboard Right Shift, Value = 0 to 1
+    uint8_t KB_KeyboardKeyboardRightShift : 1;
+    // Usage 0x000700E6: Keyboard Right Alt, Value = 0 to 1
+    uint8_t KB_KeyboardKeyboardRightAlt : 1;
+    // Usage 0x000700E7: Keyboard Right GUI, Value = 0 to 1
+    uint8_t KB_KeyboardKeyboardRightGui : 1;
+    uint8_t pad_2;       // Pad
+    uint8_t Keyboard[2]; // Value = 0 to 101
+} KeyboardReport_t;
+typedef struct {
+    // Report ID = 0x02 (2) Collection: CA:Mouse CP:Pointer
+    uint8_t reportId;
+    // Usage 0x00090001: Button 1 Primary/trigger, Value = 0 to 1
+    uint8_t BTN_MousePointerButton1 : 1;
+    // Usage 0x00090002: Button 2 Secondary, Value = 0 to 1
+    uint8_t BTN_MousePointerButton2 : 1;
+    // Usage 0x00090003: Button 3 Tertiary, Value = 0 to 1
+    uint8_t BTN_MousePointerButton3 : 1;
+    uint8_t : 5;             // Pad
+    int8_t GD_MousePointerX; // Usage 0x00010030: X, Value = -127 to 127
+    int8_t GD_MousePointerY; // Usage 0x00010031: Y, Value = -127 to 127
+    // Usage 0x00010038: Wheel, Value = -127 to 127
+    int8_t GD_MousePointerWheel;
+} MouseReport_t;
+
+KeyboardReport_t key;
+MouseReport_t mouse;
+
 int main(void) {
     // setRamSize(0x20000);
     /* add queues, ... */
@@ -51,6 +93,7 @@ int main(void) {
     USBHS_RCC_Init();
     USBHS_Device_Init(ENABLE);
 
+    // TODO: draw screen saver
     fig.drawRect(50, 100, 100, 130, Figure::RED);
     // uint16_t j = 0;
     for (int i = 0; i < Figure::HALF_DISPLAY_MEMORY; i++) {
@@ -58,22 +101,24 @@ int main(void) {
     }
     fig.fillScreen(Figure::BLACK);
     // checkButtonsDisp();
-    for (int i = 0; i < Figure::HALF_DISPLAY_MEMORY; i++) {
-        fig.buff[i] = Figure::YELLOW;
-    }
-    fig.fillHalfScreenHigh(fig.buff);
-    fig.fillHalfScreenLow(fig.buff);
+    // for (int i = 0; i < Figure::HALF_DISPLAY_MEMORY; i++) {
+    //    fig.buff[i] = Figure::YELLOW;
+    //}
+    // fig.fillHalfScreenHigh(fig.buff);
+    // fig.fillHalfScreenLow(fig.buff);
     // j += 1;
     //
-    uint32_t counter = 0;
     uint16_t X;
     uint16_t Y;
     uint32_t counterBulk = 0;
     bool isHighOrLow = false;
-
+    RxBULK_flag = 0;
+    bool mustSend0 = false;
+    volatile uint32_t counter = 0;
     while (1) {
         X = 1000 * but.averageH / 4095;
         Y = 1000 * but.averageV / 4095;
+        /*
         if (RxCDC_flag) {
             RxCDC_flag = 0;
             if (RxCDC_buf[0] == 0x30) { TxCDC_flag = 1; }
@@ -87,17 +132,12 @@ int main(void) {
                               DEF_UEP_CPY_LOAD);
             TxCDC_flag = 0;
         }
+        */
         if (RxBULK_flag) {
-            // fig.fillScreenSequence((uint16_t*)USBHSD_UEP_RXBUF(4),
-            //                       RxBULK_len / 2);
-
-            // memcpy((uint8_t*)(fig.buff) + counterBulk, RxBULK_buf,
-            // RxBULK_len);
-
-            NVIC_DisableIRQ(USBHS_IRQn);
+            // receive from usb bulk4 (videomemory)
+            RxBULK_flag = 0;
             memcpy((uint8_t*)(fig.buff) + counterBulk, USBHSD_UEP_RXBUF(4),
                    RxBULK_len);
-
             counterBulk += RxBULK_len;
             if (counterBulk >= LcdParIni::HALF_DISPLAY_MEMORY * 2) {
                 counterBulk = 0;
@@ -109,11 +149,9 @@ int main(void) {
                     isHighOrLow = true;
                 }
             }
-
+            NVIC_EnableIRQ(USBHS_IRQn);
             USBHSD->UEP4_RX_CTRL &= ~USBHS_UEP_R_RES_MASK;
             USBHSD->UEP4_RX_CTRL |= USBHS_UEP_R_RES_ACK;
-            RxBULK_flag = 0;
-            NVIC_EnableIRQ(USBHS_IRQn);
         }
         /*
         if (TxBULK_flag) {
@@ -127,28 +165,100 @@ int main(void) {
         }
         */
         // TODO: set next to rtos hid
-        if (counter >= 100000) {
-            counter = 0;
-            struct hid {
-                uint16_t X;
-                uint16_t Y;
-                uint16_t but16s;
-                uint8_t but17;
-            } __attribute__((packed));
-            hid h;
-            h.X = X;
-            h.Y = Y;
-            h.but16s = but.but16Bits();
-            h.but17 = but.getButtonState(Buttons::Enter) ? 1 : 0;
-            USBHS_Endp_DataUp(DEF_UEP3, (uint8_t*)&h, sizeof(hid),
-                              DEF_UEP_CPY_LOAD);
+        //
+        //----------------- buttons handler -----------------------------------
+        if (but.isJoyB) {
+            if (!but.currentModeOnceTime) {
+                but.currentModeOnceTime = true;
+                if (but.currentMode == Buttons::KEYBOARD) {
+                    but.currentMode = Buttons::Mode::MOUSE;
+                } else {
+                    but.currentMode = Buttons::Mode::KEYBOARD;
+                }
+            }
         } else {
-            counter++;
+            but.currentModeOnceTime = false;
+        }
+        if (but.currentMode == Buttons::KEYBOARD) {
+            if (counter >= 200000) {
+                memset(&key, 0, sizeof(KeyboardReport_t));
+                key.reportId = 0x01;
+                counter = 0;
+                if (but.isAnyButtonPressed()) {
+                    key.Keyboard[1] = but.whichNumber();
+                    if (key.Keyboard[1]) {
+                        USBHS_Endp_DataUp(DEF_UEP3, (uint8_t*)&key,
+                                          sizeof(KeyboardReport_t),
+                                          DEF_UEP_CPY_LOAD);
+                    }
+                } else {
+                    mustSend0 = true;
+                }
+            } else {
+                counter++;
+            }
+            if (mustSend0) {
+                counter = 0;
+                memset(&key, 0, sizeof(KeyboardReport_t));
+                key.reportId = 0x01;
+                USBHS_Endp_DataUp(DEF_UEP3, (uint8_t*)&key,
+                                  sizeof(KeyboardReport_t), DEF_UEP_CPY_LOAD);
+                mustSend0 = false;
+            }
+        } else {
+            // MOUSE
+            if (counter >= 200000) {
+                memset(&key, 0, sizeof(MouseReport_t));
+                counter = 0;
+                mouse.reportId = 2;
+                // 4096 127; 0 -127 //2048 0
+                if ((but.averageH > 1800) && (but.averageH < 2200)) {
+                    mouse.GD_MousePointerX = 0;
+                } else if (but.averageH <= 1800) {
+                    mouse.GD_MousePointerX = 32 * (but.averageH - 2048) / 2048;
+                } else if (but.averageH >= 2200) {
+                    mouse.GD_MousePointerX = 32 * (but.averageH - 2048) / 2048;
+                }
+                if ((but.averageV > 1800) && (but.averageV < 2200)) {
+                    mouse.GD_MousePointerY = 0;
+                } else if (but.averageV <= 1900) {
+                    mouse.GD_MousePointerY = 32 * (but.averageV - 2048) / 2048;
+                } else if (but.averageV >= 2100) {
+                    mouse.GD_MousePointerY = 32 * (but.averageV - 2048) / 2048;
+                }
+                if(but.isB13) {
+                    mouse.BTN_MousePointerButton1 = 1;
+                } else {
+                    mouse.BTN_MousePointerButton1 = 0;
+                }
+                if(but.isB14) {
+                    mouse.BTN_MousePointerButton2 = 1;
+                } else {
+                    mouse.BTN_MousePointerButton2 = 0;
+                }
+                if(but.isEnter) {
+                    mouse.BTN_MousePointerButton3 = 1;
+                } else {
+                    mouse.BTN_MousePointerButton3 = 0;
+                }
+                if(but.isB12) {
+                    mouse.GD_MousePointerWheel = 1;
+                } else {
+                    mouse.GD_MousePointerWheel = 0;
+                }
+                if(but.isB15) {
+                    mouse.GD_MousePointerWheel = -1;
+                } else {
+                    if(!but.isB12)
+                    mouse.GD_MousePointerWheel = 0;
+                }
+                USBHS_Endp_DataUp(DEF_UEP3, (uint8_t*)&mouse,
+                                  sizeof(MouseReport_t), DEF_UEP_CPY_LOAD);
+            } else {
+                counter++;
+            }
         }
     }
-
-    //
-    //
     // FR_OS::startOS();
     // while (1) {}
 }
@@ -206,217 +316,3 @@ void setRamSize(uint32_t size) {
     FLASH->CTLR &= ~FLASH_CTLR_OPTPG;
     // FLASH->CTLR |= FLASH_CTLR_LOCK;
 }
-/*
-void checkButtonsDisp() {
-    while (1) {
-        if (but.isAnyButtonPressed()) {
-            if (but.currentBut == Buttons::B1) {
-                if (!but.B1_once) {
-                    but.B1_once = true;
-                    fig.drawRect(5, 55, 5, 55, Figure::BLUE);
-                }
-            } else {
-                if (but.B1_once) {
-                    but.B1_once = false;
-                    fig.drawRect(5, 55, 5, 55, Figure::BLACK);
-                }
-            }
-            if (but.currentBut == Buttons::B2) {
-                if (!but.B2_once) {
-                    but.B2_once = true;
-                    fig.drawRect(60, 110, 5, 55, Figure::BLUE);
-                }
-            } else {
-                if (but.B2_once) {
-                    but.B2_once = false;
-                    fig.drawRect(60, 110, 5, 55, Figure::BLACK);
-                }
-            }
-            if (but.currentBut == Buttons::B3) {
-                if (!but.B3_once) {
-                    but.B3_once = true;
-                    fig.drawRect(115, 165, 5, 55, Figure::BLUE);
-                }
-            } else {
-                if (but.B3_once) {
-                    but.B3_once = false;
-                    fig.drawRect(115, 165, 5, 55, Figure::BLACK);
-                }
-            }
-            if (but.currentBut == Buttons::B4) {
-                if (!but.B4_once) {
-                    but.B4_once = true;
-                    fig.drawRect(5, 55, 60, 110, Figure::BLUE);
-                }
-            } else {
-                if (but.B4_once) {
-                    but.B4_once = false;
-                    fig.drawRect(5, 55, 60, 110, Figure::BLACK);
-                }
-            }
-            if (but.currentBut == Buttons::B5) {
-                if (!but.B5_once) {
-                    but.B5_once = true;
-                    fig.drawRect(60, 110, 60, 110, Figure::BLUE);
-                }
-            } else {
-                if (but.B5_once) {
-                    but.B5_once = false;
-                    fig.drawRect(60, 110, 60, 110, Figure::BLACK);
-                }
-            }
-            if (but.currentBut == Buttons::B6) {
-                if (!but.B6_once) {
-                    but.B6_once = true;
-                    fig.drawRect(115, 165, 60, 110, Figure::BLUE);
-                }
-            } else {
-                if (but.B6_once) {
-                    but.B6_once = false;
-                    fig.drawRect(115, 165, 60, 110, Figure::BLACK);
-                }
-            }
-            if (but.currentBut == Buttons::B7) {
-                if (!but.B7_once) {
-                    but.B7_once = true;
-                    fig.drawRect(5, 55, 115, 165, Figure::BLUE);
-                }
-            } else {
-                if (but.B7_once) {
-                    but.B7_once = false;
-                    fig.drawRect(5, 55, 115, 165, Figure::BLACK);
-                }
-            }
-            if (but.currentBut == Buttons::B8) {
-                if (!but.B8_once) {
-                    but.B8_once = true;
-                    fig.drawRect(60, 110, 115, 165, Figure::BLUE);
-                }
-            } else {
-                if (but.B8_once) {
-                    but.B8_once = false;
-                    fig.drawRect(60, 110, 115, 165, Figure::BLACK);
-                }
-            }
-            if (but.currentBut == Buttons::B9) {
-                if (!but.B9_once) {
-                    but.B9_once = true;
-                    fig.drawRect(115, 165, 115, 165, Figure::BLUE);
-                }
-            } else {
-                if (but.B9_once) {
-                    but.B9_once = false;
-                    fig.drawRect(115, 165, 115, 165, Figure::BLACK);
-                }
-            }
-            if (but.currentBut == Buttons::B10) {
-                if (!but.B10_once) {
-                    but.B10_once = true;
-                    fig.drawRect(5, 55, 170, 220, Figure::BLUE);
-                }
-            } else {
-                if (but.B10_once) {
-                    but.B10_once = false;
-                    fig.drawRect(5, 55, 170, 220, Figure::BLACK);
-                }
-            }
-            if (but.currentBut == Buttons::B0) {
-                if (!but.B0_once) {
-                    but.B0_once = true;
-                    fig.drawRect(60, 110, 170, 220, Figure::BLUE);
-                }
-            } else {
-                if (but.B0_once) {
-                    but.B0_once = false;
-                    fig.drawRect(60, 110, 170, 220, Figure::BLACK);
-                }
-            }
-            if (but.currentBut == Buttons::B11) {
-                if (!but.B11_once) {
-                    but.B11_once = true;
-                    fig.drawRect(115, 165, 170, 220, Figure::BLUE);
-                }
-            } else {
-                if (but.B11_once) {
-                    but.B11_once = false;
-                    fig.drawRect(115, 165, 170, 220, Figure::BLACK);
-                }
-            }
-            if (but.currentBut == Buttons::B12) {
-                if (!but.B12_once) {
-                    but.B12_once = true;
-                    fig.drawRect(230, 270, 50, 90, Figure::BLUE);
-                }
-            } else {
-                if (but.B12_once) {
-                    but.B12_once = false;
-                    fig.drawRect(230, 270, 50, 90, Figure::BLACK);
-                }
-            }
-            if (but.currentBut == Buttons::B13) {
-                if (!but.B13_once) {
-                    but.B13_once = true;
-                    fig.drawRect(180, 220, 100, 140, Figure::BLUE);
-                }
-            } else {
-                if (but.B13_once) {
-                    but.B13_once = false;
-                    fig.drawRect(180, 220, 100, 140, Figure::BLACK);
-                }
-            }
-            if (but.getButtonState(Buttons::Enter)) {
-                if (!but.Enter_once) {
-                    but.Enter_once = true;
-                    fig.drawRect(230, 270, 100, 140, Figure::BLUE);
-                }
-            } else {
-                if (but.Enter_once) {
-                    but.Enter_once = false;
-                    fig.drawRect(230, 270, 100, 140, Figure::BLACK);
-                }
-            }
-            if (but.currentBut == Buttons::B14) {
-                if (!but.B14_once) {
-                    but.B14_once = true;
-                    fig.drawRect(280, 320, 100, 140, Figure::BLUE);
-                }
-            } else {
-                if (but.B14_once) {
-                    but.B14_once = false;
-                    fig.drawRect(280, 320, 100, 140, Figure::BLACK);
-                }
-            }
-            if (but.currentBut == Buttons::B15) {
-                if (!but.B15_once) {
-                    but.B15_once = true;
-                    fig.drawRect(230, 270, 150, 190, Figure::BLUE);
-                }
-            } else {
-                if (but.B15_once) {
-                    but.B15_once = false;
-                    fig.drawRect(230, 270, 150, 190, Figure::BLACK);
-                }
-            }
-        } else {
-            fig.fillScreen(Figure::BLACK);
-            but.B0_once = false;
-            but.B1_once = false;
-            but.B2_once = false;
-            but.B3_once = false;
-            but.B4_once = false;
-            but.B5_once = false;
-            but.B6_once = false;
-            but.B7_once = false;
-            but.B8_once = false;
-            but.B9_once = false;
-            but.B10_once = false;
-            but.B11_once = false;
-            but.B12_once = false;
-            but.B13_once = false;
-            but.B14_once = false;
-            but.B15_once = false;
-        }
-    }
-}
-
-*/

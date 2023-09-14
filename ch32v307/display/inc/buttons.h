@@ -12,7 +12,6 @@ class Buttons : public Interruptable {
     Buttons();
 
     void interruptHandler() override;
-    uint16_t but16Bits();
 
     enum WhichBut : uint8_t
     {
@@ -23,82 +22,55 @@ class Buttons : public Interruptable {
     };
     WhichBut currentWhichBut = WhichBut::B_0;
 
-    uint16_t averageV = 0;
-    uint16_t averageH = 0;
-
     enum Button : uint8_t
     {
-        NONE,
-        B0,
-        B1,
-        B2,
-        B3,
-        B4,
-        B5,
-        B6,
-        B7,
-        B8,
-        B9,
-        B10,
-        B11,
-        B12,
-        B13,
-        B14,
-        B15,
-        Enter
+        NONE = 0,
+        B12 = 0x04, // a
+        B14 = 0x07, // d
+        B13 = 0x16, // s
+        B15 = 0x1a, // w
+        B1 = 0x1e,
+        B2 = 0x1f,
+        B3 = 0x20,
+        B4 = 0x21,
+        B5 = 0x22,
+        B6 = 0x23,
+        B7 = 0x24,
+        B8 = 0x25,
+        B9 = 0x26,
+        B0 = 0x27,
+        Enter = 0x28,
+        B10 = 0x29, // escape
+        B11 = 0x2b, // tab
+        Bright = 0x4f,
+        Bleft = 0x50,
+        Bup = 0x51,
+        Bdown = 0x52,
     };
     Button currentBut = NONE;
 
-    // -- Stack to check last pressed but if several pressed ------------------
-    struct Stack {
-        Button arr[16] = {Buttons::NONE};
-        Button* sp = arr;
-        Button* sp0 = arr;
-        uint8_t size() { return (sp - sp0); }
+    uint16_t averageV = 0;
+    uint16_t averageH = 0;
 
-        bool isButInStack(Button but) {
-            bool state = false;
-            for (int i = 0; i < size(); i++) {
-                if (arr[i] == but) { state = true; }
-            }
-            return state;
-        }
-
-        void push(Button but) {
-            if (size() > 16) return;
-            arr[sp - sp0] = but;
-            sp++;
-        }
-        void pop() {
-            if (size() > 0) sp--;
-        }
-        void clear() {
-            sp = sp0;
-            arr[0] = NONE;
-        }
-    };
-    Stack stack;
-
-    bool B0_once = false;
-    bool B1_once = false;
-    bool B2_once = false;
-    bool B3_once = false;
-    bool B4_once = false;
-    bool B5_once = false;
-    bool B6_once = false;
-    bool B7_once = false;
-    bool B8_once = false;
-    bool B9_once = false;
-    bool B10_once = false;
-    bool B11_once = false;
-    bool B12_once = false;
-    bool B13_once = false;
-    bool B14_once = false;
-    bool B15_once = false;
-    bool Enter_once = false;
-
-    bool getButtonState(Button butNum);
     bool isAnyButtonPressed();
+    uint8_t whichNumber();
+    uint8_t pressed1 = 0;
+    uint8_t pressed2 = 0;
+
+    enum Mode : uint8_t
+    {
+        KEYBOARD,
+        MOUSE
+    };
+    Mode currentMode = Mode::KEYBOARD;
+    bool isJoyB = false;
+    bool currentModeOnceTime = false;
+
+    bool isEnter = false;
+    bool isB13 = false;
+    bool isB14 = false;
+    bool isB12 = false;
+    bool isB15 = false;
 
   private:
     uint16_t V = 0;
@@ -120,11 +92,10 @@ class Buttons : public Interruptable {
     bool isB9 = false;
     bool isB10 = false;
     bool isB11 = false;
-    bool isB12 = false;
-    bool isB13 = false;
-    bool isB14 = false;
-    bool isB15 = false;
-    bool isEnter = false;
+    bool isLeft = false;
+    bool isRight = false;
+    bool isUp = false;
+    bool isDown = false;
 
     inline void setB0_out();
     inline void setB1_out();
@@ -139,7 +110,9 @@ class Buttons : public Interruptable {
     inline bool getB2_in();
     inline bool getB3_in();
     inline bool getEnter();
+    inline bool getJoyB();
     uint8_t counterEnter = 0;
+    uint16_t counterJoyB = 0;
     static constexpr uint8_t MAX_BUTTON_COUNTER = 10;
 
     static constexpr uint8_t MovAverLength = 128;
@@ -157,8 +130,31 @@ class Buttons : public Interruptable {
     uint32_t sumH = 0;
     static constexpr uint8_t MedianMiddle = 2;
     static constexpr uint8_t medianArrLength = 10;
-    uint16_t moving_average_V(uint16_t val);
-    uint16_t moving_average_H(uint16_t val);
+    inline uint16_t moving_average_V(uint16_t val);
+    inline uint16_t moving_average_H(uint16_t val);
+
+    static constexpr uint8_t iB0 = 0;
+    static constexpr uint8_t iB1 = 1;
+    static constexpr uint8_t iB2 = 2;
+    static constexpr uint8_t iB3 = 3;
+    static constexpr uint8_t iB4 = 4;
+    static constexpr uint8_t iB5 = 5;
+    static constexpr uint8_t iB6 = 6;
+    static constexpr uint8_t iB7 = 7;
+    static constexpr uint8_t iB8 = 8;
+    static constexpr uint8_t iB9 = 9;
+    static constexpr uint8_t iB10 = 10; // escape
+    static constexpr uint8_t iB11 = 11; // tab
+    static constexpr uint8_t iB12 = 12; // a
+    static constexpr uint8_t iB13 = 13; // s
+    static constexpr uint8_t iB14 = 14; // d
+    static constexpr uint8_t iB15 = 15; // w
+    static constexpr uint8_t iEnter = 16;
+    static constexpr uint8_t iBright = 17;
+    static constexpr uint8_t iBleft = 18;
+    static constexpr uint8_t iBup = 19;
+    static constexpr uint8_t iBdown = 20;
+    uint8_t butStateArr[21] = {0};
 };
 
 #endif // BUTTONS_H

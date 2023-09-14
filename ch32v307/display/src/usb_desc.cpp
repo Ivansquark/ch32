@@ -38,7 +38,7 @@ constexpr uint8_t MyCfgDescr_FS[] = {0x09, 0x02, 0x6B + 23, 0x00};
 const uint8_t MyCfgDescr_HS[130] = {
     /* Configure descriptor */
     0x09, 0x02, 130, 0x00,
-    0x04, // bNumInterfaces
+    0x04,                   // bNumInterfaces
     0x01, 0x00, 0x80, 0x32, // 9 0-8 9
 
     /* IAD Descriptor(interface 0/1)*/
@@ -63,7 +63,7 @@ const uint8_t MyCfgDescr_HS[130] = {
 
     /* Endpoint 2 CDC descriptor */
     0x07, 0x05, 0x02, 0x02, (uint8_t)DEF_USB_EP2_HS_SIZE,
-    (uint8_t)(DEF_USB_EP2_HS_SIZE >> 8), 0x00,  // 7 61-67 68
+    (uint8_t)(DEF_USB_EP2_HS_SIZE >> 8), 0x00, // 7 61-67 68
 
     /* Endpoint 2 CDC descriptor */
     0x07, 0x05, 0x82, 0x02, (uint8_t)DEF_USB_EP2_HS_SIZE,
@@ -71,8 +71,8 @@ const uint8_t MyCfgDescr_HS[130] = {
 
     /* interface 2 (HID interface) descriptor */
     0x09, 0x04, 0x02, 0x00, 0x02,
-    0x03, // bInterfaceClass
-    0x00, 0x00, 0x00,                   // 9 75-83 84
+    0x03,             // bInterfaceClass
+    0x00, 0x00, 0x00, // 9 75-83 84
 
     /* interface 3 HID descriptor */
     0x09, 0x21, 0x11, 0x01, 0x00, 0x01, 0x22, DEF_USBD_REPORT_DESC_LEN, 0x00,
@@ -95,15 +95,13 @@ const uint8_t MyCfgDescr_HS[130] = {
     /* interface 4 endpoint 4 descriptor*/
     0x07, 0x05, 0x84,
     0x02, // Bulk endpoint type
-    (uint8_t)DEF_USBD_HS_PACK_SIZE,
-    (uint8_t)(DEF_USBD_HS_PACK_SIZE >> 8),
+    (uint8_t)DEF_USBD_HS_PACK_SIZE, (uint8_t)(DEF_USBD_HS_PACK_SIZE >> 8),
     0x00, // Polling interval in milliseconds
 
     /* interface 4 endpoint 4 descriptor */
     0x07, 0x05, 0x04,
     0x02, // Bulk endpoint type
-    (uint8_t)DEF_USBD_HS_PACK_SIZE,
-    (uint8_t)(DEF_USBD_HS_PACK_SIZE >> 8),
+    (uint8_t)DEF_USBD_HS_PACK_SIZE, (uint8_t)(DEF_USBD_HS_PACK_SIZE >> 8),
     0x00 // Polling interval in milliseconds
 };
 
@@ -156,8 +154,71 @@ const uint8_t MyHIDReportDesc_FSS[] = {
     0xC0,       // End Collection
 };
 */
+// HID Report Descriptor GAMEPAD
 
-/* HID Report Descriptor GAMEPAD */
+const uint8_t MyHIDReportDesc_HS[DEF_USBD_REPORT_DESC_LEN] = {
+    0x05, 0x01, // Usage Page (Generic Desktop Ctrls)
+    0x09, 0x06, // Usage (Keyboard)
+    0xA1, 0x01, // Collection (Application)
+    0x85, 0x01, //   Report ID (1)
+    0x05, 0x07, //   Usage Page (Kbrd/Keypad)
+    0x19, 0xE0, //   Usage Minimum (0xE0)
+    0x29, 0xE7, //   Usage Maximum (0xE7)
+    0x15, 0x00, //   Logical Minimum (0)
+    0x25, 0x01, //   Logical Maximum (1)
+    0x95, 0x08, //   Report Count (8)
+    0x75, 0x01, //   Report Size (1)
+    0x81, 0x02, //   Input (Data,Var,Abs,No Wrap,Linear,Preferred State,No Null
+                //   Position)
+    0x95, 0x01, //   Report Count (1)
+    0x75, 0x08, //   Report Size (8)
+    0x81, 0x01, //   Input (Const,Array,Abs,No Wrap,Linear,Preferred State,No
+                //   Null Position)
+    0x95, 0x02, //   Report Count (2) **********
+    0x75, 0x08, //   Report Size (8)
+    0x15, 0x00, //   Logical Minimum (0)
+    0x25, 0x65, //   Logical Maximum (101)
+    0x05, 0x07, //   Usage Page (Kbrd/Keypad)
+    0x19, 0x00, //   Usage Minimum (0x00)
+    0x29, 0x65, //   Usage Maximum (0x65)
+    0x81, 0x00, //   Input (Data,Array,Abs,No Wrap,Linear,Preferred State,No
+                //   Null Position)
+    0xC0,       // End Collection
+    0x05, 0x01, // Usage Page (Generic Desktop Ctrls)
+    0x09, 0x02, // Usage (Mouse)
+    0xA1, 0x01, // Collection (Application)
+    0x85, 0x02, //   Report ID (2)
+    0x09, 0x01, //   Usage (Pointer)
+    0xA1, 0x00, //   Collection (Physical)
+    0x05, 0x09, //     Usage Page (Button)
+    0x19, 0x01, //     Usage Minimum (0x01)
+    0x29, 0x03, //     Usage Maximum (0x03)
+    0x15, 0x00, //     Logical Minimum (0)
+    0x25, 0x01, //     Logical Maximum (1)
+    0x95, 0x03, //     Report Count (3)
+    0x75, 0x01, //     Report Size (1)
+    0x81, 0x02, //     Input (Data,Var,Abs,No Wrap,Linear,Preferred State,No
+                //     Null Position)
+    0x95, 0x01, //     Report Count (1)
+    0x75, 0x05, //     Report Size (5)
+    0x81, 0x03, //     Input (Const,Var,Abs,No Wrap,Linear,Preferred State,No
+                //     Null Position)
+    0x05, 0x01, //     Usage Page (Generic Desktop Ctrls)
+    0x09, 0x30, //     Usage (X)
+    0x09, 0x31, //     Usage (Y)
+    0x09, 0x38, //     Usage (Wheel)
+    0x15, 0x81, //     Logical Minimum (-127)
+    0x25, 0x7F, //     Logical Maximum (127)
+    0x75, 0x08, //     Report Size (8)
+    0x95, 0x03, //     Report Count (3)
+    0x81, 0x06, //     Input (Data,Var,Rel,No Wrap,Linear,Preferred State,No
+                //     Null Position)
+    0xC0,       //   End Collection
+    /* USER CODE END 0 */
+    0xC0 /*     END_COLLECTION	             */
+};
+/*
+
 const uint8_t MyHIDReportDesc_HS[DEF_USBD_REPORT_DESC_LEN] = {
     0x05, 0x01,       // USAGE_PAGE (Generic Desktop)
     0x09, 0x05,       // USAGE (Game Pad)
@@ -172,18 +233,18 @@ const uint8_t MyHIDReportDesc_HS[DEF_USBD_REPORT_DESC_LEN] = {
     0x95, 0x02,       //     REPORT_COUNT (2)
     0x81, 0x02,       //     INPUT (Data,Var,Abs)
     0xc0,             //   END_COLLECTION
-    /*
+
     // second axis
-    0xa1, 0x00,                    //   COLLECTION (Physical)
-    0x09, 0x33,                    //     USAGE (Rx)
-    0x09, 0x34,                    //     USAGE (Ry)
-    0x15, 0x00,                    //     LOGICAL_MINIMUM (0)
-    0x26, 0xe8, 0x03,              //     LOGICAL_MAXIMUM (1000)
-    0x75, 0x10,                    //     REPORT_SIZE (16)
-    0x95, 0x02,                    //     REPORT_COUNT (2)
-    0x81, 0x02,                    //     INPUT (Data,Var,Abs)
-    0xc0,                          //   END_COLLECTION
-    */
+    //0xa1, 0x00,                    //   COLLECTION (Physical)
+    //0x09, 0x33,                    //     USAGE (Rx)
+    //0x09, 0x34,                    //     USAGE (Ry)
+    //0x15, 0x00,                    //     LOGICAL_MINIMUM (0)
+    //0x26, 0xe8, 0x03,              //     LOGICAL_MAXIMUM (1000)
+    //0x75, 0x10,                    //     REPORT_SIZE (16)
+    //0x95, 0x02,                    //     REPORT_COUNT (2)
+    //0x81, 0x02,                    //     INPUT (Data,Var,Abs)
+    //0xc0,                          //   END_COLLECTION
+
     0x05, 0x09, //   USAGE_PAGE (Button)
     0x19, 0x01, //   USAGE_MINIMUM (Button 1)
     0x29, 0x11, //   USAGE_MAXIMUM (Button 17)
@@ -198,6 +259,7 @@ const uint8_t MyHIDReportDesc_HS[DEF_USBD_REPORT_DESC_LEN] = {
     0x81, 0x02, //   INPUT (Data,Var,Abs)
     0xc0        // END_COLLECTION
 };
+*/
 
 /* Language Descriptor */
 const uint8_t MyLangDescr[] = {0x04, 0x03, 0x09, 0x04};
