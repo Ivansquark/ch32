@@ -226,34 +226,40 @@ int main(void) {
                 } else if (but.averageV >= 2100) {
                     mouse.GD_MousePointerY = 32 * (but.averageV - 2048) / 2048;
                 }
-                if(but.isB13) {
+                if (but.isB13) {
                     mouse.BTN_MousePointerButton1 = 1;
                 } else {
                     mouse.BTN_MousePointerButton1 = 0;
                 }
-                if(but.isB14) {
+                if (but.isB14) {
                     mouse.BTN_MousePointerButton2 = 1;
                 } else {
                     mouse.BTN_MousePointerButton2 = 0;
                 }
-                if(but.isEnter) {
+                if (but.isEnter) {
                     mouse.BTN_MousePointerButton3 = 1;
                 } else {
                     mouse.BTN_MousePointerButton3 = 0;
                 }
-                if(but.isB12) {
+                if (but.isB12) {
                     mouse.GD_MousePointerWheel = 1;
                 } else {
                     mouse.GD_MousePointerWheel = 0;
                 }
-                if(but.isB15) {
+                if (but.isB15) {
                     mouse.GD_MousePointerWheel = -1;
                 } else {
-                    if(!but.isB12)
-                    mouse.GD_MousePointerWheel = 0;
+                    if (!but.isB12) mouse.GD_MousePointerWheel = 0;
                 }
                 USBHS_Endp_DataUp(DEF_UEP3, (uint8_t*)&mouse,
                                   sizeof(MouseReport_t), DEF_UEP_CPY_LOAD);
+
+                //------------- Backlight -------------------------------------
+                if (but.isB1) {
+                    dac.decreaseBacklight();
+                } else if (but.isB3) {
+                    dac.increaseBacklight();
+                }
             } else {
                 counter++;
             }

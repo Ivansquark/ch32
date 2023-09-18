@@ -66,20 +66,6 @@ class Buttons : public Interruptable {
     bool isJoyB = false;
     bool currentModeOnceTime = false;
 
-    bool isEnter = false;
-    bool isB13 = false;
-    bool isB14 = false;
-    bool isB12 = false;
-    bool isB15 = false;
-
-  private:
-    uint16_t V = 0;
-    uint16_t H = 0;
-    void but_init();
-    void joy_init();
-    inline uint16_t getV();
-    inline uint16_t getH();
-
     bool isB0 = false;
     bool isB1 = false;
     bool isB2 = false;
@@ -96,6 +82,19 @@ class Buttons : public Interruptable {
     bool isRight = false;
     bool isUp = false;
     bool isDown = false;
+    bool isEnter = false;
+    bool isB13 = false;
+    bool isB14 = false;
+    bool isB12 = false;
+    bool isB15 = false;
+
+  private:
+    uint16_t V = 0;
+    uint16_t H = 0;
+    void but_init();
+    void joy_init();
+    inline uint16_t getV();
+    inline uint16_t getH();
 
     inline void setB0_out();
     inline void setB1_out();
