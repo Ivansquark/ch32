@@ -9,7 +9,7 @@
 #include "rcc.h"
 #include "uart.h"
 
-#include "frwrapper.h"
+//#include "frwrapper.h"
 
 /* Global Variable */
 uint32_t SystemCoreClock = 144000000;
@@ -79,6 +79,9 @@ typedef struct {
 KeyboardReport_t key;
 MouseReport_t mouse;
 
+void drawScreenSaver(uint8_t times);
+void drawBat(uint8_t percent);
+
 int main(void) {
     // setRamSize(0x20000);
     /* add queues, ... */
@@ -94,13 +97,9 @@ int main(void) {
     USBHS_Device_Init(ENABLE);
 
     // TODO: draw screen saver
-    fig.drawRect(50, 100, 100, 130, Figure::RED);
-    // uint16_t j = 0;
-    for (int i = 0; i < Figure::HALF_DISPLAY_MEMORY; i++) {
-        fig.buff[i] = Figure::BLACK;
-    }
-    fig.fillScreen(Figure::BLACK);
-    // checkButtonsDisp();
+    drawScreenSaver(5);
+    // TODO: draw battery
+    drawBat(0);
     // for (int i = 0; i < Figure::HALF_DISPLAY_MEMORY; i++) {
     //    fig.buff[i] = Figure::YELLOW;
     //}
@@ -108,16 +107,13 @@ int main(void) {
     // fig.fillHalfScreenLow(fig.buff);
     // j += 1;
     //
-    uint16_t X;
-    uint16_t Y;
     uint32_t counterBulk = 0;
     bool isHighOrLow = false;
     RxBULK_flag = 0;
     bool mustSend0 = false;
     volatile uint32_t counter = 0;
+    bool wasPressed2 = false;
     while (1) {
-        X = 1000 * but.averageH / 4095;
-        Y = 1000 * but.averageV / 4095;
         /*
         if (RxCDC_flag) {
             RxCDC_flag = 0;
@@ -145,7 +141,7 @@ int main(void) {
                     fig.fillHalfScreenLow(fig.buff);
                     isHighOrLow = false;
                 } else {
-                    fig.fillHalfScreenHigh(fig.buff);
+                    fig.fillHalfScreenHigh(fig.buff, 100);
                     isHighOrLow = true;
                 }
             }
@@ -164,8 +160,6 @@ int main(void) {
             TxBULK_flag = 0;
         }
         */
-        // TODO: set next to rtos hid
-        //
         //----------------- buttons handler -----------------------------------
         if (but.isJoyB) {
             if (!but.currentModeOnceTime) {
@@ -180,18 +174,26 @@ int main(void) {
             but.currentModeOnceTime = false;
         }
         if (but.currentMode == Buttons::KEYBOARD) {
-            if (counter >= 200000) {
+            if (counter >= 20000) {
                 memset(&key, 0, sizeof(KeyboardReport_t));
                 key.reportId = 0x01;
                 counter = 0;
                 if (but.isAnyButtonPressed()) {
-                    key.Keyboard[1] = but.whichNumber();
-                    if (key.Keyboard[1]) {
+                    mustSend0 = false;
+                    if (but.pressed2) {
+                        key.Keyboard[0] = but.pressed1;
+                        key.Keyboard[1] = but.pressed2;
+                        USBHS_Endp_DataUp(DEF_UEP3, (uint8_t*)&key,
+                                          sizeof(KeyboardReport_t),
+                                          DEF_UEP_CPY_LOAD);
+                    } else if (but.pressed1) {
+                        key.Keyboard[0] = but.pressed1;
                         USBHS_Endp_DataUp(DEF_UEP3, (uint8_t*)&key,
                                           sizeof(KeyboardReport_t),
                                           DEF_UEP_CPY_LOAD);
                     }
                 } else {
+                    wasPressed2 = false;
                     mustSend0 = true;
                 }
             } else {
@@ -265,8 +267,37 @@ int main(void) {
             }
         }
     }
-    // FR_OS::startOS();
-    // while (1) {}
+}
+
+void drawScreenSaver(uint8_t times) {
+    for (int j = 0; j < times; ++j) {
+        fig.fillScreen(Figure::BLACK + times);
+        // TODO write load saver
+        for (int i = 60; i < 260 - 4; ++i) {
+            fig.drawRect(i, i + 4, 20, 24, Figure::CYAN);
+            for (volatile int i = 0; i < 20000; i++) {}
+        }
+        for (int i = 20; i < 220 - 4; ++i) {
+            fig.drawRect(260 - 4, 260, i, 4 + i, Figure::GREEN);
+            for (volatile int i = 0; i < 20000; i++) {}
+        }
+        for (int i = 260 - 4; i > 60; --i) {
+            fig.drawRect(i, i + 4, 220 - 4, 220, Figure::YELLOW);
+            for (volatile int i = 0; i < 20000; i++) {}
+        }
+        for (int i = 220 - 4; i > 20; --i) {
+            fig.drawRect(60, 60 + 4, i, i + 4, Figure::MAGENTA);
+            for (volatile int i = 0; i < 20000; i++) {}
+        }
+    }
+}
+
+void drawBat(uint8_t percent) {
+    fig.drawRect(305, 306, 1, 3, Figure::RED);
+    fig.drawRect(306, 307, 0, 4, Figure::RED);
+    fig.drawRect(306, 320, 0, 1, Figure::RED);
+    fig.drawRect(319, 320, 0, 4, Figure::RED);
+    fig.drawRect(306, 320, 3, 4, Figure::RED);
 }
 
 void setRamSize(uint32_t size) {

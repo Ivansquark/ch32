@@ -1,13 +1,4 @@
 #include "lcdpar.h"
-void LcdParInterface::fillScreenSequence(uint16_t* color, uint16_t len,
-                                         uint16_t num) {
-    bool exceed = false;
-    
-    setColumn(0, 256);
-    setRow(0, 0);
-    send_command(0x2C);
-    for (volatile uint32_t i = 0; i < len; i++) { send_word(*(color + i)); }
-}
 void LcdParInterface::fillScreen(uint16_t color) {
     setColumn(0, 320);
     setRow(0, 240);
@@ -17,13 +8,23 @@ void LcdParInterface::fillScreen(uint16_t color) {
         send_word(color);
     }
 }
-void LcdParInterface::fillHalfScreenHigh(uint16_t* color) {
+void LcdParInterface::fillHalfScreenHigh(uint16_t* color, uint8_t percent) {
     setColumn(0, 320);
     setRow(0, 120);
     send_command(0x2C);
+    uint16_t batColor = 0;
+    if(percent > 80 && percent <= 100) batColor = GREEN;
+    if(percent > 40 && percent <= 80) batColor = YELLOW;
+    if(percent <= 40) batColor = RED;
+    int startBatSymb = 320 - (percent/10); 
     for (volatile uint32_t i = 0; i < HALF_DISPLAY_MEMORY; i++) {
         // send_word(color);
-        send_word(*(color + i));
+        if ((i > 320 - percent/10) && (i < 320)) {
+            send_word((batColor));
+        } else if ((i > 320 * 2 - percent/10) && (i < 320 * 2)) {
+            send_word((batColor));
+        } else
+            send_word(*(color + i));
     }
 }
 void LcdParInterface::fillHalfScreenLow(uint16_t* color) {
@@ -32,7 +33,7 @@ void LcdParInterface::fillHalfScreenLow(uint16_t* color) {
     send_command(0x2C);
     for (volatile uint32_t i = 0; i < HALF_DISPLAY_MEMORY; i++) {
         // send_word(color);
-        //send_word(*(color + i));
+        // send_word(*(color + i));
         send_data(*(color + i));
     }
 }
@@ -293,9 +294,9 @@ void Figure::drawRect(uint16_t x1, uint16_t x2, uint16_t y1, uint16_t y2,
 }
 
 uint32_t Font_interface::char_to_int(char* str, uint8_t size) {
-    uint32_t x;
+    uint32_t x = 0;
     for (uint8_t i = 0; i < size; i++) {
-        uint8_t dec;
+        uint8_t dec = 0;
         if (str[i] == 48) { dec = 0; }
         if (str[i] == 49) { dec = 1; }
         if (str[i] == 50) { dec = 2; }

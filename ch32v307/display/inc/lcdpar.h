@@ -36,9 +36,8 @@ class LcdParInterface {
     };
 
     void fillScreen(uint16_t color);
-    void fillHalfScreenHigh(uint16_t* color);
+    void fillHalfScreenHigh(uint16_t* color, uint8_t percent);
     void fillHalfScreenLow(uint16_t* color);
-    void fillScreenSequence(uint16_t* color, uint16_t len, uint16_t num);
     //----------- reset C10 -----------------------
     inline void reset_on() { GPIOC->BSHR |= GPIO_BSHR_BR10; }  // low
     inline void reset_off() { GPIOC->BSHR |= GPIO_BSHR_BS10; } // high
