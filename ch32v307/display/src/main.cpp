@@ -80,7 +80,7 @@ KeyboardReport_t key;
 MouseReport_t mouse;
 
 void drawScreenSaver(uint8_t times);
-void drawBat(uint8_t percent);
+void drawBat(uint8_t);
 
 int main(void) {
     // setRamSize(0x20000);
@@ -97,7 +97,7 @@ int main(void) {
     USBHS_Device_Init(ENABLE);
 
     // TODO: draw screen saver
-    drawScreenSaver(5);
+    // drawScreenSaver(5);
     // TODO: draw battery
     drawBat(0);
     // for (int i = 0; i < Figure::HALF_DISPLAY_MEMORY; i++) {
@@ -112,7 +112,6 @@ int main(void) {
     RxBULK_flag = 0;
     bool mustSend0 = false;
     volatile uint32_t counter = 0;
-    bool wasPressed2 = false;
     while (1) {
         /*
         if (RxCDC_flag) {
@@ -174,10 +173,10 @@ int main(void) {
             but.currentModeOnceTime = false;
         }
         if (but.currentMode == Buttons::KEYBOARD) {
-            if (counter >= 20000) {
+            if (counter >= 200000) {
+                counter = 0;
                 memset(&key, 0, sizeof(KeyboardReport_t));
                 key.reportId = 0x01;
-                counter = 0;
                 if (but.isAnyButtonPressed()) {
                     mustSend0 = false;
                     if (but.pressed2) {
@@ -186,14 +185,21 @@ int main(void) {
                         USBHS_Endp_DataUp(DEF_UEP3, (uint8_t*)&key,
                                           sizeof(KeyboardReport_t),
                                           DEF_UEP_CPY_LOAD);
-                    } else if (but.pressed1) {
+                    }
+                    // check LCtrl Lshift Rshift (B5 B4 B6)
+                    if (but.pressed1 == Buttons::B5) {
+                        key.KB_KeyboardKeyboardLeftControl = 1;
+                    } else if (but.pressed1 == Buttons::B4) {
+                        key.KB_KeyboardKeyboardLeftShift = 1;
+                    } else if (but.pressed2 == Buttons::B6) {
+                        key.KB_KeyboardKeyboardRightShift = 1;
+                    } else if (but.pressed1 != Buttons::NONE) {
                         key.Keyboard[0] = but.pressed1;
                         USBHS_Endp_DataUp(DEF_UEP3, (uint8_t*)&key,
                                           sizeof(KeyboardReport_t),
                                           DEF_UEP_CPY_LOAD);
                     }
                 } else {
-                    wasPressed2 = false;
                     mustSend0 = true;
                 }
             } else {

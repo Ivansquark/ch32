@@ -25,20 +25,20 @@ class Buttons : public Interruptable {
     enum Button : uint8_t
     {
         NONE = 0,
-        B12 = 0x04, // a
-        B14 = 0x07, // d
-        B13 = 0x16, // s
-        B15 = 0x1a, // w
-        B1 = 0x1e,
-        B2 = 0x1f,
-        B3 = 0x20,
-        B4 = 0x21,
-        B5 = 0x22,
-        B6 = 0x23,
-        B7 = 0x24,
-        B8 = 0x25,
-        B9 = 0x26,
-        B0 = 0x27,
+        B12 = 0x1d,//z//0x04, // a
+        B14 = 0x19,//v//0x07, // d
+        B13 = 0x1b,//x//0x16, // s
+        B15 = 0x06,//c//0x1a, // w
+        B1 = 0x04, //a //0x1e, //1
+        B2 = 0x16, //s //0x1f, //2
+        B3 = 0x07, //d //0x20, //3
+        B4 = 0x02,//Lshift//0x21,//4
+        B5 = 0x01,//Ctrl//0x22,//5
+        B6 = 0x20,//Rshift//0x23,//6
+        B7 = 0x2a,//Backspace//0x24,//7
+        B8 = 0x2e,//=//0x25,//8
+        B9 = 0x2d,//-//0x26,//9
+        B0 = 0x1a,//w//0x27,//0
         Enter = 0x28,
         B10 = 0x29, // escape
         B11 = 0x2b, // tab
@@ -63,7 +63,7 @@ class Buttons : public Interruptable {
         MOUSE
     };
     Mode currentMode = Mode::KEYBOARD;
-    bool isJoyB = false;
+    volatile bool isJoyB = false;
     bool currentModeOnceTime = false;
 
     bool isB0 = false;
