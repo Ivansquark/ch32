@@ -175,26 +175,46 @@ int main(void) {
         if (but.currentMode == Buttons::KEYBOARD) {
             if (counter >= 200000) {
                 counter = 0;
-                memset(&key, 0, sizeof(KeyboardReport_t));
-                key.reportId = 0x01;
                 if (but.isAnyButtonPressed()) {
+                    memset(&key, 0, sizeof(KeyboardReport_t));
+                    key.reportId = 0x01;
                     mustSend0 = false;
                     if (but.pressed2) {
-                        key.Keyboard[0] = but.pressed1;
-                        key.Keyboard[1] = but.pressed2;
+                        if (but.pressed1 == Buttons::B5) {
+                            key.KB_KeyboardKeyboardLeftControl = 1;
+                            key.Keyboard[0] = but.pressed2;
+                        } else if (but.pressed1 == Buttons::B4) {
+                            key.KB_KeyboardKeyboardLeftShift = 1;
+                            if(but.pressed2 == Buttons::B6) {
+                                key.Keyboard[0] = 0x3a; //F1
+                            } else {
+                                key.Keyboard[0] = but.pressed2;
+                            }
+                        } else if (but.pressed1 == Buttons::B6) {
+                            key.KB_KeyboardKeyboardRightShift = 1;
+                            key.Keyboard[0] = but.pressed2;
+                            //key.Keyboard[0] = 0x3a; //F1
+                        } else if (but.pressed1 != Buttons::NONE) {
+                            key.Keyboard[0] = but.pressed1;
+                            key.Keyboard[1] = but.pressed2;
+                        }
+                        // key.Keyboard[0] = but.pressed1;
                         USBHS_Endp_DataUp(DEF_UEP3, (uint8_t*)&key,
                                           sizeof(KeyboardReport_t),
                                           DEF_UEP_CPY_LOAD);
-                    }
-                    // check LCtrl Lshift Rshift (B5 B4 B6)
-                    if (but.pressed1 == Buttons::B5) {
-                        key.KB_KeyboardKeyboardLeftControl = 1;
-                    } else if (but.pressed1 == Buttons::B4) {
-                        key.KB_KeyboardKeyboardLeftShift = 1;
-                    } else if (but.pressed2 == Buttons::B6) {
-                        key.KB_KeyboardKeyboardRightShift = 1;
-                    } else if (but.pressed1 != Buttons::NONE) {
-                        key.Keyboard[0] = but.pressed1;
+                    } else if (but.pressed1) {
+                        // check LCtrl Lshift Rshift (B5 B4 B6)
+                        if (but.pressed1 == Buttons::B5) {
+                            key.KB_KeyboardKeyboardLeftControl = 1;
+                        } else if (but.pressed1 == Buttons::B4) {
+                            key.KB_KeyboardKeyboardLeftShift = 1;
+                        } else if (but.pressed1 == Buttons::B6) {
+                            //key.KB_KeyboardKeyboardRightShift = 1;
+                            key.Keyboard[0] = 0x3a; //F1
+                            key.Keyboard[1] = 0;
+                        } else if (but.pressed1 != Buttons::NONE) {
+                            key.Keyboard[0] = but.pressed1;
+                        }
                         USBHS_Endp_DataUp(DEF_UEP3, (uint8_t*)&key,
                                           sizeof(KeyboardReport_t),
                                           DEF_UEP_CPY_LOAD);
@@ -268,6 +288,24 @@ int main(void) {
                 } else if (but.isB3) {
                     dac.increaseBacklight();
                 }
+                //-------------  Extrs keyboard buttons -----------------------
+                memset(&key, 0, sizeof(KeyboardReport_t));
+                if (but.pressed1) {
+                    // check LCtrl Lshift Rshift (B5 B4 B6)
+                    if (but.pressed1 == Buttons::B5) {
+                        key.KB_KeyboardKeyboardLeftControl = 1;
+                    } else if (but.pressed1 == Buttons::B4) {
+                        key.KB_KeyboardKeyboardLeftShift = 1;
+                    } else if (but.pressed2 == Buttons::B6) {
+                        key.KB_KeyboardKeyboardRightShift = 1;
+                    } else if (but.pressed1 != Buttons::NONE) {
+                        key.Keyboard[0] = but.pressed1;
+                    }
+                    USBHS_Endp_DataUp(DEF_UEP3, (uint8_t*)&key,
+                                      sizeof(KeyboardReport_t),
+                                      DEF_UEP_CPY_LOAD);
+                }
+
             } else {
                 counter++;
             }
