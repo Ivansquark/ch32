@@ -50,11 +50,11 @@ bool Buttons::isAnyButtonPressed() {
         state = true;
     } else if (isEnter) {
         state = true;
-    } else if (averageV > 3000) {
+    } else if (averageV > 3400) {
         state = true;
     } else if (averageV < 1000) {
         state = true;
-    } else if (averageH > 3000) {
+    } else if (averageH > 3400) {
         state = true;
     } else if (averageH < 1000) {
         state = true;
@@ -86,7 +86,7 @@ void Buttons::interruptHandler() {
             pressed2 = Button::NONE;
         }
     }
-    if (averageV > 3000) {
+    if (averageV > 3400) {
         if (!pressed2) {
             isUp = true;
             butStateArr[iBup] = Button::Bup;
@@ -106,7 +106,7 @@ void Buttons::interruptHandler() {
             pressed2 = Button::NONE;
         }
     }
-    if (averageH > 3000) {
+    if (averageH > 3400) {
         if (!pressed2) {
             isRight = true;
             butStateArr[iBright] = Button::Bright;

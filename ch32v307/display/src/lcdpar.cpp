@@ -16,8 +16,8 @@ void LcdParInterface::fillHalfScreenHigh(uint16_t* color, uint8_t percent) {
     if(percent > 80 && percent <= 100) batColor = GREEN;
     if(percent > 40 && percent <= 80) batColor = YELLOW;
     if(percent <= 40) batColor = RED;
-    int startBatSymb = 320 - (percent/10); 
-    for (volatile uint32_t i = 0; i < HALF_DISPLAY_MEMORY; i++) {
+    //int startBatSymb = 320 - (percent/10); 
+    for (int i = 0; i < HALF_DISPLAY_MEMORY; i++) {
         // send_word(color);
         if ((i > 320 - percent/10) && (i < 320)) {
             send_word((batColor));
@@ -95,7 +95,7 @@ void LcdParInterface::setPixel(int poX, int poY, int color) {
 //
 LcdParIni::LcdParIni() {
     lcd_ini();
-    fillScreen(GREEN);
+    fillScreen(BLACK);
 }
 
 void LcdParIni::lcd_ini() {

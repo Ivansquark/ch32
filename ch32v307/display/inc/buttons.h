@@ -36,8 +36,8 @@ class Buttons : public Interruptable {
         B5 = 0x01,//Ctrl//0x22,//5
         B6 = 0x20,//Rshift//0x23,//6
         B7 = 0x2a,//Backspace//0x24,//7
-        B8 = 0x2e,//=//0x25,//8
-        B9 = 0x2d,//-//0x26,//9
+        B8 = 0x2d,//=//0x25,//8
+        B9 = 0x2e,//-//0x26,//9
         B0 = 0x1a,//w//0x27,//0
         Enter = 0x28,
         B10 = 0x29, // escape

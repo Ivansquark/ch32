@@ -1,5 +1,6 @@
 #include "main.h"
 
+#include "adc.h"
 #include "basic_timer.h"
 #include "buttons.h"
 #include "ch32v30x_usbhs_device.h"
@@ -10,19 +11,19 @@
 #include "uart.h"
 
 //#include "frwrapper.h"
-
+#define DEBUG 1
 /* Global Variable */
 uint32_t SystemCoreClock = 144000000;
 xQueueHandle queue1;
 char* queue_buf;
 //------------- objects in static memory (.data section) ----------------------
 Rcc rcc(8);
-// Uart5 uart5;
-// Uart1 uart1;
-// Uart3 uart3;
 LcdParIni parDisp;
 Figure fig;
 Dac dac;
+// TODO: ADC
+Adc adc;
+volatile uint32_t adcCounter = 0;
 // ---------------- OS classes ------------------------------------------------
 Buttons but;
 //-----------------------------------------------------------------------------
@@ -80,7 +81,6 @@ KeyboardReport_t key;
 MouseReport_t mouse;
 
 void drawScreenSaver(uint8_t times);
-void drawBat(uint8_t);
 
 int main(void) {
     // setRamSize(0x20000);
@@ -96,38 +96,37 @@ int main(void) {
     USBHS_RCC_Init();
     USBHS_Device_Init(ENABLE);
 
-    // TODO: draw screen saver
-    // drawScreenSaver(5);
-    // TODO: draw battery
-    drawBat(0);
-    // for (int i = 0; i < Figure::HALF_DISPLAY_MEMORY; i++) {
-    //    fig.buff[i] = Figure::YELLOW;
-    //}
-    // fig.fillHalfScreenHigh(fig.buff);
-    // fig.fillHalfScreenLow(fig.buff);
-    // j += 1;
-    //
+    drawScreenSaver(4);
+
     uint32_t counterBulk = 0;
     bool isHighOrLow = false;
     RxBULK_flag = 0;
     bool mustSend0 = false;
     volatile uint32_t counter = 0;
+
+    uint8_t batPercent = 100;
     while (1) {
-        /*
-        if (RxCDC_flag) {
-            RxCDC_flag = 0;
-            if (RxCDC_buf[0] == 0x30) { TxCDC_flag = 1; }
+        //-------------- Adc battery ------------------------------------------
+#if (1)
+        if (adcCounter > 5000000) {
+            adcCounter = 0;
+            // 3.3 4095 2.1 2574  1.88(3.76 + 2 3.96) = 2200 1.8 = 1989
+            // if 2.1 V => 100% if 1.85 V => 0%
+            uint16_t tenthVolt = adc.getAdc();
+            static constexpr uint16_t sub = 2574 - 1989;
+            if (tenthVolt > 2574) {
+                batPercent = 100;
+            } else if (tenthVolt > 2000) {
+                batPercent = 21 + (100 * (tenthVolt - 2000)) / sub;
+                //batPercent = 60;
+            } else {
+                batPercent = 11;
+            }
+        } else {
+            adcCounter++;
         }
-        if (TxCDC_flag) {
-            TxCDC_flag = 0;
-            uint8_t testBuf[4] = {0};
-            auto& [a, b, c, d] = testBuf;
-            // auto& [a, b, c, d] = *(uint8_t(*)[4])testBuf;
-            USBHS_Endp_DataUp(DEF_UEP2, testBuf, sizeof(testBuf),
-                              DEF_UEP_CPY_LOAD);
-            TxCDC_flag = 0;
-        }
-        */
+#endif
+
         if (RxBULK_flag) {
             // receive from usb bulk4 (videomemory)
             RxBULK_flag = 0;
@@ -140,7 +139,7 @@ int main(void) {
                     fig.fillHalfScreenLow(fig.buff);
                     isHighOrLow = false;
                 } else {
-                    fig.fillHalfScreenHigh(fig.buff, 100);
+                    fig.fillHalfScreenHigh(fig.buff, batPercent);
                     isHighOrLow = true;
                 }
             }
@@ -148,17 +147,6 @@ int main(void) {
             USBHSD->UEP4_RX_CTRL &= ~USBHS_UEP_R_RES_MASK;
             USBHSD->UEP4_RX_CTRL |= USBHS_UEP_R_RES_ACK;
         }
-        /*
-        if (TxBULK_flag) {
-            TxBULK_flag = 0;
-            uint8_t testBuf[4] = {0};
-            auto& [a, b, c, d] = testBuf;
-            a = 0x34;
-            USBHS_Endp_DataUp(DEF_UEP4, testBuf, sizeof(testBuf),
-                              DEF_UEP_CPY_LOAD);
-            TxBULK_flag = 0;
-        }
-        */
         //----------------- buttons handler -----------------------------------
         if (but.isJoyB) {
             if (!but.currentModeOnceTime) {
@@ -185,15 +173,15 @@ int main(void) {
                             key.Keyboard[0] = but.pressed2;
                         } else if (but.pressed1 == Buttons::B4) {
                             key.KB_KeyboardKeyboardLeftShift = 1;
-                            if(but.pressed2 == Buttons::B6) {
-                                key.Keyboard[0] = 0x3a; //F1
+                            if (but.pressed2 == Buttons::B6) {
+                                key.Keyboard[0] = 0x3a; // F1
                             } else {
                                 key.Keyboard[0] = but.pressed2;
                             }
                         } else if (but.pressed1 == Buttons::B6) {
                             key.KB_KeyboardKeyboardRightShift = 1;
                             key.Keyboard[0] = but.pressed2;
-                            //key.Keyboard[0] = 0x3a; //F1
+                            // key.Keyboard[0] = 0x3a; //F1
                         } else if (but.pressed1 != Buttons::NONE) {
                             key.Keyboard[0] = but.pressed1;
                             key.Keyboard[1] = but.pressed2;
@@ -209,8 +197,8 @@ int main(void) {
                         } else if (but.pressed1 == Buttons::B4) {
                             key.KB_KeyboardKeyboardLeftShift = 1;
                         } else if (but.pressed1 == Buttons::B6) {
-                            //key.KB_KeyboardKeyboardRightShift = 1;
-                            key.Keyboard[0] = 0x3a; //F1
+                            // key.KB_KeyboardKeyboardRightShift = 1;
+                            key.Keyboard[0] = 0x3a; // F1
                             key.Keyboard[1] = 0;
                         } else if (but.pressed1 != Buttons::NONE) {
                             key.Keyboard[0] = but.pressed1;
@@ -281,7 +269,6 @@ int main(void) {
                 }
                 USBHS_Endp_DataUp(DEF_UEP3, (uint8_t*)&mouse,
                                   sizeof(MouseReport_t), DEF_UEP_CPY_LOAD);
-
                 //------------- Backlight -------------------------------------
                 if (but.isB1) {
                     dac.decreaseBacklight();
@@ -289,23 +276,58 @@ int main(void) {
                     dac.increaseBacklight();
                 }
                 //-------------  Extrs keyboard buttons -----------------------
-                memset(&key, 0, sizeof(KeyboardReport_t));
-                if (but.pressed1) {
-                    // check LCtrl Lshift Rshift (B5 B4 B6)
-                    if (but.pressed1 == Buttons::B5) {
-                        key.KB_KeyboardKeyboardLeftControl = 1;
-                    } else if (but.pressed1 == Buttons::B4) {
-                        key.KB_KeyboardKeyboardLeftShift = 1;
-                    } else if (but.pressed2 == Buttons::B6) {
-                        key.KB_KeyboardKeyboardRightShift = 1;
-                    } else if (but.pressed1 != Buttons::NONE) {
-                        key.Keyboard[0] = but.pressed1;
+                if (but.isAnyButtonPressed()) {
+                    memset(&key, 0, sizeof(KeyboardReport_t));
+                    key.reportId = 0x01;
+                    // mustSend0 = false;
+                    if (but.pressed1 && !mustSend0) {
+                        // check LCtrl Lshift Rshift (B5 B4 B6)
+                        if (but.pressed1 == Buttons::B8) {
+                            key.Keyboard[0] = 0x3e; // F5
+                            for (volatile int i = 0; i < 10000; i++) {}
+                            USBHS_Endp_DataUp(DEF_UEP3, (uint8_t*)&key,
+                                              sizeof(KeyboardReport_t),
+                                              DEF_UEP_CPY_LOAD);
+                        } else if (but.pressed1 == Buttons::B9) {
+                            key.Keyboard[0] = 0x40; // F7
+                            for (volatile int i = 0; i < 10000; i++) {}
+                            USBHS_Endp_DataUp(DEF_UEP3, (uint8_t*)&key,
+                                              sizeof(KeyboardReport_t),
+                                              DEF_UEP_CPY_LOAD);
+                        } else if (but.pressed1 == Buttons::B0) {
+                            key.Keyboard[0] = 0x1f; // 2
+                            for (volatile int i = 0; i < 10000; i++) {}
+                            USBHS_Endp_DataUp(DEF_UEP3, (uint8_t*)&key,
+                                              sizeof(KeyboardReport_t),
+                                              DEF_UEP_CPY_LOAD);
+                        } else if (but.pressed1 == Buttons::B10) {
+                            key.Keyboard[0] = 0x1e; // 1
+                            for (volatile int i = 0; i < 10000; i++) {}
+                            USBHS_Endp_DataUp(DEF_UEP3, (uint8_t*)&key,
+                                              sizeof(KeyboardReport_t),
+                                              DEF_UEP_CPY_LOAD);
+                        } else if (but.pressed1 == Buttons::B11) {
+                            key.Keyboard[0] = 0x20; // 3
+                            for (volatile int i = 0; i < 10000; i++) {}
+                            USBHS_Endp_DataUp(DEF_UEP3, (uint8_t*)&key,
+                                              sizeof(KeyboardReport_t),
+                                              DEF_UEP_CPY_LOAD);
+                        } else if (but.pressed1 != Buttons::NONE) {
+                            key.Keyboard[0] = but.pressed1;
+                        }
+                        mustSend0 = true;
                     }
-                    USBHS_Endp_DataUp(DEF_UEP3, (uint8_t*)&key,
-                                      sizeof(KeyboardReport_t),
-                                      DEF_UEP_CPY_LOAD);
+                } else {
+                    if (mustSend0) {
+                        memset(&key, 0, sizeof(KeyboardReport_t));
+                        key.reportId = 0x01;
+                        for (volatile int i = 0; i < 10000; i++) {}
+                        USBHS_Endp_DataUp(DEF_UEP3, (uint8_t*)&key,
+                                          sizeof(KeyboardReport_t),
+                                          DEF_UEP_CPY_LOAD);
+                        mustSend0 = false;
+                    }
                 }
-
             } else {
                 counter++;
             }
@@ -334,14 +356,6 @@ void drawScreenSaver(uint8_t times) {
             for (volatile int i = 0; i < 20000; i++) {}
         }
     }
-}
-
-void drawBat(uint8_t percent) {
-    fig.drawRect(305, 306, 1, 3, Figure::RED);
-    fig.drawRect(306, 307, 0, 4, Figure::RED);
-    fig.drawRect(306, 320, 0, 1, Figure::RED);
-    fig.drawRect(319, 320, 0, 4, Figure::RED);
-    fig.drawRect(306, 320, 3, 4, Figure::RED);
 }
 
 void setRamSize(uint32_t size) {
