@@ -110,11 +110,11 @@ int main(void) {
 #if (1)
         if (adcCounter > 5000000) {
             adcCounter = 0;
-            // 3.3 4095 2.1 2574  1.88(3.76 + 2 3.96) = 2200 1.8 = 1989
+            // 3.3 4095 2.1 2574  1.88(3.76 + 2 3.96) = 2200 1.6 = 1769
             // if 2.1 V => 100% if 1.85 V => 0%
             uint16_t tenthVolt = adc.getAdc();
-            static constexpr uint16_t sub = 2574 - 1989;
-            if (tenthVolt > 2574) {
+            static constexpr uint16_t sub = 2500 - 1769;
+            if (tenthVolt > 2500) {
                 batPercent = 100;
             } else if (tenthVolt > 2000) {
                 batPercent = 21 + (100 * (tenthVolt - 2000)) / sub;
