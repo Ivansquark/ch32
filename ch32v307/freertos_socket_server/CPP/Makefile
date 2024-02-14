@@ -40,8 +40,8 @@ lwipBLD = build/lwip/
 #lwipSYSTEM = LWIP/system/
 #///////////////////////////////////
 #OPTIMIZATION = fast
-OPTIMIZATION = s
-#OPTIMIZATION = 0
+#OPTIMIZATION = s
+OPTIMIZATION = 0
 
 
 CFLAGS = -c -Wall -Wextra -g -O$(OPTIMIZATION) \

@@ -1,0 +1,27 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Start debug on CH32V307",
+            "type": "gdb",
+            "request": "attach",
+            "executable": "${workspaceFolder}/build/main.elf",
+            "remote": true,
+            "target": ":3333",
+            "cwd": "${workspaceFolder}",
+            "gdbpath": "/usr/bin/gdb-multiarch",
+            "preLaunchTask": "openocd",
+            "autorun": [
+                "source lib/gdb-svd.py",
+                "svd lib/CH32V307xx.svd",
+                "monitor reset halt",
+                "break main"
+                //"load"
+            ],
+            "postDebugTask": "close openocd"
+        }
+    ]
+}
