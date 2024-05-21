@@ -1,0 +1,25 @@
+{
+    "configurations": 
+    [
+        {
+            "name": "gd_c_cpp_properties",
+            "compilerPath": "/opt/ch32_riscv_gcc/bin/riscv-none-elf-gcc",
+            "includePath": 
+            [
+                "./inc/",
+                "./lib/",
+                "./Peripheral/inc",
+                "./LWIP",
+                "./LWIP/include"
+            ],
+            "defines":
+            [
+                "CH32V307xx"
+            ],
+            "cStandard": "c11",
+            "cppStandard": "c++17",
+            "intelliSenseMode": "gcc-x64"
+        }
+    ],
+    "version": 4
+}

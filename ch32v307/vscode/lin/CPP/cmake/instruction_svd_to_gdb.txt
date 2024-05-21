@@ -1,0 +1,20 @@
+Vim instruction
+1. svd parser for gdb
+https://github.com/posborne/cmsis-svd/tree/master/python
+pip install -U cmsis-svd
+
+2. gdb and svd connecting tool
+git clone https://github.com/1udo6arre/svd-tools
+pip install terminaltables
+
+3. .gdbinit:
+target remote :3333
+source "$PATH_TO_SVD_TOOL"/gdb-svd.py
+svd lib/CH32V307xx.svd
+
+4. set auto-load safe-path / в ~/.gdbinit
+add-auto-load-safe-path /
+
+
+in gdb:
+svd help

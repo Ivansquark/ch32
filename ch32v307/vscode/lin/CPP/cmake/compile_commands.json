@@ -1,0 +1,9 @@
+[
+    {
+        "command": "/opt/ch32_riscv_gcc/bin/riscv-none-embed-g++",
+        "arguments": ["-std=C++17", "-Wall", "-I./", "${file}"],
+        "directory": "${fileDirname}",
+        "file": "${file}",
+        "output": "${fileBasenameNoExtension}"
+    }
+]
