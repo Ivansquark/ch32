@@ -1,0 +1,18 @@
+g++
+%c  -std=c11
+%h %cpp -std=c++17
+%h -x
+%h c++-header
+%h %hpp --include=Base.h
+-Iinc/
+-Ilib/
+-IPeripheral/inc/
+-isystem/opt/ch32_riscv_gcc/riscv-none-embed/
+-isystem/opt/ch32_riscv_gcc/riscv-none-embed/include/
+-isystem/opt/ch32_riscv_gcc/riscv-none-embed/include/c++/8.2.0/
+
+
+#%cpp -stdlib=libc++
+#--gcc-toolchain=/opt/ch32_riscv_gcc
+#--target=riscv32
+#clang++
