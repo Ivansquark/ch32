@@ -27,11 +27,11 @@ void But::interruptHandler() {
         But::but1Counter = 0;
     }
     if (But::getBut2()) {
-        if (But::but1Counter >= BOUNCE_TIME_MS) {
-            But::but1Counter = 0;
+        if (But::but2Counter >= BOUNCE_TIME_MS) {
+            But::but2Counter = 0;
             But::IsBut2 = true;
         } else {
-            But::but1Counter++;
+            But::but2Counter++;
         }
     } else {
         But::IsBut2 = false;

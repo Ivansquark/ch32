@@ -24,7 +24,7 @@ perSRC = Peripheral/src/
 #OPTIMIZATION = fast
 #OPTIMIZATION = s
 #OPTIMIZATION = 1
-#OPTIMIZATION = 0
+OPTIMIZATION = 0
 #///////////////////////////////////
 CFLAGS = -c -Wall -Wextra -g -O$(OPTIMIZATION) -march=rv32ec -mabi=ilp32e \
 		-fno-pic -fno-common \
