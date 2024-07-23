@@ -1,0 +1,22 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Cortex Debug",
+            "type": "cortex-debug",
+            "request": "launch",
+            "executable": "./build/main.elf",
+            "cwd": "${workspaceFolder}",
+            "servertype": "openocd",
+            "gdbPath": "/usr/bin/gdb-multiarch",            
+            //"gdbPath": "/opt/ch32_riscv_gcc/bin/riscv-none-embed-gdb",
+            //"showDevDebugOutput": "raw",
+            //"toolchainPrefix": "riscv-none-embed",
+            "runToEntryPoint": "main",            
+            "configFiles": [
+                "lib/wch-riscv_new.cfg"
+            ],
+            "svdFile": "./lib/CH32V003xx.svd"            
+        }
+    ]
+}
