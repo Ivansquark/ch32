@@ -1,0 +1,20 @@
+{
+    "cortex-debug.openocdPath": "/opt/openocd_wch/bin/openocd",
+    "cortex-debug.objdumpPath.linux": "/opt/ch32_riscv_gcc/bin/riscv-none-embed-objdump",
+    "files.associations": {
+        "map": "cpp",
+        "string": "cpp"
+    }
+}
+
+//{
+//    "makefile.extensionOutputFolder": "./.vscode",
+// {"cortex-debug.openocdPath": "/opt/openocd/bin/openocd",
+//     //"cortex-debug.gdbPath.linux": "gdb-multiarch",
+//     "cortex-debug.gdbPath.linux": "/opt/ch32_riscv_gcc/bin/riscv-none-embed-gdb",
+//     "cortex-debug.objdumpPath.linux": "/opt/ch32_riscv_gcc/bin/riscv-none-embed-objdump",
+//     "cortex-debug.openocdPath.windows": "C:\\openocd-wch\\bin\\swch-openocd",
+//     "cortex-debug.gdbPath.windows": "C:\\xpack-riscv-none-embed-gcc-10.2.0-1.2\\bin\\riscv-none-embed-gdb",
+//     "cortex-debug.objdumpPath.windows": "C:\\xpack-riscv-none-embed-gcc-10.2.0-1.2\\bin\\riscv-none-embed-objdump",    
+//     "cortex-debug.registerUseNaturalFormat": false
+// }

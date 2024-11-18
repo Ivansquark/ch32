@@ -1,0 +1,36 @@
+%compile_commands.json
+#gcc
+#--gcc-toolchain=/opt/ch32_riscv_gcc_12
+#--gcc-toolchain=/usr
+#-target rv32ec
+%h -x
+%h c++-header
+%c -std=c11
+%cpp -std=c++23
+%h %hpp --include=base.h
+-Iinc/
+-Ilib/
+-IPeripheral/inc/
+-isystem/opt/ch32_riscv_gcc_12/riscv-none-elf/
+-isystem/opt/ch32_riscv_gcc_12/riscv-none-elf/include/
+-isystem/opt/ch32_riscv_gcc_12/riscv-none-elf/include/c++/12.2.0/
+-isystem/usr/include/c++/13/
+-isystem/usr/include/
+-Wall
+-Wextra
+-Wwrite-strings
+-Wshadow
+-Wdeclaration-after-statement
+-Wbad-function-cast
+-Wformat-security
+-Wtype-limits
+-Wunused-but-set-parameter
+-Wlogical-op
+-Wpointer-arith
+-Wignored-qualifiers
+-Wformat-signedness
+-Wduplicated-cond
+-Wno-volatile
+-Wno-maybe-uninitialized
+-fsanitize=undefined
+

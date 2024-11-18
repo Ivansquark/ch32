@@ -36,7 +36,7 @@ int main(void) {
     // x = nullptr;
     char* x = new char[0x10];
     x[0] = 1;
-    std::pair<const int, int> pa{1, 2};
+    std::pair<const int, int> pa{1,2};
     pa.second = 0;
     std::string str("opa");
     str.at(0) = 'o';

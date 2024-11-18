@@ -177,8 +177,7 @@ void receive_task(__attribute__((unused)) void* pvParameters)
     }
 }
 
-enum ParseState
-{
+enum ParseState {
     NOT,
     GET_HTML,
     GET_ICO,
@@ -317,3 +316,4 @@ enum ParseState parse(const uint8_t* data, uint16_t len)
     }
     return NOT;
 }
+
