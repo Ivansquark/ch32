@@ -4,7 +4,7 @@
 # gdb-multiarch --version:	===	GNU gdb 10.1.90.20210103
 # Open On-Chip Debugger:	
 # openocd --version === Open On-Chip Debugger 0.11.0 (2021-10-07-10:32)
-.PHONY: all clean load erase reset load_gdb
+.PHONY: all clean load load_new erase reset load_gdb
 #_________________________ GCC compilator commands ____________________________
 GCC_PATH = /opt/ch32_riscv_gcc/bin/riscv-none-embed
 CC = $(GCC_PATH)-gcc
@@ -178,6 +178,11 @@ clean:
 load:	$(BLD)main.bin
 	/opt/openocd/bin/openocd -s /usr/local/share/openocd/scripts \
 	-f lib/wch-riscv.cfg -c init -c halt \
+	-c "flash erase_sector wch_riscv 0 last" \
+	-c init -c halt -c "program $(BLD)main.bin verify exit"
+load_new:	$(BLD)main.bin
+	/opt/openocd_wch/bin/openocd -s /usr/local/share/openocd/scripts \
+	-f lib/wch-riscv_new.cfg -c init -c halt \
 	-c "flash erase_sector wch_riscv 0 last" \
 	-c init -c halt -c "program $(BLD)main.bin verify exit"
 # must be boot0 to map flash from 0 to 0x08000000

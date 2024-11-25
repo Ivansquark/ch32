@@ -17,8 +17,8 @@ function_to_fork2() {
     echo "+---------------------------------------------------+"
     echo "|              ***  OPENOCD   ***                   |"
     echo "+---------------------------------------------------+"
-    "/opt/openocd/bin/openocd" "-c" "gdb_port 3333" \
-    "-s" "/opt/openocd/share/openocd/scripts" "-f" "./lib/wch-riscv.cfg"
+    "/opt/openocd_wch/bin/openocd" "-c" "gdb_port 3333" \
+    "-s" "/opt/openocd/share/openocd/scripts" "-f" "./lib/wch-riscv_new.cfg"
     echo "+---------------------------------------------------+"
     echo "|         ***  OPENOCD  CLOSED ***                  |"
     echo "+---------------------------------------------------+"

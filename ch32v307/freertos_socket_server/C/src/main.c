@@ -38,8 +38,11 @@ void udp_task(__attribute__((unused)) void* pvParameters);
 void tcp_task(__attribute__((unused)) void* pvParameters);
 void http_task(void* pvParameters);
 
+void setRamSize(uint32_t size);
 int main(void)
 {
+
+    //setRamSize(0x20000);
     //-------------- inits -------------------------
     Rcc_init(8);
     gpio_init();
@@ -67,7 +70,7 @@ int main(void)
                 (uint16_t)TASK_HTTP_STK_SIZE, (void*)NULL,
                 (UBaseType_t)TASK_HTTP_TASK_PRIO,
                 (TaskHandle_t*)&TaskTcp_Handler);
-    /* add queues, ... */
+    // add queues, ... 
     queue1 = xQueueCreate(10, sizeof(uint32_t));
 
     vTaskStartScheduler();
@@ -155,10 +158,11 @@ void tcp_task(__attribute__((unused)) void* pvParameters)
             close(con_sock);
             // vTaskDelete(NULL); // Should delete this connection handler
         } else if (con_sock > 0) {
-            xTaskCreate((TaskFunction_t)http_task, (const char*)"http_task",
-                        (uint16_t)TASK_HTTP_STK_SIZE, (void*)&con_sock,
-                        (UBaseType_t)tskIDLE_PRIORITY, NULL);
+             xTaskCreate((TaskFunction_t)http_task, (const char*)"http_task",
+                         (uint16_t)TASK_HTTP_STK_SIZE, (void*)&con_sock,
+                         (UBaseType_t)tskIDLE_PRIORITY, NULL);
             //(TaskHandle_t*)&TaskHttp_Handler);
+            //http_task(&con_sock);
         } else {
             // con_sock == 0
             // close(con_sock);
@@ -192,7 +196,8 @@ void http_task(void* pvParameters)
 {
     int con_sock = *(int*)pvParameters;
     while (1) {
-        int len = lwip_recv(con_sock, recv_buf, RECV_BUF_SIZE, 0);
+        //int len = lwip_recv(con_sock, recv_buf, RECV_BUF_SIZE, 0);
+        int len = read(con_sock, recv_buf, RECV_BUF_SIZE);
         if (len > 0) {
             switch (parse((const uint8_t*)recv_buf, 7)) {
             case NOT:
@@ -278,7 +283,7 @@ void http_task(void* pvParameters)
             close(con_sock);
             vTaskDelete(NULL);
         }
-        gpio_toggleBlue();
+        //gpio_toggleBlue();
         vTaskDelay(1);
     }
 }
@@ -317,3 +322,59 @@ enum ParseState parse(const uint8_t* data, uint16_t len)
     return NOT;
 }
 
+void setRamSize(uint32_t size)
+{
+#define FLASH_KEY1 ((uint32_t)0x45670123)
+#define FLASH_KEY2 ((uint32_t)0xCDEF89AB)
+    //----- OPTION BYTE PROGRAMMING FOR CHANGE RAM SIZE -----------------------
+    FLASH->KEYR = FLASH_KEY1;
+    FLASH->KEYR = FLASH_KEY2;
+    while (FLASH->STATR & FLASH_STATR_BSY) {}
+    FLASH->OBKEYR = FLASH_KEY1;
+    FLASH->OBKEYR = FLASH_KEY2;
+    while (FLASH->STATR & FLASH_STATR_BSY) {}
+    uint16_t pbuf[8] = {0};
+    // write 0:0 RAM=128Kb CODE=192Kb
+    uint8_t Data = 0;
+    switch (size) {
+    case 0x8000:
+        // write 1:1 RAM=32Kb CODE=288Kb
+        Data = 0xDF; // 1:1:0:1:1:1:1:1
+        break;
+    case 0x10000:
+        // write 1:0 RAM=64Kb CODE=192Kb
+        Data = 0x9F; // 1:0:0:1:1:1:1:1
+        break;
+    case 0x18000:
+        // write 0:1 RAM=96Kb CODE=224Kb
+        Data = 0x5F; // 0:1:0:1:1:1:1:1
+        break;
+    case 0x20000:
+        // write 0:0 RAM=128Kb CODE=192Kb
+        Data = 0x1F; // 0:0:0:1:1:1:1:1
+        break;
+    default:
+        Data = 0x9F;
+        break;
+    }
+    /* Read optionbytes */
+    for (int i = 0; i < 8; i++) {
+        pbuf[i] = *(uint16_t*)(0x1FFFF800 + 2 * i);
+    }
+    /* Erase optionbytes */
+    FLASH->CTLR |= FLASH_CTLR_OPTER;
+    FLASH->CTLR |= FLASH_CTLR_STRT;
+    while (FLASH->STATR & FLASH_STATR_BSY) {}
+    FLASH->CTLR &= ~FLASH_CTLR_OPTER;
+    // Write optionbytes RAM
+    pbuf[((0x1FFFF802 - 0x1FFFF800) / 2)] =
+        ((((uint16_t) ~(Data)) << 8) | ((uint16_t)Data));
+
+    FLASH->CTLR |= FLASH_CTLR_OPTPG;
+    for (int i = 0; i < 8; i++) {
+        *(uint16_t*)(0x1FFFF800 + 2 * i) = pbuf[i];
+        while (FLASH->STATR & FLASH_STATR_BSY) {}
+    }
+    FLASH->CTLR &= ~FLASH_CTLR_OPTPG;
+    // FLASH->CTLR |= FLASH_CTLR_LOCK;
+}
